@@ -5,6 +5,7 @@ import {InvoicesList} from "./src/components/invoices-list.tsx";
 import {InvoiceCreateView} from "./src/components/invoice-create-view.tsx";
 import {InvoiceDetails} from "./src/components/invoice-details.tsx";
 import {InvoicePreview} from "./src/components/invoice-preview.tsx";
+import {SettingsView} from "./src/components/settings-view.tsx";
 
 export const HomeRoute = {
     url: ROUTES.HOME,
@@ -34,4 +35,9 @@ export const InvoiceRoute = {
 export const InvoicePreviewRoute = {
     url: ROUTES.INVOICE_PREVIEW,
     component: InvoicePreview
+}
+
+export const SettingsRoute = {
+    url: ROUTES.SETTINGS,
+    component: SettingsView
 }

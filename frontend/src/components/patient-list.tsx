@@ -6,7 +6,8 @@ import type { Patient } from "../api";
 import { Dialog } from "primereact/dialog";
 import { PatientForm } from "./patient-form.tsx";
 import { InputText } from "primereact/inputtext";
-import { PatientTable } from "./patient-table"; // Import Table
+import { PatientTable } from "./patient-table";
+import {Header} from "./header.tsx"; // Import Table
 
 export const PatientList: React.FC = () => {
     const [visible, setVisible] = React.useState(false);
@@ -35,7 +36,7 @@ export const PatientList: React.FC = () => {
     return (
         <div className="flex-column">
             <div className="flex justify-content-between">
-                <h1 className="text-4xl">Patienten</h1>
+                <Header title="Patienten"/>
                 <div className="flex align-items-center gap-2">
                     <Button onClick={() => { setSelectedPatient(null); setVisible(true); }} icon="pi pi-plus" label="Neuer Patient" className="p-button-rounded" />
                     <InputText value={search} placeholder="Suche..." onChange={(e) => setSearch(e.target.value)} style={{ minWidth: "20vw" }} />

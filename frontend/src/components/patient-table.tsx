@@ -44,8 +44,11 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
             />
             {!isPreview &&
                 <Column
+                    alignHeader="right"
                     body={(e: Patient) => (
-                        <Button onClick={() => onEdit(e)} icon="pi pi-pencil" label="Bearbeiten" className="p-button-rounded" />
+                        <div className="flex justify-content-end">
+                            <Button onClick={() => onEdit(e)} icon="pi pi-pencil" className="p-button-rounded" />
+                        </div>
                     )}
                     header="Aktionen"
                 />

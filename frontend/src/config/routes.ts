@@ -4,5 +4,6 @@ export const ROUTES = {
     INVOICES : "/invoices",
     INVOICE_CREATE : "/invoices/create",
     INVOICE : "/invoices/:id",
-    INVOICE_PREVIEW : "/invoices/:id/pdf"
+    INVOICE_PREVIEW : "/invoices/:id/pdf",
+    SETTINGS : "/settings"
 } as const;

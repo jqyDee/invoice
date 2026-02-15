@@ -9,7 +9,7 @@ import {
     InvoicePreviewRoute,
     InvoiceRoute,
     InvoicesRoute,
-    PatientsRoute
+    PatientsRoute, SettingsRoute
 } from "../routes.ts";
 import {MainLayout} from "./components/main-layout.tsx";
 import {ToastProvider} from "./contexts/toast.tsx";
@@ -37,6 +37,7 @@ const App: React.FC = () => {
                                 <Route path={InvoicesRoute.url} Component={InvoicesRoute.component} />
                                 <Route path={InvoiceCreateRoute.url} Component={InvoiceCreateRoute.component} />
                                 <Route path={InvoiceRoute.url} Component={InvoiceRoute.component} />
+                                <Route path={SettingsRoute.url} Component={SettingsRoute.component} />
                             </Route>
 
                             {/* Preview Page - No Card, but still has Navbar */}

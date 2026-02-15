@@ -6,7 +6,8 @@ import { InputText } from "primereact/inputtext";
 import { InputSwitch } from "primereact/inputswitch";
 import { InvoiceTable } from "./invoice-table";
 import {useNavigate} from "react-router-dom";
-import {ROUTES} from "../config/routes.ts"; // Import Table
+import {ROUTES} from "../config/routes.ts";
+import {Header} from "./header.tsx"; // Import Table
 
 interface InvoicesListProps {
     onlyDrafts?: boolean;
@@ -35,7 +36,7 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({ onlyDrafts }) => {
     return (
         <div className="flex-column">
             <div className="flex justify-content-between">
-                <h1 className="text-4xl">Rechnungen</h1>
+                <Header title="Rechnungen"/>
                 <div className="flex gap-2 align-items-center">
                     <label>Entwürfe anzeigen</label>
                     <InputSwitch checked={showDrafts} onChange={(e) => setShowDrafts(e.value)} />

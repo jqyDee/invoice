@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getPatientsPatientsGetOptions, getInvoicesInvoicesGetOptions } from "../api/@tanstack/react-query.gen.ts";
 import { PatientTable } from './patient-table';
 import { InvoiceTable } from './invoice-table';
+import {Header} from "./header.tsx";
 
 export const Homepage: React.FC = () => {
     const { data: patients, isLoading: patientsLoading } = useQuery(getPatientsPatientsGetOptions());
@@ -16,12 +17,12 @@ export const Homepage: React.FC = () => {
     return (
         <div className="flex flex-column gap-4">
             <section>
-                <h2 className="text-3xl mb-2">Aktuelle Entwürfe</h2>
+                <Header title="Aktuelle Entwürfe"/>
                 <InvoiceTable invoices={drafts} isLoading={draftsLoading} />
             </section>
 
             <section>
-                <h2 className="text-3xl mb-2">Patientenübersicht</h2>
+                <Header title="Patientenübersicht"/>
                 <PatientTable patients={patients} isPreview={true} isLoading={patientsLoading} onEdit={() => {}} />
             </section>
         </div>

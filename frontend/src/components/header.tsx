@@ -6,6 +6,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title }) => {
     return (
-        <h2 className="text-3xl mb-3">{title}</h2>
+        <h1 className="mb-3">{title}</h1>
     )
 }
