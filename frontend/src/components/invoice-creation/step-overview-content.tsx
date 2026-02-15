@@ -41,7 +41,6 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({
 
             {isKG && (
                 <>
-                    <Header title="Behandlungstermine"/>
                     <InvoiceCalendar dates={dates} onChange={() => {}}/>
                 </>
             )}

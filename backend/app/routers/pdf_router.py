@@ -1,3 +1,6 @@
+import logging
+import os
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import joinedload
@@ -10,7 +13,7 @@ from ..services.pdf_service import regenerate_invoice_pdf
 
 router = APIRouter(prefix="/pdf", tags=["pdf"])
 
-# pdf's will be saved by invoice_number.
+logger = logging.getLogger('uvicorn.error')
 
 @router.get("/{invoice_id}")
 def get_pdf_invoice(
@@ -31,14 +34,19 @@ def get_pdf_invoice(
     if not invoice:
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
 
+    pdf_path = CACHE_DIR / f"{invoice.invoice_number}.pdf"
+
     if (
-            invoice.pdf_generated_at is None
+            not os.path.exists(pdf_path)
+            or invoice.pdf_generated_at is None
             or invoice.pdf_generated_at < invoice.updated_at
     ):
+        # TODO: Remove this logging statement
+        logger.debug("Regenerating PDF")
         regenerate_invoice_pdf(invoice, settings, db)
 
     return FileResponse(
-        path= CACHE_DIR / f"{invoice.invoice_number}.pdf",
+        path= pdf_path,
         filename=f"{invoice.invoice_number}.pdf",
         content_disposition_type="inline",
         media_type='application/pdf'

@@ -129,10 +129,6 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({
         </div>
     );
 
-    const dateCount = () => {
-        return "(" + dates.length + "/10)"
-    }
-
     return (
         <div className="flex flex-column gap-4">
             {/* Gemeinsamer Dialog für KG und HP */}
@@ -152,7 +148,6 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({
 
             {isKG && (
                 <div className="col-12">
-                    <Header title={"Behandlungsdaten " + dateCount()} />
                     <InvoiceCalendar dates={dates} onChange={(e) => setDates(e.value as Date[])}/>
                 </div>
             )}

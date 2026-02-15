@@ -55,8 +55,12 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
             />
             <Column
                 header="Aktionen"
+                alignHeader="right"
                 body={(e: Invoice) => (
-                    <Button onClick={() => navigate(ROUTES.INVOICE.replace(':id', e.invoice_id.toString()))} icon="pi pi-info-circle" label="Details" className="p-button-rounded" />
+                    <div className="flex gap-2 justify-content-end">
+                        <Button onClick={() => navigate(ROUTES.INVOICE.replace(':id', e.invoice_id.toString()))} icon="pi pi-info-circle" className="p-button-rounded" />
+                        <Button onClick={() => navigate(ROUTES.INVOICE_PREVIEW.replace(':id', e.invoice_id.toString()))} icon="pi pi-file-pdf" className="p-button-rounded" />
+                    </div>
                 )}
             />
         </DataTable>

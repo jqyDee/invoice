@@ -1,5 +1,6 @@
 import {Calendar} from "primereact/calendar";
 import React from "react";
+import {Header} from "../header.tsx";
 
 interface InvoiceCalendarProps {
     dates: Date[];
@@ -7,15 +8,22 @@ interface InvoiceCalendarProps {
 }
 
 export const InvoiceCalendar: React.FC<InvoiceCalendarProps> = ({dates, onChange}) => {
+    const dateCount = () => {
+        return "(" + dates.length + "/10)"
+    }
+
     return (
-        <Calendar
-            value={dates}
-            onChange={onChange}
-            selectionMode="multiple"
-            maxDateCount={10}
-            inline
-            showWeek
-            className="w-full"
-        />
+        <>
+            <Header title={"Behandlungstermine " + dateCount()} />
+            <Calendar
+                value={dates}
+                onChange={onChange}
+                selectionMode="multiple"
+                maxDateCount={10}
+                inline
+                showWeek
+                className="w-full"
+            />
+        </>
     )
 }
