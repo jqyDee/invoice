@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 src/api
+openapi.json
 .vite/
 *.tsbuildinfo
