@@ -1,7 +1,9 @@
 .DS_Store
 
 # Backend
+.venv/
 backend/venv/
+backend/.venv/
 backend/cache/
 backend/temp/
 backend/data/
