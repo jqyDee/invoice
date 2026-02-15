@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      args:
+        ENV: production
+    container_name: backend
+    volumes:
+      # This might need to be changed to a different folder
+      - ./backend/data:/app/data # DB dir
+      - ./backend/cache:/app/cache # PDF Cache dir
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: ./frontend
+      target: prod
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"

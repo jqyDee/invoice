@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      args:
+        ENV: development
+    container_name: backend
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+      - ./backend/cache:/app/cache
+      - ./backend/assets:/app/assets
+      - ./backend/temp:/app/temp
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    container_name: frontend
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/openapi.json:/app/openapi.json
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/routes.ts:/app/routes.ts
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/package-lock.json:/app/package-lock.json
+    ports:
+      - "5173:5173"
