@@ -1,0 +1,20 @@
+@import "primeicons/primeicons.css";
+
+.custom-no-buttons .p-orderlist-list {
+    border-radius: 4px !important;
+    border: 1px solid #dee2e6 !important;
+    overflow: hidden;
+}
+
+.custom-no-buttons .p-orderlist-controls {
+    display: none !important;
+}
+
+.custom-no-buttons .p-orderlist-list-container {
+    width: 100% !important;
+}
+
+.custom-no-buttons .p-orderlist-header {
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+}

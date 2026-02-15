@@ -1,0 +1,13 @@
+.DS_Store
+
+# Backend
+backend/venv/
+backend/cache/
+backend/temp/
+backend/data/
+backend/.env
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
