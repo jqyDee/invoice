@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import HTTPException
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 
 from ..models import InvoiceDB, InvoiceDateDB, InvoiceItemDB, InvoiceType, PatientDB
@@ -9,6 +10,19 @@ from ..schemas import InvoiceCreate, InvoiceItemCreate, InvoiceDateCreate
 ADDITIONAL_KG_ITEMS: list[InvoiceItemCreate] = [
     InvoiceItemCreate(description="Anamnese & Befunderhebung", quantity=1, amount=0.0),
 ]
+
+
+def load_invoice(invoice_id: int, db: Session) -> InvoiceDB:
+    invoice: Optional[InvoiceDB] = db.query(InvoiceDB).options(
+        joinedload(InvoiceDB.patient),
+        joinedload(InvoiceDB.items),
+        joinedload(InvoiceDB.dates)
+    ).filter(InvoiceDB.invoice_id == invoice_id).first()
+
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
+
+    return invoice
 
 
 def create_invoice_logic(

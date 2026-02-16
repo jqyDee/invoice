@@ -15,10 +15,22 @@ class InvoiceBase(BaseModel):
     type: InvoiceType
     diagnosis: Optional[str] = None
 
+
 class InvoiceCreate(InvoiceBase):
-    # When creating, we send the list of items along with it
     items: List[InvoiceItemCreate]
     dates: Optional[List[InvoiceDateCreate]] = None
+
+
+class InvoiceUpdate(BaseModel):
+    patient_id: Optional[int] = None
+    is_draft: Optional[bool] = None
+    invoice_date: Optional[date] = None
+    type: Optional[InvoiceType] = None
+    diagnosis: Optional[str] = None
+
+    items: Optional[List[InvoiceItemCreate]] = None
+    dates: Optional[List[InvoiceDateCreate]] = None
+
 
 class Invoice(InvoiceBase):
     invoice_id: int
@@ -29,7 +41,6 @@ class Invoice(InvoiceBase):
     updated_at: datetime
 
     total: float
-    # Nested list of items for the response
     items: List[InvoiceItem] = []
     dates: List[InvoiceDate]
     patient: Patient

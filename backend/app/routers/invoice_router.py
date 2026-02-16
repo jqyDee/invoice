@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from ..utilities.database import get_db, add_db
 from ..models import InvoiceDB
 from ..schemas import Invoice, InvoiceCreate
-from ..services.invoice_service import create_invoice_logic
+from ..services.invoice_service import create_invoice_logic, load_invoice
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
@@ -32,10 +32,10 @@ def get_invoices(
 
 @router.get("/{invoice_id}", response_model=Invoice)
 def get_invoice(
-        invoice_id: str,
+        invoice_id: int,
         db: Session = Depends(get_db)
 ):
-    return db.query(InvoiceDB).get(invoice_id)
+    return load_invoice(invoice_id, db)
 
 
 @router.post("/", response_model=Invoice)
@@ -48,11 +48,10 @@ def create_invoice(
 
 @router.delete("/{invoice_id}", response_model=Invoice)
 def delete_invoice(
-        invoice_id: str,
+        invoice_id: int,
         db: Session = Depends(get_db)
 ):
-    db_invoice = db.query(InvoiceDB).options(joinedload(InvoiceDB.patient)).filter(
-        InvoiceDB.invoice_id == invoice_id).first()
+    db_invoice = load_invoice(invoice_id, db)
 
     if not db_invoice:
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")

@@ -1,11 +1,20 @@
+from typing import Optional
+
 from pydantic import BaseModel
 from datetime import date
+
 
 class InvoiceDateBase(BaseModel):
     date: date
 
+
 class InvoiceDateCreate(InvoiceDateBase):
     pass
+
+
+class InvoiceDateUpdate(InvoiceDateCreate):
+    date_id: Optional[int] = None
+
 
 class InvoiceDate(InvoiceDateBase):
     date_id: int

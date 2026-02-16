@@ -7,9 +7,10 @@ import {useNavigate, useParams} from "react-router-dom";
 import React from "react";
 import {StepOverviewContent} from "./invoice-creation/step-overview-content.tsx";
 import {Button} from "primereact/button";
-import {useGlobalToast} from "../contexts/toast.tsx";
 import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
 import {ROUTES} from "../config/routes.ts";
+import {enforceNonNull} from "../utilities/enforce-non-null.ts";
+import {useGlobalToast} from "../hooks/use-global-toast.ts";
 
 export const InvoiceDetails: React.FC = () => {
     const {id} = useParams();
@@ -17,9 +18,9 @@ export const InvoiceDetails: React.FC = () => {
     const {showToast} = useGlobalToast();
     const navigate = useNavigate();
 
-    if (!id) {
-        return <span>Rechnung konnte nicht geladen werden!</span>
-    }
+    const {data: invoice} = useQuery(getInvoiceInvoicesInvoiceIdGetOptions({
+        path: {invoice_id: parseInt(enforceNonNull(id))}
+    }));
 
     const deleteMutation = useMutation({
         ...deleteInvoiceInvoicesInvoiceIdDeleteMutation(),
@@ -32,9 +33,9 @@ export const InvoiceDetails: React.FC = () => {
         }
     })
 
-    const {data: invoice} = useQuery(getInvoiceInvoicesInvoiceIdGetOptions({
-        path: {invoice_id: id}
-    }));
+    if (!id) {
+        return <span>Rechnung konnte nicht geladen werden!</span>
+    }
 
     if (!invoice) {
         return <span>Rechnung konnte nicht geladen werden!</span>
@@ -42,7 +43,7 @@ export const InvoiceDetails: React.FC = () => {
 
     const accept = async () => {
         await deleteMutation.mutateAsync({
-            path: {invoice_id: invoice.invoice_id.toString()}
+            path: {invoice_id: invoice.invoice_id}
         });
     }
 

@@ -13,7 +13,7 @@ import {
 } from '../api/@tanstack/react-query.gen';
 import {Gender, type HttpValidationError, type Patient, type PatientCreate} from '../api';
 import {confirmDialog, ConfirmDialog} from "primereact/confirmdialog";
-import {useGlobalToast} from "../contexts/toast.tsx";
+import {useGlobalToast} from "../hooks/use-global-toast.ts";
 
 interface PatientFormProps {
     onSuccess?: () => void;

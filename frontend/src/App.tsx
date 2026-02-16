@@ -12,8 +12,8 @@ import {
     PatientsRoute, SettingsRoute
 } from "../routes.ts";
 import {MainLayout} from "./components/main-layout.tsx";
-import {ToastProvider} from "./contexts/toast.tsx";
 import {CardLayout} from "./components/card-layout.tsx";
+import {ToastProvider} from "./contexts/toast-provider.tsx";
 
 const client = new QueryClient({
     defaultOptions: {

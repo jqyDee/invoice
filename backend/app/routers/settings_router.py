@@ -2,8 +2,8 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
-from ..models import SettingsDB
 from ..schemas import Settings, SettingsUpdate
+from ..services.settings_service import load_settings, perform_update_settings
 from ..utilities.database import get_db
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -12,23 +12,16 @@ router = APIRouter(prefix="/settings", tags=["settings"])
 def get_settings(
         db: Session = Depends(get_db)
 ):
-    return db.query(SettingsDB).first()
+    return load_settings(db)
 
 @router.patch("/", response_model=Settings)
 def update_settings(
         settings_update: SettingsUpdate,
         db: Session = Depends(get_db)
 ):
-    db_settings = db.query(SettingsDB).first()
+    db_settings = load_settings(db)
 
-    if db_settings is None:
-        db_settings = SettingsDB(**settings_update.model_dump())
-        db.add(db_settings)
-    else:
-        update_data = settings_update.model_dump()
-        for key, value in update_data.items():
-            setattr(db_settings, key, value)
-
+    perform_update_settings(db_settings, settings_update, db)
     db.commit()
     db.refresh(db_settings)
     return db_settings

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from ..models import PatientDB
 from ..schemas import Patient, PatientCreate
+from ..services.patient_service import load_patient, perform_create_patient, perform_update_patient
 from ..utilities.database import get_db
 
 router = APIRouter(prefix="/patients", tags=["patients"])
@@ -28,23 +29,21 @@ def get_patients(
 
     return query.all()
 
+
 @router.get("/{patient_id}", response_model=Patient)
 def get_patient(
-        patient_id: str,
+        patient_id: int,
         db: Session = Depends(get_db)
 ):
-    return db.query(PatientDB).get(patient_id)
+    return load_patient(patient_id, db)
+
 
 @router.post("/", response_model=Patient)
 def create_patient(
         patient_new: PatientCreate,
         db: Session = Depends(get_db)
 ):
-    db_patient = PatientDB(**patient_new.model_dump())
-    db.add(db_patient)
-    db.commit()
-    db.refresh(db_patient)
-    return db_patient
+    return perform_create_patient(patient_new, db)
 
 
 @router.delete("/{patient_id}", response_model=Patient)
@@ -52,11 +51,7 @@ def delete_patient(
         patient_id: int,
         db: Session = Depends(get_db)
 ):
-    db_patient = db.query(PatientDB).get(patient_id)
-
-    if not db_patient:
-        raise HTTPException(status_code=404 , detail="Patient nicht gefunden")
-
+    db_patient = load_patient(patient_id, db)
     db.delete(db_patient)
     db.commit()
     return db_patient
@@ -68,15 +63,5 @@ def update_patient(
         patient_update: PatientCreate,
         db: Session = Depends(get_db)
 ):
-    db_patient = db.query(PatientDB).filter(PatientDB.patient_id == patient_id).first()
-    if not db_patient:
-        raise HTTPException(status_code=404 , detail="Patient nicht gefunden")
-
-    # Update fields from the form data
-    update_data = patient_update.model_dump()
-    for key, value in update_data.items():
-        setattr(db_patient, key, value)
-
-    db.commit()
-    db.refresh(db_patient)
-    return db_patient
+    db_patient = load_patient(patient_id, db)
+    return perform_update_patient(patient_update, db_patient, db)

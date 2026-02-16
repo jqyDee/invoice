@@ -8,8 +8,8 @@ import {
     updateSettingsSettingsPatchMutation
 } from '../api/@tanstack/react-query.gen';
 import { type SettingsUpdate } from '../api';
-import { useGlobalToast } from "../contexts/toast.tsx";
 import {InputMask} from "primereact/inputmask";
+import {useGlobalToast} from "../hooks/use-global-toast.ts";
 
 export const SettingsForm: React.FC = () => {
     const queryClient = useQueryClient();

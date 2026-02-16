@@ -16,7 +16,7 @@ import {Button} from "primereact/button";
 import {useNavigate} from "react-router-dom";
 import {ROUTES} from "../config/routes.ts";
 import {toLocalDateString} from "../utilities/local-date-string.ts";
-import {useGlobalToast} from "../contexts/toast.tsx";
+import {useGlobalToast} from "../hooks/use-global-toast.ts";
 
 
 export const InvoiceCreateView: React.FC = () => {
@@ -39,7 +39,7 @@ export const InvoiceCreateView: React.FC = () => {
     const [selectedType, setSelectedType] = React.useState<InvoiceType>(InvoiceType.HP);
     const [selectedDates, setSelectedDates] = React.useState<InvoiceDateCreate[]>([]);
     const [selectedItems, setSelectedItems] = React.useState<InvoiceItemCreate[]>([]);
-    const [selectedInvoiceDate, setSelectedInvoiceDate] = React.useState<string>(toLocalDateString(new Date(Date.now())));
+    const [selectedInvoiceDate, setSelectedInvoiceDate] = React.useState<string>(() => toLocalDateString(new Date(Date.now())));
     const [selectedDiagnosis, setSelectedDiagnosis] = React.useState<string>("");
 
     const queryClient = useQueryClient();
