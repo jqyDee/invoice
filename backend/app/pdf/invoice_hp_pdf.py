@@ -1,12 +1,10 @@
 from ..models import InvoiceDB, SettingsDB, Gender
 from ..pdf.invoice_pdf import InvoicePdf
 from ..utilities.config import NORMAL_FONT_SIZE, TREATMENT_FONT_SIZE, RECIPIENT_OFFSET, CACHE_DIR
-from ..schemas import InvoiceItem
 
 
 class InvoiceHp(InvoicePdf):
     """Creates the HP PDF and outputs to given filepath"""
-
 
     def __init__(
             self,
@@ -16,7 +14,7 @@ class InvoiceHp(InvoicePdf):
         super().__init__(invoice, settings, hide_physio=True)
 
         self.set_margins(17, 17, 17)
-        
+
         # Patientdata
         self.label = invoice.patient.label
         self.gender = "Frau" if invoice.patient.gender == Gender.FEMALE else "Mann"
@@ -27,7 +25,7 @@ class InvoiceHp(InvoicePdf):
         self.city = invoice.patient.city
         self.postal_code = invoice.patient.postal_code
         self.birthday = invoice.patient.birthday.strftime("%d.%m.%Y") if invoice.patient.birthday else ""
-        
+
         # Invoicedata
         self.filepath = CACHE_DIR / f"{invoice.invoice_number}.pdf"
 
@@ -47,23 +45,23 @@ class InvoiceHp(InvoicePdf):
         self.treatment_table = [["Datum", "Ziffer", "Art der Behandlung", "Betrag", ""]]
         self.manual_pagebreak = False
 
-        sorted_items: list[InvoiceItem] = sorted(invoice.items, key=lambda x: x.date)
-        for i in sorted_items:
+        for i in invoice.items:
             word_count = len(i.description.split())
-            col_5_content = "\u00a0\n" * word_count
+            col_5_content = "€\n" * word_count
 
             amount_str = f"{i.amount:.2f}".replace(".", ",")
 
-            self.treatment_table.append([i.date.strftime("%d.%m.%y"), str(i.number), i.description, amount_str, col_5_content])
+            self.treatment_table.append(
+                [i.date.strftime("%d.%m.%y") if hasattr(i, "date") else "", str(i.number), i.description, amount_str,
+                 col_5_content])
 
         ## TOTAL TABLE (TABLE 4)
         self.total_table = [
-            ["", "", "Gesamtbetrag:", self.total, "\u00a0"],
+            ["", "", "Gesamtbetrag:", self.total, "€"],
             ["", "", "", "", ""]
         ]
 
         self.create_pages()
-
 
     def create_pages(self):
         """Creates the PDF. Checks also checks for linebreak so content is not
@@ -73,12 +71,12 @@ class InvoiceHp(InvoicePdf):
 
         self.add_page()
 
-        self.set_font("helvetica", size=7)
+        self.set_font("Roboto", size=7)
         self.cell(RECIPIENT_OFFSET)
         self.write(text="Mervi Fischbach - Schulgasse 9 - 86923 Finning")
         self.ln(3)
 
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
         self.cell(RECIPIENT_OFFSET)
         if self.gender == "Mann":
             self.write(text="Herr\n")
@@ -93,7 +91,7 @@ class InvoiceHp(InvoicePdf):
         self.ln(27)
 
         self.cell(175, 0, border=1, center=True)
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
 
         # Table 1
         # ----------------------
@@ -110,18 +108,18 @@ class InvoiceHp(InvoicePdf):
         self.cell(175, 0, border=1, center=True)
         self.ln(5)
 
-        self.set_font("helvetica", style="B", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="B", size=NORMAL_FONT_SIZE)
         if self.gender == "Mann":
             self.cell(25, text="Patient:", align="L")
         elif self.gender == "Frau":
             self.cell(25, text="Patientin:", align="L")
-        self.set_font("helvetica", style="", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="", size=NORMAL_FONT_SIZE)
         self.cell(40, text=f"{self.first_name} {self.last_name}, geb. {self.birthday}")
 
         self.ln(7)
-        self.set_font("helvetica", style="B", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="B", size=NORMAL_FONT_SIZE)
         self.cell(25, text="Diagnose:", align="L")
-        self.set_font("helvetica", style="", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="", size=NORMAL_FONT_SIZE)
         self.multi_cell(135, text=f"{self.diagnosis}")
 
         # offset rendering the main table and the total
@@ -142,7 +140,7 @@ class InvoiceHp(InvoicePdf):
                          f"folgendes Honorar zu berechnen:"
                 )
             dummy.ln(7)
-            dummy.set_font("helvetica", size=TREATMENT_FONT_SIZE)
+            dummy.set_font("Roboto", size=TREATMENT_FONT_SIZE)
 
             # Table 2
             # -----------------
@@ -157,14 +155,7 @@ class InvoiceHp(InvoicePdf):
                 for index1, data_row in enumerate(self.treatment_table):
                     row = table.row()
                     for index2, datum in enumerate(data_row):
-                        if index2 == 4:
-                            dummy.set_font("symbol", size=TREATMENT_FONT_SIZE + 1)
-                            row.cell(datum)
-                            dummy.set_font(
-                                "helvetica", style="", size=TREATMENT_FONT_SIZE
-                            )
-                        else:
-                            row.cell(datum)
+                        row.cell(datum)
 
             dummy.ln(1)
             dummy.cell(175, 0, border=1, center=True)
@@ -186,18 +177,18 @@ class InvoiceHp(InvoicePdf):
                     row = table.row()
                     for index, datum in enumerate(data_row):
                         if index == 4:
-                            dummy.set_font("symbol", "", size=TREATMENT_FONT_SIZE + 1)
+                            dummy.set_font("Roboto", "", size=TREATMENT_FONT_SIZE)
                             row.cell(datum)
                             dummy.set_font(
-                                "helvetica", style="", size=TREATMENT_FONT_SIZE
+                                "Roboto", style="", size=TREATMENT_FONT_SIZE
                             )
                         else:
                             dummy.set_font(
-                                "helvetica", style="B", size=TREATMENT_FONT_SIZE
+                                "Roboto", style="B", size=TREATMENT_FONT_SIZE
                             )
                             row.cell(datum)
                             dummy.set_font(
-                                "helvetica", style="", size=TREATMENT_FONT_SIZE
+                                "Roboto", style="", size=TREATMENT_FONT_SIZE
                             )
 
             man_page_break = False
@@ -225,7 +216,7 @@ class InvoiceHp(InvoicePdf):
                      f"folgendes Honorar zu berechnen:"
             )
         self.ln(7)
-        self.set_font("helvetica", size=TREATMENT_FONT_SIZE)
+        self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
 
         # Table 2
         # -----------------
@@ -241,10 +232,10 @@ class InvoiceHp(InvoicePdf):
                 row = table.row()
                 for index, datum in enumerate(data_row):
                     if index == 4:
-                        self.set_font("symbol", size=TREATMENT_FONT_SIZE + 1)
+                        self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
                         row.cell(datum)
                         self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="", size=TREATMENT_FONT_SIZE
                         )
                     else:
                         row.cell(datum)
@@ -266,10 +257,10 @@ class InvoiceHp(InvoicePdf):
                     row = table.row()
                     for index, datum in enumerate(data_row):
                         if index == 4:
-                            self.set_font("symbol", size=TREATMENT_FONT_SIZE + 1)
+                            self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
                             row.cell(datum)
                             self.set_font(
-                                "helvetica", style="", size=TREATMENT_FONT_SIZE
+                                "Roboto", style="", size=TREATMENT_FONT_SIZE
                             )
                         else:
                             row.cell(datum)
@@ -293,33 +284,27 @@ class InvoiceHp(InvoicePdf):
                 row = table.row()
                 for index, datum in enumerate(data_row):
                     if index == 4:
-                        self.set_font("symbol", "", size=TREATMENT_FONT_SIZE + 1)
+                        self.set_font("Roboto", "", size=TREATMENT_FONT_SIZE)
                         row.cell(datum)
                         self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="", size=TREATMENT_FONT_SIZE
                         )
                     else:
                         self.set_font(
-                            "helvetica", style="B", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="B", size=TREATMENT_FONT_SIZE
                         )
                         row.cell(datum)
                         self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="", size=TREATMENT_FONT_SIZE
                         )
 
         self.ln(3)
 
         with self.offset_rendering() as dummy:
             dummy.write(
-                6.5, text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} "
-            )
-            dummy.set_font("symbol", size=NORMAL_FONT_SIZE + 1)
-            dummy.write(6.5, text="\u00a0 ")
-            dummy.set_font("helvetica", size=NORMAL_FONT_SIZE)
-            dummy.write(
-                6.5,
-                text="innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
-                     "stehendes Konto zu überweisen.",
+                6.5, text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} € "
+                          f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
+                          f"stehendes Konto zu überweisen.",
             )
             dummy.ln(13)
             dummy.write(text="Mit freundlichen Grüßen")
@@ -329,15 +314,12 @@ class InvoiceHp(InvoicePdf):
         if dummy.page_break_triggered:
             self.add_page()
 
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
-        self.write(6.5, text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} ")
-        self.set_font("symbol", size=NORMAL_FONT_SIZE + 1)
-        self.write(6.5, text="\u00a0 ")
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
         self.write(
             6.5,
-            text="innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
-                 "stehendes Konto zu überweisen.",
+            text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} € "
+                 f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
+                 f"stehendes Konto zu überweisen.",
         )
         self.ln(13)
         self.write(text="Mit freundlichen Grüßen")

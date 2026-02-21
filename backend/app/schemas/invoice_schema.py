@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from datetime import date, datetime
 from typing import List, Optional, Union
 
@@ -54,6 +54,13 @@ class Invoice(InvoiceBase):
     user_items: List[InvoiceItemCreate]
     dates: List[InvoiceDate]
     patient: Patient
+
+    @field_validator("default_items", mode="before")
+    @classmethod
+    def extract_default_items(cls, v):
+        if v and hasattr(v[0], "default_item"):
+            return [link.default_item for link in v]
+        return v
 
     class Config:
         from_attributes = True

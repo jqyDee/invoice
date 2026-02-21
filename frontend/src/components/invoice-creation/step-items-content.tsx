@@ -51,13 +51,10 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
 
     const toggleDefault = (id: number) => {
         const currentIds = invoice.default_item_ids || [];
-        console.log(invoice.default_item_ids)
         const nextIds = currentIds.includes(id)
             ? currentIds.filter(i => i !== id)
             : [...currentIds, id];
-        console.log(nextIds)
         onChange({ default_item_ids: nextIds });
-        console.log(invoice.default_item_ids)
     };
 
     const saveUserItem = (itemData: InvoiceItemCreate) => {

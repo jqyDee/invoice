@@ -29,5 +29,10 @@ def get_pdf_invoice(
         path=pdf_path,
         filename=f"{invoice.invoice_number}.pdf",
         content_disposition_type="inline",
-        media_type='application/pdf'
+        media_type='application/pdf',
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        }
     )

@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import DefaultInvoiceItemDB, InvoiceType
-from ..schemas import InvoiceItemCreate
+from ..schemas import InvoiceItemCreate, InvoiceItemUpdate
 from ..schemas.defaultInvoiceItem_schema import DefaultInvoiceItemUpdate, DefaultInvoiceItemCreate
 
 
@@ -53,7 +53,7 @@ def perform_update_default_item(
 
 
 def validate_invoice_item(
-        item: InvoiceItemCreate | DefaultInvoiceItemCreate,
+        item: InvoiceItemCreate | InvoiceItemUpdate | DefaultInvoiceItemCreate,
         inv_type: InvoiceType,
         quantity: int,
         default_item: bool = False

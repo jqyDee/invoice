@@ -10,6 +10,7 @@ FRONTEND_DIR = ROOT_DIR / "frontend"
 DATA_DIR = BASE_DIR / "data"
 
 ASSETS_DIR = BASE_DIR / "assets"
+FONTS_DIR = ASSETS_DIR / "fonts"
 IMAGES_DIR = ASSETS_DIR / "images"
 
 # DIR CREATION

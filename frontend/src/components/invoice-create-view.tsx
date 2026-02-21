@@ -10,7 +10,9 @@ import {
     createInvoiceInvoicesPostMutation,
     getInvoicesInvoicesGetQueryKey,
     getInvoiceInvoicesInvoiceIdGetOptions,
-    updateInvoiceInvoicesInvoiceIdPatchMutation, getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions
+    updateInvoiceInvoicesInvoiceIdPatchMutation,
+    getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
+    getInvoiceInvoicesInvoiceIdGetQueryKey
 } from "../api/@tanstack/react-query.gen.ts";
 import {Header} from "../utilities/header.tsx";
 import {Button} from "primereact/button";
@@ -115,6 +117,13 @@ export const InvoiceCreateView: React.FC = () => {
                     body: invoice as InvoiceCreate
                 });
             }
+
+            await queryClient.invalidateQueries({
+                queryKey: getInvoiceInvoicesInvoiceIdGetQueryKey({
+                    path: {invoice_id: result.invoice_id}
+                })
+            })
+
             navigate(generatePath(ROUTES.INVOICE, { id: result.invoice_id.toString() }));
         } catch (error) {
             showToast({ severity: 'error', summary: 'Fehler', detail: "Speichern fehlgeschlagen" });

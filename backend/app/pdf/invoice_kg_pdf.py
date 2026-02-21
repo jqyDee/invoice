@@ -40,28 +40,27 @@ class InvoiceKg(InvoicePdf):
 
         ## DATES TABLE (TABLE 2)
         self.dates_table = []
-        all_dates = [d.date.strftime("%d.%m.%Y") for d in invoice.dates]
+        all_dates = [d.date.strftime("%d.%m.%Y") for d in sorted(invoice.dates, key=lambda x: x.date)]
         self.dates_table = [all_dates[i:i + 2] for i in range(0, len(all_dates), 2)]
         # here I might need to add a padding element if last row has only 1 element
 
         ## TREATMENT TABLE (TABLE 3)
         self.treatment_table = [["Anzahl", "Art der Behandlung", "Einzelpreis", "Gesamtpreis", ""]]
         # removed Anamnese but this should be in the items anyway
-        sorted_items = sorted(invoice.items, key=lambda x: x.item_id)
         self.treatment_table += [
             [
-                str(item.quantity),
+                str(item.quantity if item.quantity is not None else len(all_dates)),
                 item.description,
                 f"{item.amount:.2f}".replace(".", ","),
-                f"{(item.amount * item.quantity):.2f}".replace(".", ","),
-                "\u00a0"  # Das Symbol-Feld am Ende
+                f"{(item.amount * (item.quantity if item.quantity is not None else len(all_dates))):.2f}".replace(".", ","),
+                "€"  # Das Symbol-Feld am Ende
             ]
-            for item in sorted_items
+            for item in invoice.items
         ]
 
         ## TOTAL TABLE (TABLE 4)
         self.total_table = [
-            ["", "Gesamtbetrag:", self.total, "\u00a0"],
+            ["", "Gesamtbetrag:", self.total, "€"],
             ["", "", "", ""]
         ]
 
@@ -73,12 +72,12 @@ class InvoiceKg(InvoicePdf):
 
         self.add_page()
 
-        self.set_font("helvetica", size=7)
+        self.set_font("Roboto", size=7)
         self.cell(RECIPIENT_OFFSET)
         self.write(text="Mervi Fischbach - Schulgasse 9 - 86923 Finning")
         self.ln(3)
 
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
         self.cell(RECIPIENT_OFFSET)
         if self.gender == "Mann":
             self.write(text="Herr\n")
@@ -93,7 +92,7 @@ class InvoiceKg(InvoicePdf):
         self.ln(24)
 
         self.cell(175, 0, border=1, center=True)
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
         with self.table(
                 borders_layout="NONE",
                 line_height=int(1.5 * self.font_size),
@@ -106,18 +105,18 @@ class InvoiceKg(InvoicePdf):
         self.cell(175, 0, border=1, center=True)
         self.ln(5)
 
-        self.set_font("helvetica", style="B", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="B", size=NORMAL_FONT_SIZE)
         if self.gender == "Mann":
             self.cell(25, text="Patient:", align="L")
         elif self.gender == "Frau":
             self.cell(25, text="Patientin:", align="L")
-        self.set_font("helvetica", style="", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="", size=NORMAL_FONT_SIZE)
         self.cell(40, text=f"{self.first_name} {self.last_name}, geb. {self.birthday}")
         self.ln(7)
 
-        self.set_font("helvetica", style="B", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="B", size=NORMAL_FONT_SIZE)
         self.write(text=f"{self.date_count} Behandlungstermine:")
-        self.set_font("helvetica", style="", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", style="", size=NORMAL_FONT_SIZE)
         self.ln(5)
         with self.table(
                 width=80,
@@ -132,7 +131,7 @@ class InvoiceKg(InvoicePdf):
                     row.cell(datum)
         self.ln(10)
 
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
         if self.gender == "Mann":
             self.write(
                 text=f"Sehr geehrter Herr {self.last_name},\n\n"
@@ -146,7 +145,7 @@ class InvoiceKg(InvoicePdf):
                      f"Honorar zu berechnen:"
             )
         self.ln(7)
-        self.set_font("helvetica", size=TREATMENT_FONT_SIZE)
+        self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
 
         with self.table(
                 cell_fill_color=230,
@@ -158,13 +157,6 @@ class InvoiceKg(InvoicePdf):
             for data_row in self.treatment_table:
                 row = table.row()
                 for index, datum in enumerate(data_row):
-                    if index == 4:
-                        self.set_font("symbol", size=TREATMENT_FONT_SIZE + 1)
-                        row.cell(datum)
-                        self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
-                        )
-                    else:
                         row.cell(datum)
 
         self.ln(1)
@@ -183,38 +175,33 @@ class InvoiceKg(InvoicePdf):
                 for index_2, datum in enumerate(data_row):
                     if index_2 == 1:
                         self.set_font(
-                            "helvetica", style="B", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="B", size=TREATMENT_FONT_SIZE
                         )
                         row.cell(datum, colspan=2)
                         self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="", size=TREATMENT_FONT_SIZE
                         )
                     elif index_2 == 3:
-                        self.set_font("symbol", "", size=TREATMENT_FONT_SIZE + 1)
-                        row.cell(datum)
                         self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="", size=TREATMENT_FONT_SIZE
                         )
+                        row.cell(datum)
                     else:
                         self.set_font(
-                            "helvetica", style="B", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="B", size=TREATMENT_FONT_SIZE
                         )
                         row.cell(datum)
                         self.set_font(
-                            "helvetica", style="", size=TREATMENT_FONT_SIZE
+                            "Roboto", style="", size=TREATMENT_FONT_SIZE
                         )
 
         self.ln(0)
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
-        self.write(6.5, text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} ")
-        self.set_font("symbol", size=NORMAL_FONT_SIZE + 1)
-        self.write(6.5, text="\u00a0 ")
-        self.set_font("helvetica", size=NORMAL_FONT_SIZE)
-        self.write(
-            6.5,
-            text="innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf "
-                 "unten stehendes Konto zu überweisen.",
-        )
+        self.set_font("Roboto", size=NORMAL_FONT_SIZE)
+        self.write(6.5,
+                   text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} € "
+                        f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf "
+                        f"unten stehendes Konto zu überweisen.",
+                   )
         self.ln(13)
         self.write(text="Mit freundlichen Grüßen")
         self.ln(7)

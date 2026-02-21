@@ -1,6 +1,7 @@
 import React, {useMemo} from "react";
 import {InvoiceItemTable} from "../invoice/invoice-item-table.tsx";
 import {
+    type Invoice,
     type InvoiceCreate, type InvoiceItemCreate, InvoiceType, type InvoiceUpdate
 } from "../../api";
 import {InvoiceCalendar} from "../invoice/invoice-calendar.tsx";
@@ -17,7 +18,7 @@ import {
 import {enforceNonNull} from "../../utilities/enforce-non-null.ts";
 
 interface StepOverviewProps {
-    invoice: InvoiceCreate | InvoiceUpdate;
+    invoice: Invoice | InvoiceCreate | InvoiceUpdate;
     header?: React.ReactNode;
     footer?: React.ReactNode;
 }
@@ -28,27 +29,32 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
     const { data: patients } = useQuery(getPatientsPatientsGetOptions());
     const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
 
-    // 2. Fetch default items to map IDs back to full objects for display
     const { data: allDefaults } = useQuery(getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
         query: { invoice_type: invoice.type }
     }));
 
+
     const displayItems = useMemo(() => {
-        if (!allDefaults) return invoice.user_items || [];
+        if ('items' in invoice && invoice.items) {
+            return invoice.items;
+        }
 
-        const activeDefaults = allDefaults.filter(d =>
-            invoice.default_item_ids?.includes(d.default_item_id)
-        );
+        const userItems = invoice.user_items || [];
+        const defaultIds = 'default_item_ids' in invoice ? (invoice.default_item_ids || []) : [];
 
-        const prepend = activeDefaults.filter(d =>
-            d.position === "PREPEND" || d.position === "BOTH"
-        );
-        const append = activeDefaults.filter(d =>
-            d.position === "APPEND" || d.position === "BOTH"
-        );
+        if (!allDefaults || defaultIds.length === 0) {
+            return userItems;
+        }
 
-        return [...prepend, ...(invoice.user_items || []), ...append];
+        const activeDefaults = allDefaults.filter(d => defaultIds.includes(d.default_item_id));
+
+        const prepend = activeDefaults.filter(d => d.position === "PREPEND" || d.position === "BOTH");
+        const append = activeDefaults.filter(d => d.position === "APPEND" || d.position === "BOTH");
+
+        return [...prepend, ...userItems, ...append];
     }, [invoice, allDefaults]);
+
+    console.log(displayItems)
 
     const standardizedItems: InvoiceItemCreate[] = displayItems.map((item) => {
         const dateCount = invoice.dates?.length || 1;
@@ -74,12 +80,10 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
 
     return (
         <div className="flex flex-column gap-2">
-            {header} {/* Platzhalter für individuellen Header */}
+            {header}
 
             {isKG && (
-                <>
-                    <InvoiceCalendar dates={datesAsDates} onChange={() => {}}/>
-                </>
+                <InvoiceCalendar dates={datesAsDates} onChange={() => {}}/>
             )}
 
             <Header title="Leistungsübersicht"/>
@@ -92,7 +96,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
             <Header title="Patientendaten"/>
             <InvoicePatientData patient={selectedPatient}/>
 
-            {footer} {/* Platzhalter für individuellen Footer */}
+            {footer}
         </div>
     );
 };

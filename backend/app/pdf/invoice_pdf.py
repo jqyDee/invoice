@@ -1,5 +1,5 @@
 from fpdf import FPDF, XPos, YPos
-from ..utilities.config import LOGO_PATH
+from ..utilities.config import LOGO_PATH, FONTS_DIR
 from ..models import InvoiceDB, SettingsDB
 
 
@@ -16,6 +16,18 @@ class InvoicePdf(FPDF):
             hide_physio: bool
     ):
         super().__init__()
+
+        self.add_font(
+            family="Roboto",
+            style="",
+            fname=str(FONTS_DIR / "Roboto-Regular.ttf")
+        )
+
+        self.add_font(
+            family="Roboto",
+            style="B",
+            fname=str(FONTS_DIR / "Roboto-Bold.ttf")
+        )
 
         self.set_title(f"{invoice.invoice_number}")
 
@@ -39,14 +51,14 @@ class InvoicePdf(FPDF):
             )
         except FileNotFoundError:
             pass
-        self.set_font("helvetica", "B", 14)
+        self.set_font("Roboto", "B", 14)
         self.cell(0, new_x=XPos.LMARGIN, new_y=YPos.TMARGIN)
         self.ln(2.5)
         self.cell(25)
         self.cell(0, text="Mervi Fischbach", align="L")
         self.ln()
         self.cell(25)
-        self.set_font("helvetica", "B", 12)
+        self.set_font("Roboto", "B", 12)
         self.set_text_color(150)
         self.cell(0, text="Heilpraktikerin &", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.cell(25)
@@ -62,15 +74,15 @@ class InvoicePdf(FPDF):
 
         # Position at 3.5 cm from bottom
         self.set_y(-35)
-        # helvetica italic 8
-        self.set_font("helvetica", "B", 8)
+        # Roboto italic 8
+        self.set_font("Roboto", "B", 8)
         self.cell(0, 5, "Bankverbindung", align="C")
         self.ln(3)
         self.cell(0, 5, f"IBAN: {self.iban}", align="C")
         self.ln(3)
         self.cell(0, 5, f"BIC: {self.bic}", align="C")
         self.ln(3)
-        self.set_font("helvetica", "", 6)
+        self.set_font("Roboto", "", 6)
         self.cell(1, 5, f"Rechnungsnummer: {self.invoice_number}", align="L")
         self.cell(0, 5, f"Steuer Nummer: {self.tax_id} - Ust. Befreit nach §4 UStG", align="C")
         # Page number

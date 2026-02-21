@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..utilities.database import get_db, add_db
 from ..schemas import Invoice, InvoiceCreate, InvoiceUpdate
-from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices
+from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, update_invoice_logic
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
@@ -42,9 +42,8 @@ def update_invoice(
         invoice: InvoiceUpdate,
         db: Session = Depends(get_db)
 ):
-    db_invoice = load_invoice(invoice_id, db)
+    db_invoice = update_invoice_logic(invoice_id, invoice, db)
     return db_invoice
-
 
 @router.delete("/{invoice_id}", response_model=Invoice)
 def delete_invoice(

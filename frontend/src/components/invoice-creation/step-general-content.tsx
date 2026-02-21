@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {AutoComplete, type AutoCompleteCompleteEvent} from 'primereact/autocomplete';
+import React, {useEffect, useState} from 'react';
+import {AutoComplete, type AutoCompleteChangeEvent, type AutoCompleteCompleteEvent} from 'primereact/autocomplete';
 import {Button} from 'primereact/button';
 import {useQuery} from '@tanstack/react-query';
 import {getPatientsPatientsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
@@ -20,6 +20,11 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
     const { data: patients } = useQuery(getPatientsPatientsGetOptions());
     const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
 
+    const [patientValue, setPatientValue] = useState<Patient | string | undefined>(selectedPatient);
+    useEffect(() => {
+        setPatientValue(selectedPatient);
+    }, [selectedPatient]);
+
     const searchPatients = (event: AutoCompleteCompleteEvent) => {
         const query = event.query.toLowerCase();
         const _filtered = (patients || []).filter((p) => {
@@ -30,6 +35,17 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
             );
         });
         setFilteredPatients(_filtered);
+    };
+
+    const handleSearchChange = (e: AutoCompleteChangeEvent<Patient>) => {
+        setPatientValue(e.value);
+
+        if (e.value && typeof e.value === 'object' && 'patient_id' in e.value) {
+            onChange({ patient_id: e.value.patient_id });
+        }
+        else if (!e.value) {
+            onChange({ patient_id: undefined });
+        }
     };
 
     const itemTemplate = (item: Patient) => {
@@ -46,14 +62,14 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
             <div className="col-6 flex flex-column">
                 <Header title="Patient auswählen"/>
                 <AutoComplete
-                    value={selectedPatient}
+                    value={patientValue}
                     suggestions={filteredPatients}
                     completeMethod={searchPatients}
                     field="label"
                     dropdown
                     autoHighlight={true}
                     itemTemplate={itemTemplate}
-                    onChange={(e) => onChange({ patient_id: e.value.patient_id })}
+                    onChange={handleSearchChange}
                     placeholder="Name oder Kürzel suchen..."
                     className="w-full"
                     forceSelection
