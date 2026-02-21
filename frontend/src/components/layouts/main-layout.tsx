@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Navbar } from "./navbar.tsx";
+import { NavbarView } from "../navbar-view.tsx";
 
 export const MainLayout: React.FC = () => {
     return (
         <div className="main-layout">
-            <Navbar />
+            <NavbarView />
             <main>
                 <Outlet />
             </main>

@@ -6,12 +6,12 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import {
     getSettingsSettingsGetOptions,
     updateSettingsSettingsPatchMutation
-} from '../api/@tanstack/react-query.gen';
-import { type SettingsUpdate } from '../api';
+} from '../../api/@tanstack/react-query.gen';
+import { type SettingsUpdate } from '../../api';
 import {InputMask} from "primereact/inputmask";
-import {useGlobalToast} from "../hooks/use-global-toast.ts";
+import {useGlobalToast} from "../../hooks/use-global-toast.ts";
 
-export const SettingsForm: React.FC = () => {
+export const GeneralForm: React.FC = () => {
     const queryClient = useQueryClient();
     const { showToast } = useGlobalToast();
 
@@ -163,7 +163,7 @@ export const SettingsForm: React.FC = () => {
                 />
             </div>
 
-            <div className="col-12 flex justify-content-end mt-4">
+            <div className="col-12 flex justify-content-end mt-2">
                 <Button
                     type="submit"
                     label="Einstellungen Speichern"

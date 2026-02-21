@@ -1,62 +1,107 @@
 from typing import Optional
 
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 
-from ..models import InvoiceDB, InvoiceDateDB, InvoiceItemDB, InvoiceType, PatientDB
-from ..schemas import InvoiceCreate, InvoiceItemCreate, InvoiceDateCreate
+from .invoiceItem_service import validate_invoice_item
+from .patient_service import load_patient
+from ..models import (
+    InvoiceDB,
+    InvoiceDateDB,
+    InvoiceItemDB,
+    PatientDB,
+    InvoiceInvoiceDefaultItemAssociationDB, InvoiceStatus
+)
+from ..schemas import InvoiceCreate, InvoiceDateCreate
+from ..utilities.database import add_db
 
-ADDITIONAL_KG_ITEMS: list[InvoiceItemCreate] = [
-    InvoiceItemCreate(description="Anamnese & Befunderhebung", quantity=1, amount=0.0),
-]
+
+def load_invoices(
+        show_drafts: bool,
+        only_drafts: bool,
+        search: Optional[str],
+        db: Session
+) -> list[InvoiceDB]:
+    statement = select(InvoiceDB)
+
+    if only_drafts:
+        statement = statement.where(InvoiceDB.is_draft.is_(True))
+    elif not show_drafts:
+        statement = statement.where(InvoiceDB.is_draft.is_(False))
+
+    if search:
+        statement = statement.where(
+            InvoiceDB.invoice_number.ilike(f"%{search}%")
+        )
+
+    return list(db.scalars(statement).all())
 
 
 def load_invoice(invoice_id: int, db: Session) -> InvoiceDB:
-    invoice: Optional[InvoiceDB] = db.query(InvoiceDB).options(
-        joinedload(InvoiceDB.patient),
-        joinedload(InvoiceDB.items),
-        joinedload(InvoiceDB.dates)
-    ).filter(InvoiceDB.invoice_id == invoice_id).first()
+    statement = (
+        select(InvoiceDB)
+        .options(
+            joinedload(InvoiceDB.patient),
+            joinedload(InvoiceDB.user_items),
+            joinedload(InvoiceDB.default_items),
+            joinedload(InvoiceDB.dates),
+        )
+        .where(InvoiceDB.invoice_id == invoice_id)
+    )
 
-    if not invoice:
+    invoice = db.scalars(statement).first()
+
+    if invoice is None:
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
 
     return invoice
 
 
 def create_invoice_logic(
-        invoice: InvoiceCreate,
+        new_invoice: InvoiceCreate,
         db: Session,
 ) -> InvoiceDB:
     """
     Main entry point for creating an invoice.
     Decides by the provided type, how and which items to add.
     """
-    invoice_data = invoice.model_dump(exclude={"items", "dates"})
+    invoice_data = new_invoice.model_dump(exclude={"user_items", "dates", "default_item_ids"})
     db_invoice = InvoiceDB(**invoice_data)
+    db_invoice.status = InvoiceStatus.DRAFT
 
-    patient = db.query(PatientDB).get(db_invoice.patient_id)
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient nicht gefunden")
+    add_db(db_invoice, db)
 
-    date_count = _process_dates(invoice.dates, db_invoice)
+    patient = load_patient(new_invoice.patient_id, db)
+    quantity = _process_dates(new_invoice.dates, db_invoice)
 
-    if invoice.type == InvoiceType.KG:
-        _add_kg_items(invoice.items, db_invoice, date_count)
-    else:
-        _add_hp_items(invoice.items, db_invoice)
+    for u_item in new_invoice.user_items:
+        validate_invoice_item(u_item, new_invoice.type, quantity)
+        db_invoice.user_items.append(InvoiceItemDB(**u_item.model_dump()))
 
-    db_invoice.total = _calculate_total(db_invoice)
+    for d_id in new_invoice.default_item_ids:
+        new_link = InvoiceInvoiceDefaultItemAssociationDB(
+            invoice_id=db_invoice.invoice_id,
+            default_item_id=d_id
+        )
+        db.add(new_link)
+
+    db_invoice.kilometers_at_billing = patient.kilometers_to_travel
     db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice, patient)
-    db_invoice.is_draft = False
+
+    db_invoice.status = InvoiceStatus.SAVED
 
     return db_invoice
 
 
-def _generate_unique_invoice_number(db: Session, invoice: InvoiceDB, patient: type[PatientDB]) -> str:
+def _generate_unique_invoice_number(db: Session, invoice: InvoiceDB, patient: PatientDB) -> str:
     base_number = f"{invoice.invoice_date}-{patient.label}"
-    exists = db.query(InvoiceDB).filter(InvoiceDB.invoice_number == base_number).first()
+
+    statement = select(InvoiceDB).where(
+        InvoiceDB.invoice_number == base_number
+    )
+    exists = db.scalars(statement).first()
 
     if exists:
         raise HTTPException(
@@ -72,7 +117,7 @@ def _process_dates(
 ) -> int:
     """Adds invoice dates."""
     if not dates:
-        return 0
+        return 1
 
     dates.sort(key=lambda x: x.date)
 
@@ -80,58 +125,3 @@ def _process_dates(
         db_date = InvoiceDateDB(**date_entry.model_dump())
         db_invoice.dates.append(db_date)
     return len(dates)
-
-
-def _add_kg_items(
-        items: list[InvoiceItemCreate],
-        db_invoice: InvoiceDB,
-        date_count: int
-):
-    """Adds fixed additional KG items and the users items."""
-    for item in ADDITIONAL_KG_ITEMS:
-        db_invoice.items.append(InvoiceItemDB(**item.model_dump()))
-
-    # User Items
-    for item in items:
-        validate_invoice_item(item, InvoiceType.KG, date_count)
-        db_invoice.items.append(InvoiceItemDB(**item.model_dump()))
-
-
-def _add_hp_items(
-        items: list[InvoiceItemCreate],
-        db_invoice: InvoiceDB
-):
-    """Adds user provided items only."""
-    for item in items:
-        validate_invoice_item(item, InvoiceType.HP)
-        db_invoice.items.append(InvoiceItemDB(**item.model_dump()))
-
-
-def _calculate_total(
-        db_invoice: InvoiceDB
-) -> float:
-    """Calculate the total of the invoice."""
-    total = 0.0
-    for item in db_invoice.items:
-        total += (item.amount * item.quantity)
-    return round(total, 2)
-
-
-def validate_invoice_item(
-        item: InvoiceItemCreate,
-        inv_type: InvoiceType,
-        quantity: int = 1
-):
-    """Validate and enforce item fields."""
-    if item.amount < 0:
-        raise HTTPException(status_code=400, detail="Betrag darf nicht negativ sein")
-    if not item.description:
-        raise HTTPException(status_code=400, detail="Beschreibung fehlt")
-
-    if inv_type == InvoiceType.KG:
-        item.quantity = quantity
-        item.date = None
-        item.number = None
-    elif inv_type == InvoiceType.HP:
-        if not item.number:
-            raise HTTPException(status_code=400, detail="Ziffer fehlt")

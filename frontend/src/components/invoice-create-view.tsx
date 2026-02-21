@@ -3,171 +3,160 @@ import {StepperPanel} from "primereact/stepperpanel";
 import {StepGeneralContent} from "./invoice-creation/step-general-content.tsx";
 import {StepItemsContent} from "./invoice-creation/step-items-content.tsx";
 import React, {useRef} from "react";
-import {
-    type InvoiceCreate, type InvoiceDateCreate, type InvoiceItemCreate, InvoiceType,
-    type Patient
-} from "../api";
 import {StepOverviewContent} from "./invoice-creation/step-overview-content.tsx";
 import {StepDetailsContent} from "./invoice-creation/step-details-content.tsx";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {createInvoiceInvoicesPostMutation, getInvoicesInvoicesGetQueryKey} from "../api/@tanstack/react-query.gen.ts";
-import {Header} from "./header.tsx";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {
+    createInvoiceInvoicesPostMutation,
+    getInvoicesInvoicesGetQueryKey,
+    getInvoiceInvoicesInvoiceIdGetOptions,
+    updateInvoiceInvoicesInvoiceIdPatchMutation, getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions
+} from "../api/@tanstack/react-query.gen.ts";
+import {Header} from "../utilities/header.tsx";
 import {Button} from "primereact/button";
-import {useNavigate} from "react-router-dom";
+import {generatePath, useNavigate, useParams} from "react-router-dom";
 import {ROUTES} from "../config/routes.ts";
 import {toLocalDateString} from "../utilities/local-date-string.ts";
 import {useGlobalToast} from "../hooks/use-global-toast.ts";
+import {type InvoiceCreate, InvoiceType, type InvoiceUpdate} from "../api";
 
 
 export const InvoiceCreateView: React.FC = () => {
+    const { id } = useParams(); // Optional type
     const stepperRef = useRef<any>(null);
     const navigate = useNavigate();
 
-    const {showToast} = useGlobalToast();
-
-    const [invoiceData, setInvoiceData] = React.useState<Partial<InvoiceCreate>>({
-        patient_id: undefined,
-        is_draft: true,
-        invoice_date: undefined,
-        diagnosis: undefined,
-        type: undefined,
+    const [invoice, setInvoice] = React.useState<InvoiceCreate | InvoiceUpdate>({
+        patient_id: 0,
+        invoice_date: toLocalDateString(new Date()),
+        type: InvoiceType.HP,
+        user_items: [],
+        default_item_ids: [], // Track IDs for the association table
         dates: [],
-        items: []
+        diagnosis: "",
     });
 
-    const [selectedPatient, setSelectedPatient] = React.useState<Patient>();
-    const [selectedType, setSelectedType] = React.useState<InvoiceType>(InvoiceType.HP);
-    const [selectedDates, setSelectedDates] = React.useState<InvoiceDateCreate[]>([]);
-    const [selectedItems, setSelectedItems] = React.useState<InvoiceItemCreate[]>([]);
-    const [selectedInvoiceDate, setSelectedInvoiceDate] = React.useState<string>(() => toLocalDateString(new Date(Date.now())));
-    const [selectedDiagnosis, setSelectedDiagnosis] = React.useState<string>("");
+    const {showToast} = useGlobalToast();
+
+    const {data: invoiceToUpdate, isLoading } = useQuery({
+        ...getInvoiceInvoicesInvoiceIdGetOptions({
+            path: {invoice_id: parseInt(id!)} // this is safe as this can only run if invoiceId is present
+        }),
+        enabled: !!id,
+        retry: false,
+    })
+
+    const { data: availableDefaults } = useQuery(getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
+        query: { invoice_type: invoice.type }
+    }));
+
+    React.useEffect(() => {
+        if (id && invoiceToUpdate) {
+            // Logic for UPDATE: Use existing associations from the DB
+            setInvoice({
+                patient_id: invoiceToUpdate.patient_id,
+                invoice_date: invoiceToUpdate.invoice_date,
+                type: invoiceToUpdate.type,
+                user_items: invoiceToUpdate.user_items,
+                default_item_ids: invoiceToUpdate.default_items.map(d => d.default_item_id),
+                dates: invoiceToUpdate.dates,
+                diagnosis: invoiceToUpdate.diagnosis,
+            });
+        } else if (!id && availableDefaults) {
+            // Logic for CREATE: Set globally active defaults by default
+            const activeGlobalIds = availableDefaults
+                .filter(d => d.is_active_global) // Filter for globally active items
+                .map(d => d.default_item_id);
+
+            setInvoice(prev => ({
+                ...prev,
+                default_item_ids: activeGlobalIds
+            }));
+        }
+    }, [id, invoiceToUpdate, availableDefaults]);
+
+    const updateInvoice = (fields: Partial<InvoiceCreate | InvoiceUpdate>) => {
+        setInvoice(prev => ({ ...prev, ...fields }));
+    };
+
 
     const queryClient = useQueryClient();
 
     const createMutation = useMutation({
         ...createInvoiceInvoicesPostMutation(),
-        onSuccess: async () => {
-            showToast({ severity: 'success', summary: 'Fertig!', detail: 'Rechnung wurde gespeichert.', life: 3000});
-            await queryClient.invalidateQueries({
-                queryKey: getInvoicesInvoicesGetQueryKey()
-            });
-        }
+        onSuccess: () => handleSuccess(false)
     });
 
-    const handlePatientSelected = (patient: Patient, invoiceType: InvoiceType) => {
-        setSelectedPatient(patient);
-        setSelectedType(invoiceType);
-        setInvoiceData(prev => ({ ...prev, patient_id: patient.patient_id, type: invoiceType }));
-        stepperRef.current.nextCallback();
+    const updateMutation = useMutation({
+        ...updateInvoiceInvoicesInvoiceIdPatchMutation(),
+        onSuccess: () => handleSuccess(true)
+    });
+
+    const handleSuccess = async (isUpdate: boolean) => {
+        showToast({
+            severity: 'success',
+            summary: 'Fertig!',
+            detail: `Rechnung wurde ${isUpdate ? 'aktualisiert' : 'gespeichert'}.`,
+            life: 3000
+        });
+        await queryClient.invalidateQueries({ queryKey: getInvoicesInvoicesGetQueryKey() });
     };
 
-    const handleItemsDatesSelected = (dates: InvoiceDateCreate[], items: InvoiceItemCreate[]) => {
-        setSelectedDates(dates);
-        setSelectedItems(items);
-        setInvoiceData(prev => ({...prev, dates: dates, items: items}));
-    };
-
-    const handleItemsDatesStepForward = (dates: InvoiceDateCreate[], items: InvoiceItemCreate[]) => {
-        handleItemsDatesSelected(dates, items);
-        stepperRef.current.nextCallback();
-    }
-
-    const handleItemsDatesStepBackwards = (dates: InvoiceDateCreate[], items: InvoiceItemCreate[]) => {
-        handleItemsDatesSelected(dates, items);
-        stepperRef.current.prevCallback();
-    }
-
-    const handleDetailsSelected = (invoiceDate: string, diagnosis: string) => {
-        setSelectedInvoiceDate(invoiceDate);
-        setSelectedDiagnosis(diagnosis);
-        setInvoiceData(prev => ({...prev, invoice_date: invoiceDate, diagnosis: diagnosis}))
-    }
-
-    const handleDetailsStepForward = (invoiceDate: string, diagnosis: string) => {
-        handleDetailsSelected(invoiceDate, diagnosis);
-        stepperRef.current.nextCallback();
-    }
-
-    const handleDetailsStepBackwards = (invoiceDate: string, diagnosis: string) => {
-        handleDetailsSelected(invoiceDate, diagnosis);
-        stepperRef.current.prevCallback();
-    }
-
-    const handleCreate = async () => {
-        if (
-            invoiceData.patient_id === undefined ||
-            !invoiceData.invoice_date ||
-            !invoiceData.type ||
-            !invoiceData.items
-        ) {
-            showToast({ severity: 'error', summary: 'Fehler', detail: 'Daten stimmen nicht. Bitte versuche die Rechnung erneut zu erstellen.' });
-            return;
-        }
-
-        const payload: InvoiceCreate = {
-            patient_id: invoiceData.patient_id,
-            invoice_date: invoiceData.invoice_date,
-            type: invoiceData.type,
-            items: invoiceData.items,
-            dates: invoiceData.dates || [],
-            diagnosis: invoiceData.diagnosis || null,
-            is_draft: invoiceData.is_draft ?? true
-        };
-
+    const handleSave = async () => {
         try {
-            const createdInvoice = await createMutation.mutateAsync({
-                body: payload
-            });
-
-            if (createdInvoice && createdInvoice.invoice_id) {
-                navigate(ROUTES.INVOICE.replace(':id', createdInvoice.invoice_id.toString()))
+            let result;
+            if (id) {
+                result = await updateMutation.mutateAsync({
+                    path: { invoice_id: parseInt(id) },
+                    body: invoice as InvoiceUpdate
+                });
+            } else {
+                result = await createMutation.mutateAsync({
+                    body: invoice as InvoiceCreate
+                });
             }
+            navigate(generatePath(ROUTES.INVOICE, { id: result.invoice_id.toString() }));
         } catch (error) {
-            showToast({ severity: 'error', summary: 'Fehler', detail: "Failed to create invoice:" + JSON.stringify(error) });
+            showToast({ severity: 'error', summary: 'Fehler', detail: "Speichern fehlgeschlagen" });
         }
     };
+
+    if (isLoading) return <div>Laden...</div>
 
     return (
         <div className="card">
-            <Stepper ref={stepperRef} linear headerPosition="bottom">
+            <Header title={`Rechnung ${id ? "aktualisieren" : "erstellen"}`} />
+            <Stepper ref={stepperRef} linear={!id} headerPosition="bottom" className="mt-4">
                 <StepperPanel header="Basisdaten">
                     <StepGeneralContent
-                        next={handlePatientSelected}
-                        initialPatient={selectedPatient}
-                        initialType={selectedType}
+                        invoice={invoice}
+                        onChange={updateInvoice}
+                        next={() => stepperRef.current.nextCallback()}
                     />
                 </StepperPanel>
 
                 <StepperPanel header="Daten">
                     <StepItemsContent
-                        type={selectedType}
-                        dates={selectedDates}
-                        items={selectedItems}
-                        prev={handleItemsDatesStepBackwards}
-                        next={handleItemsDatesStepForward}
+                        invoice={invoice}
+                        onChange={updateInvoice}
+                        prev={() => stepperRef.current.prevCallback()}
+                        next={() => stepperRef.current.nextCallback()}
                     />
                 </StepperPanel>
 
                 <StepperPanel header="Details">
                     <StepDetailsContent
-                        type={selectedType}
-                        invoiceDate={selectedInvoiceDate}
-                        diagnosis={selectedDiagnosis}
-                        prev={handleDetailsStepBackwards}
-                        next={handleDetailsStepForward}
+                        invoice={invoice}
+                        onChange={updateInvoice}
+                        prev={() => stepperRef.current.prevCallback()}
+                        next={() => stepperRef.current.nextCallback()}
                     />
                 </StepperPanel>
 
                 <StepperPanel header="Überblick">
                     <StepOverviewContent
                         header={<Header title="Zusammenfassung Ihrer Eingaben" />}
-                        type={selectedType}
-                        invoiceDate={selectedInvoiceDate}
-                        patient={selectedPatient!}
-                        items={selectedItems}
-                        dates={selectedDates.map(d => new Date(d.date))}
-                        diagnosis={selectedDiagnosis}
-                        isPreview={true}
+                        invoice={invoice}
                         footer={
                             <div className="flex justify-content-between mt-2">
                                 <Button
@@ -177,10 +166,10 @@ export const InvoiceCreateView: React.FC = () => {
                                     onClick={() => stepperRef.current.prevCallback()}
                                 />
                                 <Button
-                                    label="Rechnung erstellen"
+                                    label={`Rechnung ${id ? "aktualisieren" : "erstellen"}`}
                                     icon="pi pi-check"
                                     iconPos="right"
-                                    onClick={handleCreate}
+                                    onClick={handleSave}
                                 />
                             </div>
                         }

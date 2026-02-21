@@ -4,12 +4,12 @@ import { getPatientsPatientsGetOptions } from "../api/@tanstack/react-query.gen.
 import { Button } from "primereact/button";
 import type { Patient } from "../api";
 import { Dialog } from "primereact/dialog";
-import { PatientForm } from "./patient-form.tsx";
+import { PatientForm } from "./patient/patient-form.tsx";
 import { InputText } from "primereact/inputtext";
-import { PatientTable } from "./patient-table";
-import {Header} from "./header.tsx"; // Import Table
+import { PatientTable } from "./patient/patient-table.tsx";
+import {Header} from "../utilities/header.tsx"; // Import Table
 
-export const PatientList: React.FC = () => {
+export const PatientListView: React.FC = () => {
     const [visible, setVisible] = React.useState(false);
     const [selectedPatient, setSelectedPatient] = React.useState<Patient | null>(null);
     const [search, setSearch] = React.useState("");
@@ -20,7 +20,7 @@ export const PatientList: React.FC = () => {
         return () => clearTimeout(handler);
     }, [search]);
 
-    const { data: patients, isLoading, isError, refetch } = useQuery({
+    const { data: patients, isLoading, isError } = useQuery({
         ...getPatientsPatientsGetOptions({
             query: { search: debouncedSearch || undefined }
         }),
@@ -49,7 +49,7 @@ export const PatientList: React.FC = () => {
                 style={{ maxWidth: '50vw' }}
                 onHide={() => setVisible(false)}
             >
-                <PatientForm patientToEdit={selectedPatient} onSuccess={() => setVisible(false)} refetch={refetch} />
+                <PatientForm patientToEdit={selectedPatient} onSuccess={() => setVisible(false)} />
             </Dialog>
 
             <PatientTable patients={patients} isLoading={isLoading} onEdit={openEdit} />

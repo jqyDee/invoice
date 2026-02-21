@@ -2,7 +2,7 @@ import React from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from "primereact/button";
-import type { Patient } from "../api";
+import type { Patient } from "../../api";
 
 interface PatientTableProps {
     patients: Patient[] | undefined;

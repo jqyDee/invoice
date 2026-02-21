@@ -1,22 +1,18 @@
 import React from "react";
 import {Button} from "primereact/button";
 import {InputText} from "primereact/inputtext";
-import {Header} from "../header.tsx";
+import {Header} from "../../utilities/header.tsx";
 import {InputTextarea} from "primereact/inputtextarea";
-import {InvoiceType} from "../../api";
+import {type InvoiceCreate, InvoiceType, type InvoiceUpdate} from "../../api";
 
 interface StepDetailsProps {
-    type: InvoiceType;
-    invoiceDate: string;
-    diagnosis: string;
-    prev: (invoiceDate: string, diagnosis: string) => void;
-    next: (invoiceDate: string, diagnosis: string) => void;
+    invoice: InvoiceCreate | InvoiceUpdate;
+    onChange: (fields: Partial<InvoiceCreate | InvoiceUpdate>) => void;
+    prev: () => void;
+    next: () => void;
 }
 
-export const StepDetailsContent: React.FC<StepDetailsProps> = ({ type, invoiceDate: initialInvoiceDate, diagnosis: initialDiagnosis, prev, next }) => {
-    const [invoiceDate, setInvoiceDate] = React.useState<string>(initialInvoiceDate);
-    const [diagnosis, setDiagnosis] = React.useState<string>(initialDiagnosis);
-
+export const StepDetailsContent: React.FC<StepDetailsProps> = ({ invoice, onChange, prev, next }) => {
     return (
         <>
             <div className="flex">
@@ -24,32 +20,37 @@ export const StepDetailsContent: React.FC<StepDetailsProps> = ({ type, invoiceDa
                     <Header title="Rechnungsdatum"/>
                     <InputText
                         id="invoiceDate"
-                        value={invoiceDate}
-                        onChange={(e) => setInvoiceDate(e.target.value)}
+                        value={invoice.invoice_date}
+                        onChange={(e) => onChange({ invoice_date: e.target.value })}
                         type="date"
                     />
                 </div>
-                { (type === InvoiceType.HP) &&
+                { (invoice.type === InvoiceType.HP) &&
                     <div className="col-6 flex flex-column">
                         <Header title="Diagnose"/>
                         <InputTextarea
                             id="invoiceDate"
-                            value={diagnosis}
+                            value={invoice.diagnosis || ""}
                             autoResize
-                            onChange={(e) => setDiagnosis(e.target.value)}
+                            onChange={(e) => onChange({ diagnosis: e.target.value })}
                         />
                     </div>
                 }
             </div>
 
             <div className="flex justify-content-between mt-3">
-                <Button label="Zurück" icon="pi pi-arrow-left" className="p-button-text" onClick={() => prev(invoiceDate, diagnosis)} />
+                <Button
+                    label="Zurück"
+                    icon="pi pi-arrow-left"
+                    className="p-button-text"
+                    onClick={prev}
+                />
                 <Button
                     label="Weiter"
                     icon="pi pi-arrow-right"
                     iconPos="right"
-                    disabled={!invoiceDate || (type === InvoiceType.HP && !diagnosis)}
-                    onClick={() => next(invoiceDate, diagnosis)}
+                    disabled={!invoice.invoice_date || (invoice.type === InvoiceType.HP && !invoice.diagnosis)}
+                    onClick={next}
                 />
             </div>
         </>

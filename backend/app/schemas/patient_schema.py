@@ -19,8 +19,10 @@ class PatientBase(BaseModel):
     email: Optional[str] = None
     telephone: Optional[str] = None
 
+
 class PatientCreate(PatientBase):
     pass
+
 
 class Patient(PatientBase):
     patient_id: int

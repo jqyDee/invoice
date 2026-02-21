@@ -3,9 +3,9 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
-import {type Invoice, type Patient} from "../api";
-import {useNavigate} from "react-router-dom";
-import {ROUTES} from "../config/routes.ts";
+import {type Invoice, type Patient} from "../../api";
+import {generatePath, useNavigate} from "react-router-dom";
+import {ROUTES} from "../../config/routes.ts";
 
 interface InvoiceTableProps {
     invoices: Invoice[] | undefined;
@@ -58,8 +58,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 alignHeader="right"
                 body={(e: Invoice) => (
                     <div className="flex gap-2 justify-content-end">
-                        <Button onClick={() => navigate(ROUTES.INVOICE.replace(':id', e.invoice_id.toString()))} icon="pi pi-info-circle" className="p-button-rounded" />
-                        <Button onClick={() => navigate(ROUTES.INVOICE_PREVIEW.replace(':id', e.invoice_id.toString()))} icon="pi pi-file-pdf" className="p-button-rounded" />
+                        <Button onClick={() => navigate(generatePath(ROUTES.INVOICE_CREATE, { id: e.invoice_id.toString() }))} icon="pi pi-pencil" className="p-button-rounded" />
+                        <Button onClick={() => navigate(generatePath(ROUTES.INVOICE, { id: e.invoice_id.toString() }))} icon="pi pi-info-circle" className="p-button-rounded" />
+                        <Button onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, { id: e.invoice_id.toString() }))} icon="pi pi-file-pdf" className="p-button-rounded" />
                     </div>
                 )}
             />

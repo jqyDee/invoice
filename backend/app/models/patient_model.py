@@ -3,17 +3,17 @@ from sqlalchemy.orm import relationship
 
 from .gender_enum import Gender
 from .base_model import Base
-from .invoiceType_enum import InvoiceType
 from datetime import datetime
+
 
 class PatientDB(Base):
     __tablename__ = "patient"
 
     patient_id = Column(Integer, primary_key=True, index=True)
-    label = Column(String(4), index=True) # 4-letter Label
+    label = Column(String(4), index=True)  # 4-letter Label
 
     first_name = Column(String)
-    last_name= Column(String)
+    last_name = Column(String)
     birthday = Column(Date)
     gender = Column(Enum(Gender), nullable=False)
 

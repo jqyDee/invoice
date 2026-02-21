@@ -8,7 +8,7 @@ from ..schemas import PatientCreate
 
 
 def load_patient(patient_id: int, db: Session) -> PatientDB:
-    patient: Optional[PatientDB] = db.query(PatientDB).get(patient_id)
+    patient: Optional[PatientDB] = db.get(PatientDB, patient_id)
 
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
@@ -25,7 +25,7 @@ def perform_create_patient(patient_new: PatientCreate, db: Session) -> PatientDB
 
 
 def perform_update_patient(patient_update: PatientCreate, db_patient: PatientDB, db: Session) -> PatientDB:
-    update_data = patient_update.model_dump()
+    update_data = patient_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_patient, key, value)
 

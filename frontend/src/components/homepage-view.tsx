@@ -1,11 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPatientsPatientsGetOptions, getInvoicesInvoicesGetOptions } from "../api/@tanstack/react-query.gen.ts";
-import { PatientTable } from './patient-table';
-import { InvoiceTable } from './invoice-table';
-import {Header} from "./header.tsx";
+import { PatientTable } from './patient/patient-table.tsx';
+import { InvoiceTable } from './invoice/invoice-table.tsx';
+import {Header} from "../utilities/header.tsx";
 
-export const Homepage: React.FC = () => {
+export const HomepageView: React.FC = () => {
     const { data: patients, isLoading: patientsLoading } = useQuery(getPatientsPatientsGetOptions());
 
     const { data: drafts, isLoading: draftsLoading } = useQuery({

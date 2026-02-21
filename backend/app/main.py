@@ -1,12 +1,10 @@
-import importlib
-import pkgutil
+from fastapi import FastAPI
 
-from fastapi import FastAPI, APIRouter
-
-from . import routers
 from .utilities.database import engine
 from .models import Base
 from fastapi.middleware.cors import CORSMiddleware
+
+from .utilities.router_include import auto_include_routers
 
 Base.metadata.create_all(bind=engine)
 
@@ -31,19 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-def auto_include_routers(fastapi_app: FastAPI):
-    """
-    Scans the 'routers' package and includes all objects named 'router'.
-    """
-    for loader, module_name, is_pkg in pkgutil.iter_modules(routers.__path__):
-        full_module_name = f"app.routers.{module_name}"
-
-        module = importlib.import_module(full_module_name)
-
-        if hasattr(module, "router") and isinstance(module.router, APIRouter):
-            fastapi_app.include_router(module.router)
 
 
 # Register all routers automatically

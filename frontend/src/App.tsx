@@ -9,10 +9,10 @@ import {
     InvoicePreviewRoute,
     InvoiceRoute,
     InvoicesRoute,
-    PatientsRoute, SettingsRoute
+    PatientsRoute, SettingsDefaultsRoute, SettingsGeneralRoute
 } from "../routes.ts";
-import {MainLayout} from "./components/main-layout.tsx";
-import {CardLayout} from "./components/card-layout.tsx";
+import {MainLayout} from "./components/layouts/main-layout.tsx";
+import {CardLayout} from "./components/layouts/card-layout.tsx";
 import {ToastProvider} from "./contexts/toast-provider.tsx";
 
 const client = new QueryClient({
@@ -37,10 +37,11 @@ const App: React.FC = () => {
                                 <Route path={InvoicesRoute.url} Component={InvoicesRoute.component} />
                                 <Route path={InvoiceCreateRoute.url} Component={InvoiceCreateRoute.component} />
                                 <Route path={InvoiceRoute.url} Component={InvoiceRoute.component} />
-                                <Route path={SettingsRoute.url} Component={SettingsRoute.component} />
+                                <Route path={SettingsGeneralRoute.url} Component={SettingsGeneralRoute.component} />
+                                <Route path={SettingsDefaultsRoute.url} Component={SettingsDefaultsRoute.component} />
                             </Route>
 
-                            {/* Preview Page - No Card, but still has Navbar */}
+                            {/* Preview Page - No Card, but still has NavbarView */}
                             <Route path={InvoicePreviewRoute.url} Component={InvoicePreviewRoute.component} />
                         </Route>
                     </Routes>

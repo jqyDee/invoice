@@ -8,7 +8,6 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/data" />
       <excludeFolder url="file://$MODULE_DIR$/backend/temp" />
       <excludeFolder url="file://$MODULE_DIR$/backend/venv" />
-      <excludeFolder url="file://$MODULE_DIR$/frontend/src/api" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (invoice-python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

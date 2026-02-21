@@ -12,7 +12,7 @@ class InvoiceDateCreate(InvoiceDateBase):
     pass
 
 
-class InvoiceDateUpdate(InvoiceDateCreate):
+class InvoiceDateUpdate(InvoiceDateBase):
     date_id: Optional[int] = None
 
 

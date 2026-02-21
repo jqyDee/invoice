@@ -1,25 +1,26 @@
-import {PatientList} from "./src/components/patient-list.tsx";
+import {PatientListView} from "./src/components/patient-list-view.tsx";
 import {ROUTES} from "./src/config/routes.ts";
-import {Homepage} from "./src/components/homepage.tsx";
-import {InvoicesList} from "./src/components/invoices-list.tsx";
+import {HomepageView} from "./src/components/homepage-view.tsx";
+import {InvoiceListView} from "./src/components/invoice-list-view.tsx";
 import {InvoiceCreateView} from "./src/components/invoice-create-view.tsx";
-import {InvoiceDetails} from "./src/components/invoice-details.tsx";
-import {InvoicePreview} from "./src/components/invoice-preview.tsx";
-import {SettingsView} from "./src/components/settings-view.tsx";
+import {InvoiceDetailsView} from "./src/components/invoice-details-view.tsx";
+import {InvoicePreviewView} from "./src/components/invoice-preview-view.tsx";
+import {SettingsGeneralView} from "./src/components/settings-general-view.tsx";
+import {SettingsDefaultsView} from "./src/components/settings-defaults-view.tsx";
 
 export const HomeRoute = {
     url: ROUTES.HOME,
-    component: Homepage
+    component: HomepageView
 }
 
 export const PatientsRoute = {
     url: ROUTES.PATIENTS,
-    component: PatientList
+    component: PatientListView
 }
 
 export const InvoicesRoute = {
     url: ROUTES.INVOICES,
-    component: InvoicesList
+    component: InvoiceListView
 }
 
 export const InvoiceCreateRoute = {
@@ -29,15 +30,20 @@ export const InvoiceCreateRoute = {
 
 export const InvoiceRoute = {
     url: ROUTES.INVOICE,
-    component: InvoiceDetails
+    component: InvoiceDetailsView
 }
 
 export const InvoicePreviewRoute = {
     url: ROUTES.INVOICE_PREVIEW,
-    component: InvoicePreview
+    component: InvoicePreviewView
 }
 
-export const SettingsRoute = {
-    url: ROUTES.SETTINGS,
-    component: SettingsView
+export const SettingsGeneralRoute = {
+    url: ROUTES.SETTINGS_GENERAL,
+    component: SettingsGeneralView
+}
+
+export const SettingsDefaultsRoute = {
+    url: ROUTES.SETTINGS_DEFAULTS,
+    component: SettingsDefaultsView
 }

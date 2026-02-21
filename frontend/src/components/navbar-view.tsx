@@ -7,9 +7,9 @@ import {Menubar} from "primereact/menubar";
 import {menu} from "../config/menu.ts";
 
 /**
- * Navbar component.
+ * NavbarView component.
  */
-export const Navbar: React.FC = () => {
+export const NavbarView: React.FC = () => {
     return (
         <Menubar model={menu} className="gap-2"/>
     );

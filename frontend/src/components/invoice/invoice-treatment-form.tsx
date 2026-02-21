@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
-import {type InvoiceItemCreate, InvoiceType} from './../api';
+import {type InvoiceItemCreate, InvoiceType} from '../../api';
 import {InputTextarea} from "primereact/inputtextarea";
 
 interface TreatmentFormProps {
@@ -13,8 +13,7 @@ interface TreatmentFormProps {
     onCancel: () => void;
 }
 
-export const TreatmentForm: React.FC<TreatmentFormProps> = ({ initialData, onSave, type, onCancel }) => {
-    // Initialisierung des Formulars mit react-hook-form
+export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData, onSave, type, onCancel }) => {
     const { control, handleSubmit, formState: { errors } } = useForm<InvoiceItemCreate>({
         defaultValues: initialData || {
             description: '',

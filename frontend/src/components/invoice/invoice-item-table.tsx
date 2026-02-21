@@ -1,11 +1,11 @@
-import {type InvoiceItem, type InvoiceItemCreate, InvoiceType} from "../../api";
+import {type DefaultInvoiceItem, type InvoiceItem, type InvoiceItemCreate, InvoiceType} from "../../api";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import React from "react";
 
 
 interface InvoiceItemTableProps {
-    invoiceItems: InvoiceItem[] | InvoiceItemCreate[];
+    invoiceItems: DefaultInvoiceItem[] | InvoiceItem[] | InvoiceItemCreate[];
     type: InvoiceType;
     isLoading: boolean;
 }

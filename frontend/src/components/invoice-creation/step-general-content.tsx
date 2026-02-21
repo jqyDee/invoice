@@ -3,23 +3,22 @@ import {AutoComplete, type AutoCompleteCompleteEvent} from 'primereact/autocompl
 import {Button} from 'primereact/button';
 import {useQuery} from '@tanstack/react-query';
 import {getPatientsPatientsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
-import {InvoiceType, type Patient} from "../../api";
-import {SelectButton, type SelectButtonChangeEvent} from "primereact/selectbutton";
-import {Header} from "../header.tsx";
+import {type Invoice, type InvoiceCreate, InvoiceType, type InvoiceUpdate, type Patient} from "../../api";
+import {SelectButton} from "primereact/selectbutton";
+import {Header} from "../../utilities/header.tsx";
 import {InvoicePatientData} from "../invoice/invoice-patient-data.tsx";
 
 interface StepContentProps {
-    next: (patient: Patient, invoiceType: InvoiceType) => void;
-    initialPatient?: Patient | null;
-    initialType?: InvoiceType | null;
+    invoice: Invoice | InvoiceCreate | InvoiceUpdate;
+    onChange: (fields: Partial<InvoiceCreate | InvoiceUpdate>) => void;
+    next: () => void;
 }
 
-export const StepGeneralContent: React.FC<StepContentProps> = ({ next, initialPatient, initialType }) => {
-    const [selectedPatient, setSelectedPatient] = useState<Patient | undefined>(initialPatient || undefined);
+export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChange, next }) => {
     const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
-    const [invoiceType, setInvoiceType] = useState<InvoiceType | undefined>(initialType || undefined);
 
     const { data: patients } = useQuery(getPatientsPatientsGetOptions());
+    const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
 
     const searchPatients = (event: AutoCompleteCompleteEvent) => {
         const query = event.query.toLowerCase();
@@ -54,7 +53,7 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ next, initialPa
                     dropdown
                     autoHighlight={true}
                     itemTemplate={itemTemplate}
-                    onChange={(e) => setSelectedPatient(e.value)}
+                    onChange={(e) => onChange({ patient_id: e.value.patient_id })}
                     placeholder="Name oder Kürzel suchen..."
                     className="w-full"
                     forceSelection
@@ -62,7 +61,11 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ next, initialPa
             </div>
             <div className="col-6 flex flex-column">
                 <Header title="Rechnungstyp" />
-                <SelectButton value={invoiceType} onChange={(e: SelectButtonChangeEvent) => setInvoiceType(e.value)} options={Object.values(InvoiceType)} />
+                <SelectButton
+                    value={invoice.type}
+                    options={Object.values(InvoiceType)}
+                    onChange={e => onChange({ type: e.value })}
+                />
             </div>
             <div className="col-12 flex flex-column">
                 <Header title="Patientendaten"/>
@@ -73,8 +76,8 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ next, initialPa
                     label="Weiter"
                     icon="pi pi-arrow-right"
                     iconPos="right"
-                    disabled={!selectedPatient || !invoiceType}
-                    onClick={() => next(selectedPatient as Patient, invoiceType as InvoiceType)}
+                    disabled={!selectedPatient || !invoice.type}
+                    onClick={next}
                 />
             </div>
         </div>

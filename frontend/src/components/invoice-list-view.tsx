@@ -4,16 +4,16 @@ import { getInvoicesInvoicesGetOptions } from "../api/@tanstack/react-query.gen.
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputSwitch } from "primereact/inputswitch";
-import { InvoiceTable } from "./invoice-table";
-import {useNavigate} from "react-router-dom";
+import { InvoiceTable } from "./invoice/invoice-table.tsx";
+import {generatePath, useNavigate} from "react-router-dom";
 import {ROUTES} from "../config/routes.ts";
-import {Header} from "./header.tsx"; // Import Table
+import {Header} from "../utilities/header.tsx"; // Import Table
 
 interface InvoicesListProps {
     onlyDrafts?: boolean;
 }
 
-export const InvoicesList: React.FC<InvoicesListProps> = ({ onlyDrafts }) => {
+export const InvoiceListView: React.FC<InvoicesListProps> = ({ onlyDrafts }) => {
     const [search, setSearch] = React.useState("");
     const [debouncedSearch, setDebouncedSearch] = React.useState("");
     const [showDrafts, setShowDrafts] = React.useState(true);
@@ -40,7 +40,7 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({ onlyDrafts }) => {
                 <div className="flex gap-2 align-items-center">
                     <label>Entwürfe anzeigen</label>
                     <InputSwitch checked={showDrafts} onChange={(e) => setShowDrafts(e.value)} />
-                    <Button onClick={() => navigate(ROUTES.INVOICE_CREATE)} icon="pi pi-plus" label="Neue Rechnung" className="p-button-rounded" />
+                    <Button onClick={() => navigate(generatePath(ROUTES.INVOICE_CREATE, {id : ""}))} icon="pi pi-plus" label="Neue Rechnung" className="p-button-rounded" />
                     <InputText value={search} placeholder="Suche..." onChange={(e) => setSearch(e.target.value)} style={{ minWidth: "20vw" }} />
                 </div>
             </div>

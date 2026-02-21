@@ -1,29 +1,47 @@
 import React from "react";
-import {DataTable} from "primereact/datatable";
-import {Column} from "primereact/column";
-import {InvoiceType} from "../../api";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { type Invoice, type InvoiceCreate, InvoiceType, type InvoiceUpdate } from "../../api";
 
 interface InvoiceDetailsProp {
-    type: InvoiceType;
-    isDraft?: boolean;
-    invoiceDate: string;
-    invoiceNumber?: string;
-    diagnosis: string;
+    invoice: Invoice | InvoiceCreate | InvoiceUpdate;
 }
 
-export const InvoiceDetails: React.FC<InvoiceDetailsProp> = ({ type, isDraft, invoiceDate, invoiceNumber, diagnosis }) => {
-    const rows = [
-        {label: "Rechnungsdatum", value: invoiceDate},
-        {label: "Rechnungsnummer", value: invoiceNumber ?? '-'},
-        {label: "Entwurf", value: isDraft ?? 'false'}
-    ]
+export const InvoiceDetails: React.FC<InvoiceDetailsProp> = ({ invoice }) => {
+    const isFullInvoice = (inv: any): inv is Invoice => {
+        return 'status' in inv && 'total_travel_distance' in inv;
+    };
 
-    if (type === InvoiceType.HP) rows.push({label: "Diagnose", value: diagnosis})
+    const rows = [
+        { label: "Rechnungsdatum", value: invoice.invoice_date },
+        {
+            label: "Rechnungsnummer",
+            value: ('invoice_number' in invoice) ? (invoice.invoice_number ?? '-') : '-'
+        },
+        {
+            label: "Status",
+            value: ('status' in invoice) ? invoice.status : 'DRAFT'
+        },
+    ];
+
+    // Add payment info if it's a full invoice
+    if (isFullInvoice(invoice)) {
+        rows.push({ label: "Bezahlt am", value: invoice.paid_at ?? '-' });
+        rows.push({
+            label: "Gesamt Kilometer",
+            value: `${invoice.total_travel_distance.toFixed(1)} km`
+        });
+    }
+
+    // Add diagnosis for HP invoices
+    if (invoice.type === InvoiceType.HP) {
+        rows.push({ label: "Diagnose", value: invoice.diagnosis ?? '-' });
+    }
 
     return (
         <DataTable value={rows} showGridlines className="p-datatable-sm p-datatable-striped">
-            <Column field="label" style={{ width: '30%', fontWeight: 'bold' }}/>
-            <Column field="value"/>
+            <Column field="label" style={{ width: '30%', fontWeight: 'bold' }} />
+            <Column field="value" />
         </DataTable>
-    )
-}
+    );
+};

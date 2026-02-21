@@ -4,33 +4,47 @@ import {InputText} from 'primereact/inputtext';
 import {Dropdown} from 'primereact/dropdown';
 import {Button} from 'primereact/button';
 import {InputNumber} from "primereact/inputnumber";
-import {type QueryObserverResult, type RefetchOptions, useMutation, useQueryClient} from '@tanstack/react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {
     createPatientPatientsPostMutation,
     deletePatientPatientsPatientIdDeleteMutation,
     getPatientsPatientsGetOptions,
     updatePatientPatientsPatientIdPutMutation,
-} from '../api/@tanstack/react-query.gen';
-import {Gender, type HttpValidationError, type Patient, type PatientCreate} from '../api';
+} from '../../api/@tanstack/react-query.gen.ts';
+import {Gender, type Patient, type PatientCreate} from '../../api';
 import {confirmDialog, ConfirmDialog} from "primereact/confirmdialog";
-import {useGlobalToast} from "../hooks/use-global-toast.ts";
+import {useGlobalToast} from "../../hooks/use-global-toast.ts";
 
 interface PatientFormProps {
     onSuccess?: () => void;
     patientToEdit?: Patient | null;
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Patient[], HttpValidationError>>;
 }
 
-export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEdit, refetch }) => {
+export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEdit }) => {
     const queryClient = useQueryClient();
 
-    const { control, handleSubmit, reset, formState: {errors} } = useForm<PatientCreate>({
+    const { control, handleSubmit, reset, formState: {errors}, watch, setValue } = useForm<PatientCreate>({
         defaultValues: patientToEdit || {
             label: '', first_name: '', last_name: '', gender: Gender.FEMALE, street: '',
             street_number: '', postal_code: '', city: '', birthday: '',
             kilometers_to_travel: 0, email: '', telephone: ''
         }
     });
+
+    const watchedFirstname = watch('first_name')
+    const watchedLastname = watch('last_name')
+
+    React.useEffect(() => {
+        const fName = (watchedFirstname || '').trim();
+        const lName = (watchedLastname || '').trim();
+
+        const generatedLabel = (
+            lName.substring(0, 2) +
+                fName.substring(0, 2)
+        ).toUpperCase();
+
+        setValue('label', generatedLabel, {shouldValidate: true});
+    }, [watchedLastname, watchedFirstname, setValue, patientToEdit])
 
     const createMutation = useMutation({
         ...createPatientPatientsPostMutation(),
@@ -57,7 +71,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
         await deleteMutation.mutateAsync({
             path: {patient_id: id}
         });
-        await refetch();
     }
 
     const onSubmit = (data: PatientCreate) => {
@@ -120,7 +133,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                                 {...field}
                                 maxLength={4}
                                 className={errors.label ? 'p-invalid' : ''}
-                                disabled={!!patientToEdit}
+                                disabled={true}
                                 onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
                                     target.value = target.value.toUpperCase().replace(/[^A-Z]/g, '');

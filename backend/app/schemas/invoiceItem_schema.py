@@ -15,7 +15,7 @@ class InvoiceItemCreate(InvoiceItemBase):
     pass
 
 
-class InvoiceItemUpdate(InvoiceItemCreate):
+class InvoiceItemUpdate(InvoiceItemBase):
     item_id: Optional[int] = None
 
 

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional
 from sqlalchemy.orm import Session
+
 from ..utilities.database import get_db, add_db
-from ..models import InvoiceDB
-from ..schemas import Invoice, InvoiceCreate
-from ..services.invoice_service import create_invoice_logic, load_invoice
+from ..schemas import Invoice, InvoiceCreate, InvoiceUpdate
+from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
@@ -16,26 +16,7 @@ def get_invoices(
         search: Optional[str] = Query(None),
         db: Session = Depends(get_db)
 ):
-    query = db.query(InvoiceDB)
-
-    if only_drafts:
-        query = query.filter(InvoiceDB.is_draft == True)
-
-    elif not show_drafts:
-        query = query.filter(InvoiceDB.is_draft == False)
-
-    if search:
-        query = query.filter(InvoiceDB.invoice_number.ilike(f"%{search}%"))
-
-    return query.all()
-
-
-@router.get("/{invoice_id}", response_model=Invoice)
-def get_invoice(
-        invoice_id: int,
-        db: Session = Depends(get_db)
-):
-    return load_invoice(invoice_id, db)
+    return load_invoices(show_drafts, only_drafts, search, db)
 
 
 @router.post("/", response_model=Invoice)
@@ -46,6 +27,25 @@ def create_invoice(
     db_invoice = create_invoice_logic(invoice_new, db)
     return add_db(db_invoice, db)
 
+
+@router.get("/{invoice_id}", response_model=Invoice)
+def get_invoice(
+        invoice_id: int,
+        db: Session = Depends(get_db)
+):
+    return load_invoice(invoice_id, db)
+
+
+@router.patch("/{invoice_id}", response_model=Invoice)
+def update_invoice(
+        invoice_id: int,
+        invoice: InvoiceUpdate,
+        db: Session = Depends(get_db)
+):
+    db_invoice = load_invoice(invoice_id, db)
+    return db_invoice
+
+
 @router.delete("/{invoice_id}", response_model=Invoice)
 def delete_invoice(
         invoice_id: int,
@@ -53,8 +53,8 @@ def delete_invoice(
 ):
     db_invoice = load_invoice(invoice_id, db)
 
-    if not db_invoice:
-        raise HTTPException(status_code=404, detail="Rechnung nicht gefunden")
+    if db_invoice.is_locked:
+        raise HTTPException(status_code=403, detail="Invoice is locked")
 
     db.delete(db_invoice)
     db.commit()

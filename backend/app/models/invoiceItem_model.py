@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from .base_model import Base
@@ -16,4 +16,6 @@ class InvoiceItemDB(Base):
     amount = Column(Float, nullable=False)
     quantity = Column(Integer, default=1)
 
-    invoice = relationship("InvoiceDB", back_populates="items")
+    is_internal = Column(Boolean, default=False, nullable=False)
+
+    invoice = relationship("InvoiceDB", back_populates="user_items")
