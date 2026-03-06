@@ -1,11 +1,26 @@
 from fpdf import FPDF, XPos, YPos
 
+from app.utilities import LOGO_PATH, FONTS_DIR
+
 
 class DocumentPdf(FPDF):
     """overwrites the default FPDF2 header and footer functions for HP Rechnung."""
 
     def __init__(self, footer_note: str):
         super().__init__()
+
+        self.add_font(
+            family="Roboto",
+            style="",
+            fname=str(FONTS_DIR / "Roboto-Regular.ttf")
+        )
+
+        self.add_font(
+            family="Roboto",
+            style="B",
+            fname=str(FONTS_DIR / "Roboto-Bold.ttf")
+        )
+
         self.footer_note = footer_note
 
     def header(self):
@@ -16,18 +31,18 @@ class DocumentPdf(FPDF):
             self.image(
                 x=22,
                 y=17,
-                name="./system/components/images/logo.png",
+                name=LOGO_PATH,
                 w=18,
                 alt_text="Logo",
             )
         except FileNotFoundError:
             pass
+
         self.set_font("helvetica", "B", 14)
         self.cell(0, new_x=XPos.LMARGIN, new_y=YPos.TMARGIN)
         self.ln(2.5)
         self.cell(25)
         self.cell(0, text="Mervi Fischbach", align="L")
-        # self.cell(0, text='Test', align='R')
         self.ln()
         self.cell(25)
         self.set_font("helvetica", "B", 12)

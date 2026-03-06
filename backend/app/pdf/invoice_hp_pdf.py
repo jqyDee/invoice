@@ -1,6 +1,7 @@
 from ..models import InvoiceDB, SettingsDB, Gender
 from ..pdf.invoice_pdf import InvoicePdf
 from ..utilities.config import NORMAL_FONT_SIZE, TREATMENT_FONT_SIZE, RECIPIENT_OFFSET, CACHE_DIR
+from ..utilities.path_utilitiy import generate_invoice_path
 
 
 class InvoiceHp(InvoicePdf):
@@ -27,7 +28,7 @@ class InvoiceHp(InvoicePdf):
         self.birthday = invoice.patient.birthday.strftime("%d.%m.%Y") if invoice.patient.birthday else ""
 
         # Invoicedata
-        self.filepath = CACHE_DIR / f"{invoice.invoice_number}.pdf"
+        self.filepath = generate_invoice_path(invoice)
 
         self.diagnosis = invoice.diagnosis
         self.total = f"{invoice.total:.2f}".replace(".", ",")

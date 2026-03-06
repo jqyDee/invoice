@@ -3,6 +3,8 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from "primereact/button";
 import type { Patient } from "../../api";
+import {generatePath, useNavigate} from "react-router-dom";
+import {ROUTES} from "../../config/routes.ts";
 
 interface PatientTableProps {
     patients: Patient[] | undefined;
@@ -12,6 +14,8 @@ interface PatientTableProps {
 }
 
 export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview = false, isLoading, onEdit }) => {
+    const navigate = useNavigate();
+
     return (
         <DataTable
             value={patients}
@@ -46,8 +50,19 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
                 <Column
                     alignHeader="right"
                     body={(e: Patient) => (
-                        <div className="flex justify-content-end">
-                            <Button onClick={() => onEdit(e)} icon="pi pi-pencil" className="p-button-rounded" />
+                        <div className="flex justify-content-end gap-2">
+                            <Button
+                                icon="pi pi-file-pdf"
+                                className="p-button-rounded"
+                                onClick={() => navigate(generatePath(ROUTES.THERAPY_PREVIEW, { id: e.patient_id.toString() }))}
+                            />
+                            <Button
+                                onClick={() => onEdit(e)}
+                                icon="pi pi-pencil"
+                                tooltip="Bearbeiten"
+                                tooltipOptions={{ showDelay: 1000 }}
+                                className="p-button-rounded"
+                            />
                         </div>
                     )}
                     header="Aktionen"

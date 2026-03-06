@@ -20,6 +20,9 @@ export const menu: MenuItem[] = [
             {
                 label: 'Standardleistungen', icon: 'pi pi-thumbtack', url: generatePath(ROUTES.SETTINGS_DEFAULTS, { type: '' })
             },
+            {
+                label: 'Therapie-Klauseln', icon: 'pi pi-file-edit', url: ROUTES.SETTINGS_THERAPY_CLAUSES
+            },
         ]
     },
 ];

@@ -7,4 +7,6 @@ export const ROUTES = {
     INVOICE_PREVIEW : "/invoices/:id/pdf",
     SETTINGS_GENERAL : "/settings-general",
     SETTINGS_DEFAULTS: "/settings-defaults/:type?",
+    THERAPY_PREVIEW: "/therapy/:id/pdf",
+    SETTINGS_THERAPY_CLAUSES: "/settings/therapy-clauses"
 } as const;

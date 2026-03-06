@@ -3,15 +3,16 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm.session import Session
 
 from ..services.invoice_service import load_invoice
+from ..services.patient_service import load_patient
 from ..services.settings_service import load_settings
-from ..utilities import CACHE_DIR
 from ..utilities.database import get_db
-from ..services.pdf_service import check_and_regenerate_invoice_pdf
+from ..services.pdf_service import check_and_regenerate_invoice_pdf, check_and_regenerate_therapy_pdf
+from ..utilities.path_utilitiy import generate_invoice_path, generate_therapy_path
 
 router = APIRouter(prefix="/pdf", tags=["pdf"])
 
 
-@router.get("/{invoice_id}")
+@router.get("/invoice/{invoice_id}")
 def get_pdf_invoice(
         invoice_id: int,
         db: Session = Depends(get_db)
@@ -22,12 +23,39 @@ def get_pdf_invoice(
 
     invoice = load_invoice(invoice_id, db)
 
-    pdf_path = CACHE_DIR / f"{invoice.invoice_number}.pdf"
+    pdf_path = generate_invoice_path(invoice)
     check_and_regenerate_invoice_pdf(invoice, settings, pdf_path, db)
 
     return FileResponse(
         path=pdf_path,
         filename=f"{invoice.invoice_number}.pdf",
+        content_disposition_type="inline",
+        media_type='application/pdf',
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        }
+    )
+
+
+@router.get("/therapy/{patient_id}")
+def get_pdf_therapy(
+        patient_id: int,
+        db: Session = Depends(get_db)
+):
+    settings = load_settings(db)
+    if not settings:
+        raise HTTPException(status_code=404, detail="Bankdetails müssen zuerst in den Einstellungen festgelegt werden.")
+
+    patient = load_patient(patient_id, db)
+
+    pdf_path = generate_therapy_path(patient)
+    check_and_regenerate_therapy_pdf(patient, settings, db)
+
+    return FileResponse(
+        path=pdf_path,
+        filename=f"{patient.patient_id}-{patient.label}-therapy.pdf",
         content_disposition_type="inline",
         media_type='application/pdf',
         headers={
