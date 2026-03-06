@@ -45,15 +45,23 @@ class InvoiceHp(InvoicePdf):
         self.treatment_table = [["Datum", "Ziffer", "Art der Behandlung", "Betrag", ""]]
         self.manual_pagebreak = False
 
-        for i in invoice.items:
-            word_count = len(i.description.split())
-            col_5_content = "€\n" * word_count
+        for d in sorted(invoice.dates, key=lambda d: d.date):
+            date_str = d.date.strftime("%d.%m.%y") + "\n"
+            date_str += "\n".join("" for _ in d.items)
 
-            amount_str = f"{i.amount:.2f}".replace(".", ",")
+            ziffern_str = "\n".join(str(i.number) for i in d.items)
+            desc_str = "\n".join(i.description for i in d.items)
+            amount_str = "\n".join(f"{i.amount:.2f}".replace(".", ",") for i in d.items)
 
-            self.treatment_table.append(
-                [i.date.strftime("%d.%m.%y") if hasattr(i, "date") else "", str(i.number), i.description, amount_str,
-                 col_5_content])
+            euro_str = "\n".join("€" for _ in d.items)
+
+            self.treatment_table.append([
+                date_str,
+                ziffern_str,
+                desc_str,
+                amount_str,
+                euro_str
+            ])
 
         ## TOTAL TABLE (TABLE 4)
         self.total_table = [
@@ -122,85 +130,6 @@ class InvoiceHp(InvoicePdf):
         self.set_font("Roboto", style="", size=NORMAL_FONT_SIZE)
         self.multi_cell(135, text=f"{self.diagnosis}")
 
-        # offset rendering the main table and the total
-        # making sure it is not split in half
-        with self.offset_rendering() as dummy:
-            dummy.cell(175, 0, border=1, center=True)
-            dummy.ln(10)
-            if self.gender == "Mann":
-                dummy.write(
-                    text=f"Sehr geehrter Herr {self.last_name},\n\n"
-                         f"hiermit erlaube ich mir, für meine Bemühungen folgendes "
-                         f"Honorar zu berechnen:"
-                )
-            if self.gender == "Frau":
-                dummy.write(
-                    text=f"Sehr geehrte Frau {self.last_name},\n\n"
-                         f"hiermit erlaube ich mir, für meine Bemühungen "
-                         f"folgendes Honorar zu berechnen:"
-                )
-            dummy.ln(7)
-            dummy.set_font("Roboto", size=TREATMENT_FONT_SIZE)
-
-            # Table 2
-            # -----------------
-            # Date | Ziffern | Descriptions | Costs
-            with dummy.table(
-                    cell_fill_color=230,
-                    cell_fill_mode="ROWS",
-                    line_height=int(1.7 * self.font_size),
-                    text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
-                    col_widths=(10, 8, 70, 10, 4),
-            ) as table:
-                for index1, data_row in enumerate(self.treatment_table):
-                    row = table.row()
-                    for index2, datum in enumerate(data_row):
-                        row.cell(datum)
-
-            dummy.ln(1)
-            dummy.cell(175, 0, border=1, center=True)
-
-            # Table 3
-            # --------------
-            #      |      | Gesamtbetrag | Total
-            with dummy.table(
-                    borders_layout="NONE",
-                    col_widths=(10, 8, 70, 10, 4),
-                    line_height=int(1.7 * self.font_size),
-                    text_align=("CENTER", "LEFT", "RIGHT", "RIGHT", "LEFT"),
-                    cell_fill_color=180,
-                    cell_fill_mode="NONE",
-                    first_row_as_headings=False,
-            ) as table:
-                page_before = dummy.page_no()
-                for data_row in self.total_table:
-                    row = table.row()
-                    for index, datum in enumerate(data_row):
-                        if index == 4:
-                            dummy.set_font("Roboto", "", size=TREATMENT_FONT_SIZE)
-                            row.cell(datum)
-                            dummy.set_font(
-                                "Roboto", style="", size=TREATMENT_FONT_SIZE
-                            )
-                        else:
-                            dummy.set_font(
-                                "Roboto", style="B", size=TREATMENT_FONT_SIZE
-                            )
-                            row.cell(datum)
-                            dummy.set_font(
-                                "Roboto", style="", size=TREATMENT_FONT_SIZE
-                            )
-
-            man_page_break = False
-            if page_before != dummy.page_no():
-                man_page_break = True
-
-        if man_page_break:
-            self.table_data_2_1 = list(self.treatment_table)
-            while len(self.table_data_2_1) > 2:
-                self.table_data_2_1.pop(1)
-            self.treatment_table.pop(-1)
-
         self.cell(175, 0, border=1, center=True)
         self.ln(10)
         if self.gender == "Mann":
@@ -218,59 +147,85 @@ class InvoiceHp(InvoicePdf):
         self.ln(7)
         self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
 
-        # Table 2
-        # -----------------
-        # Date | Ziffern | Descriptions | Costs
-        with self.table(
-                cell_fill_color=230,
-                cell_fill_mode="ROWS",
-                line_height=int(1.7 * self.font_size),
-                text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
-                col_widths=(10, 8, 70, 10, 4),
-        ) as table:
-            for data_row in self.treatment_table:
-                row = table.row()
-                for index, datum in enumerate(data_row):
-                    if index == 4:
-                        self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
-                        row.cell(datum)
-                        self.set_font(
-                            "Roboto", style="", size=TREATMENT_FONT_SIZE
-                        )
-                    else:
-                        row.cell(datum)
+        # TABLE SETUP
+        headers = self.treatment_table[0]
+        treatments = self.treatment_table[1:]
 
-        # only when table 2 and 3 are separated
-        # Table 2.1
-        # -----------------
-        # Date | Ziffern | Descriptions | Costs
-        if self.table_data_2_1:
-            self.add_page()
+        main_treatments = treatments[:-1] if len(treatments) > 1 else treatments
+        last_treatment = treatments[-1:] if len(treatments) > 1 else None
+
+        last_treatment_row_color = 255 if len(treatments) % 2 == 0 else 230
+
+        if main_treatments:
             with self.table(
                     cell_fill_color=230,
                     cell_fill_mode="ROWS",
                     line_height=int(1.7 * self.font_size),
                     text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
                     col_widths=(10, 8, 70, 10, 4),
+                    first_row_as_headings=True
             ) as table:
-                for data_row in self.table_data_2_plus:
+                row = table.row()
+                for datum in headers:
+                    row.cell(datum)
+
+                for data_row in main_treatments:
                     row = table.row()
                     for index, datum in enumerate(data_row):
-                        if index == 4:
-                            self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
-                            row.cell(datum)
-                            self.set_font(
-                                "Roboto", style="", size=TREATMENT_FONT_SIZE
-                            )
-                        else:
-                            row.cell(datum)
+                        row.cell(datum)
+
+        # ============== DUMMY ==============
+        with self.offset_rendering() as dummy:
+            if last_treatment:
+                with dummy.table(
+                        cell_fill_color=230,
+                        cell_fill_mode="ROWS",
+                        line_height=int(1.7 * self.font_size),
+                        text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
+                        col_widths=(10, 8, 70, 10, 4),
+                        first_row_as_headings=False
+                ) as table:
+                    row = table.row()
+                    for datum in last_treatment[0]:
+                        row.cell(datum)
+
+            dummy.ln(1)
+            dummy.cell(175, 0, border=1, center=True)
+
+            with dummy.table(
+                    borders_layout="NONE",
+                    col_widths=(10, 8, 70, 10, 4),
+                    line_height=int(1.7 * self.font_size),
+                    text_align=("CENTER", "LEFT", "RIGHT", "RIGHT", "LEFT"),
+                    cell_fill_color=180,
+                    cell_fill_mode="NONE",
+                    first_row_as_headings=False,
+            ) as table:
+                for data_row in self.total_table:
+                    row = table.row()
+                    for datum in data_row:
+                        row.cell(datum)
+
+        if dummy.page_break_triggered:
+            self.add_page()
+        # ============== DUMMY ==============
+
+        if last_treatment:
+            with self.table(
+                cell_fill_color=last_treatment_row_color,
+                cell_fill_mode="ALL",
+                line_height=int(1.7 * self.font_size),
+                text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
+                col_widths=(10, 8, 70, 10, 4),
+                first_row_as_headings=False,  # No headers for the appended row
+            ) as table:
+                row = table.row()
+                for datum in last_treatment[0]:
+                    row.cell(datum)
 
         self.ln(1)
         self.cell(175, 0, border=1, center=True)
 
-        # Table 3
-        # --------------
-        #      |      | Gesamtbetrag | Total
         with self.table(
                 borders_layout="NONE",
                 col_widths=(10, 8, 70, 10, 4),
@@ -282,23 +237,8 @@ class InvoiceHp(InvoicePdf):
         ) as table:
             for data_row in self.total_table:
                 row = table.row()
-                for index, datum in enumerate(data_row):
-                    if index == 4:
-                        self.set_font("Roboto", "", size=TREATMENT_FONT_SIZE)
-                        row.cell(datum)
-                        self.set_font(
-                            "Roboto", style="", size=TREATMENT_FONT_SIZE
-                        )
-                    else:
-                        self.set_font(
-                            "Roboto", style="B", size=TREATMENT_FONT_SIZE
-                        )
-                        row.cell(datum)
-                        self.set_font(
-                            "Roboto", style="", size=TREATMENT_FONT_SIZE
-                        )
-
-        self.ln(3)
+                for datum in data_row:
+                    row.cell(datum)
 
         with self.offset_rendering() as dummy:
             dummy.write(

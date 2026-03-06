@@ -73,48 +73,29 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         />
                     </Dialog>
                     <Dialog
-                        header="Neues Behandlungsdatum"
-                        visible={state.isDateDialogOpen}
-                        onHide={() => setters.setIsDateDialogOpen(false)}
+                        header={state.dateDialogMode === 'add' ? "Neues Behandlungsdatum" : "Datum ändern"}
+                        visible={state.dateDialogMode !== null}
+                        onHide={actions.closeDateDialog}
+                        style={{ maxWidth: '90vw', minWidth: '30vw' }}
                     >
                         <div className="flex flex-column gap-3">
                             <Calendar
-                                value={state.newDate}
-                                onChange={(e) => setters.setNewDate(e.value as Date)}
+                                value={state.datePickerValue}
+                                onChange={(e) => setters.setDatePickerValue(e.value as Date)}
                                 inline
+                                className="w-full"
                             />
                             <div className="flex justify-content-end gap-2">
                                 <Button
                                     label="Abbrechen"
                                     className="p-button-text"
-                                    onClick={() => setters.setIsDateDialogOpen(false)} />
+                                    onClick={actions.closeDateDialog}
+                                />
                                 <Button
-                                    label="Hinzufügen"
-                                    onClick={actions.addDate}
-                                    disabled={!state.newDate} />
-                            </div>
-                        </div>
-                    </Dialog>
-                    <Dialog
-                        header="Datum ändern"
-                        visible={state.isEditDateDialogOpen}
-                        onHide={() => setters.setIsEditDateDialogOpen(false)}
-                    >
-                        <div className="flex flex-column gap-3">
-                            <Calendar
-                                value={state.editDateValue}
-                                onChange={(e) => setters.setEditDateValue(e.value as Date)}
-                                inline
-                            />
-                            <div className="flex justify-content-end gap-2">
-                                <Button
-                                    label="Abbrechen"
-                                    className="p-button-text"
-                                    onClick={() => setters.setIsEditDateDialogOpen(false)} />
-                                <Button
-                                    label="Speichern"
-                                    onClick={actions.changeDate}
-                                    disabled={!state.editDateValue} />
+                                    label={state.dateDialogMode === 'add' ? "Hinzufügen" : "Speichern"}
+                                    onClick={actions.confirmDate}
+                                    disabled={!state.datePickerValue}
+                                />
                             </div>
                         </div>
                     </Dialog>
@@ -166,6 +147,8 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                                     readonly={readonly}
                                     onEdit={actions.openEdit}
                                     onDel={actions.removeItem}
+                                    onMoveUp={actions.moveItemUp}
+                                    onMoveDown={actions.moveItemDown}
                                 />
                             }
                             style={{ width: '20%' }}
@@ -219,7 +202,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     label="Neues Datum hinzufügen"
                     icon="pi pi-calendar-plus"
                     className="p-button-outlined w-full"
-                    onClick={() => setters.setIsDateDialogOpen(true)}
+                    onClick={actions.openAddDate}
                 />
             }
             {!readonly && isKG &&

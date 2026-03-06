@@ -102,11 +102,12 @@ def _create_hp_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB
         db.add(db_date)
         db.flush()
 
-        for item_schema in (date_schema.items or []):
+        for idx, item_schema in enumerate(date_schema.items or []):
             db.add(InvoiceItemDB(
                 **item_schema.model_dump(),
                 invoice_id=db_invoice.invoice_id,
-                date_id=db_date.date_id
+                date_id=db_date.date_id,
+                position=idx
             ))
 
 
@@ -114,11 +115,12 @@ def _create_kg_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB
     for date_schema in (new_invoice.dates or []):
         db.add(InvoiceDateDB(invoice_id=db_invoice.invoice_id, date=date_schema.date))
 
-    for item_schema in (new_invoice.user_items or []):
+    for idx, item_schema in enumerate(new_invoice.user_items or []):
         db.add(InvoiceItemDB(
             **item_schema.model_dump(),
             invoice_id=db_invoice.invoice_id,
-            date_id=None
+            date_id=None,
+            position=idx
         ))
 
 
@@ -216,11 +218,12 @@ def _create_hp_date_with_items(db_invoice: InvoiceDB, d_schema: InvoiceDateUpdat
     db.add(new_date)
     db.flush()
 
-    for i_schema in (d_schema.items or []):
+    for idx, i_schema in enumerate(d_schema.items or []):
         db.add(InvoiceItemDB(
             **i_schema.model_dump(exclude={"item_id"}),
             invoice_id=db_invoice.invoice_id,
-            date_id=new_date.date_id
+            date_id=new_date.date_id,
+            position=idx
         ))
 
 
@@ -235,6 +238,7 @@ def _sync_items_for_date(db_invoice: InvoiceDB, db_date: InvoiceDateDB, incoming
             db.delete(i_obj)
 
     # Update or Create
+    db_items_in_order = []
     for i_schema in incoming_items:
         validate_invoice_item(i_schema, InvoiceType.HP, 1)
         if i_schema.item_id in existing_items:
@@ -242,11 +246,16 @@ def _sync_items_for_date(db_invoice: InvoiceDB, db_date: InvoiceDateDB, incoming
             for key, value in i_schema.model_dump(exclude={"item_id"}, exclude_unset=True).items():
                 setattr(db_item, key, value)
         else:
-            db.add(InvoiceItemDB(
+            db_item = InvoiceItemDB(
                 **i_schema.model_dump(exclude={"item_id"}),
                 invoice_id=db_invoice.invoice_id,
                 date_id=db_date.date_id
-            ))
+            )
+            db.add(db_item)
+        db_items_in_order.append(db_item)
+
+    for idx, db_item in enumerate(db_items_in_order):
+        db_item.position = idx
 
 
 def set_payment_due(invoice_id: int, db: Session) -> InvoiceDB:
@@ -296,6 +305,7 @@ def _sync_standalone_items(db_invoice: InvoiceDB, incoming_items: list) -> None:
         if i_id not in incoming_ids:
             db_invoice.user_items.remove(i_obj)
 
+    db_items_in_order = []
     for i_in in incoming_items:
         validate_invoice_item(i_in, db_invoice.type, date_count)
         if i_in.item_id in existing_items:
@@ -303,4 +313,9 @@ def _sync_standalone_items(db_invoice: InvoiceDB, incoming_items: list) -> None:
             for key, value in i_in.model_dump(exclude={"item_id"}, exclude_unset=True).items():
                 setattr(db_item, key, value)
         else:
-            db_invoice.user_items.append(InvoiceItemDB(**i_in.model_dump(exclude={"item_id"})))
+            db_item = InvoiceItemDB(**i_in.model_dump(exclude={"item_id"}))
+            db_invoice.user_items.append(db_item)
+        db_items_in_order.append(db_item)
+
+    for idx, db_item in enumerate(db_items_in_order):
+        db_item.position = idx

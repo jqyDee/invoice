@@ -15,15 +15,31 @@ interface ActionCellProps {
     isKG: boolean;
     onEdit: (item: DisplayItem) => void;
     onDel: (date: string | undefined, item: DisplayItem, index?: number) => void;
+    onMoveUp?: (date: string, index: number) => void;
+    onMoveDown?: (date: string, index: number) => void;
 }
 
-export const ActionCell = ({ item, readonly, isKG, onEdit, onDel }: ActionCellProps) => {
+export const ActionCell = ({ item, readonly, isKG, onEdit, onDel, onMoveUp, onMoveDown }: ActionCellProps) => {
     if (readonly || item.isEmpty || item.isDefault) return null;
     const isWarning = !isKG && (!item.number || !item.date);
 
     return (
         <div className="flex justify-content-end gap-1">
             {isWarning && <Tag severity="warning" icon="pi pi-exclamation-circle" rounded />}
+            {!isKG && onMoveUp && (
+                <Button
+                    icon="pi pi-angle-up"
+                    className="p-button-text p-button-rounded p-button-sm"
+                    onClick={() => onMoveUp(item.date!, item._originalIndex)}
+                />
+            )}
+            {!isKG && onMoveDown && (
+                <Button
+                    icon="pi pi-angle-down"
+                    className="p-button-text p-button-rounded p-button-sm"
+                    onClick={() => onMoveDown(item.date!, item._originalIndex)}
+                />
+            )}
             <Button
                 icon="pi pi-pencil"
                 className="p-button-text p-button-rounded"

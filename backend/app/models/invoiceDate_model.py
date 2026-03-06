@@ -12,4 +12,5 @@ class InvoiceDateDB(Base):
     invoice = relationship("InvoiceDB", back_populates="dates")
 
     # HP
-    items = relationship("InvoiceItemDB", back_populates="treatment_date", cascade="all, delete-orphan")
+    items = relationship("InvoiceItemDB", back_populates="treatment_date", cascade="all, delete-orphan",
+                         order_by="InvoiceItemDB.position")

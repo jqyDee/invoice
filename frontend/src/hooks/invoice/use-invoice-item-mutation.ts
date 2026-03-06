@@ -18,11 +18,11 @@ export const useInvoiceItemMutations = (
     const [editingItem, setEditingItem] = useState<any>(undefined);
     const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
     const [visible, setVisible] = useState(false);
-    const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
-    const [newDate, setNewDate] = useState<Date | null>(null);
+
+    // Unified date dialog state
+    const [dateDialogMode, setDateDialogMode] = useState<'add' | 'edit' | null>(null);
+    const [datePickerValue, setDatePickerValue] = useState<Date | null>(null);
     const [editingDate, setEditingDate] = useState<string | null>(null);
-    const [editDateValue, setEditDateValue] = useState<Date | null>(null);
-    const [isEditDateDialogOpen, setIsEditDateDialogOpen] = useState(false);
 
     const openEdit = (item: any) => {
         setEditingItem(item);
@@ -79,57 +79,84 @@ export const useInvoiceItemMutations = (
         }
     };
 
-    const addDate = () => {
-        if (newDate && onChange) {
-            const dateStr = toLocalDateString(newDate);
+    const openAddDate = () => {
+        setDatePickerValue(null);
+        setDateDialogMode('add');
+    };
+
+    const openEditDate = (date: string) => {
+        setEditingDate(date);
+        setDatePickerValue(new Date(date + 'T00:00:00'));
+        setDateDialogMode('edit');
+    };
+
+    const closeDateDialog = () => {
+        setDateDialogMode(null);
+        setDatePickerValue(null);
+        setEditingDate(null);
+    };
+
+    const confirmDate = () => {
+        if (!datePickerValue || !onChange) return;
+        if (dateDialogMode === 'add') {
+            const dateStr = toLocalDateString(datePickerValue);
             const dates = [...(invoice.dates || [])];
             if (!dates.find(d => d.date === dateStr)) {
                 dates.push({ date: dateStr, items: [] });
                 dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 onChange({ dates });
             }
-            setIsDateDialogOpen(false);
-            setNewDate(null);
+        } else if (dateDialogMode === 'edit' && editingDate) {
+            const newDateStr = toLocalDateString(datePickerValue);
+            if (newDateStr !== editingDate) {
+                const dates = [...(invoice.dates || [])] as any[];
+                const oldIdx = dates.findIndex(d => d.date === editingDate);
+                if (oldIdx !== -1) {
+                    const existingIdx = dates.findIndex(d => d.date === newDateStr);
+                    if (existingIdx !== -1) {
+                        dates[existingIdx] = { ...dates[existingIdx], items: [...(dates[existingIdx].items || []), ...(dates[oldIdx].items || [])] };
+                        dates.splice(oldIdx, 1);
+                    } else {
+                        dates[oldIdx] = { ...dates[oldIdx], date: newDateStr };
+                    }
+                    dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    onChange({ dates });
+                }
+            }
         }
+        closeDateDialog();
     };
 
     const removeDate = (date: string) => {
         onChange && onChange({ dates: invoice.dates!.filter((d: any) => d.date !== date) });
     };
 
-    const openEditDate = (date: string) => {
-        setEditingDate(date);
-        setEditDateValue(new Date(date + 'T00:00:00'));
-        setIsEditDateDialogOpen(true);
+    const moveItemUp = (date: string, index: number) => {
+        if (!onChange || index === 0) return;
+        const dates = [...(invoice.dates || [])] as any[];
+        const dateIdx = dates.findIndex(d => d.date === date);
+        if (dateIdx === -1) return;
+        const items = [...dates[dateIdx].items];
+        [items[index - 1], items[index]] = [items[index], items[index - 1]];
+        dates[dateIdx] = { ...dates[dateIdx], items };
+        onChange({ dates });
     };
 
-    const changeDate = () => {
-        if (!editDateValue || !editingDate || !onChange) return;
-        const newDateStr = toLocalDateString(editDateValue);
-        if (newDateStr === editingDate) {
-            setIsEditDateDialogOpen(false);
-            return;
-        }
+    const moveItemDown = (date: string, index: number) => {
+        if (!onChange) return;
         const dates = [...(invoice.dates || [])] as any[];
-        const oldIdx = dates.findIndex(d => d.date === editingDate);
-        if (oldIdx === -1) return;
-        const existingIdx = dates.findIndex(d => d.date === newDateStr);
-        if (existingIdx !== -1) {
-            dates[existingIdx] = { ...dates[existingIdx], items: [...(dates[existingIdx].items || []), ...(dates[oldIdx].items || [])] };
-            dates.splice(oldIdx, 1);
-        } else {
-            dates[oldIdx] = { ...dates[oldIdx], date: newDateStr };
-        }
-        dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const dateIdx = dates.findIndex(d => d.date === date);
+        if (dateIdx === -1) return;
+        const items = [...dates[dateIdx].items];
+        if (index >= items.length - 1) return;
+        [items[index], items[index + 1]] = [items[index + 1], items[index]];
+        dates[dateIdx] = { ...dates[dateIdx], items };
         onChange({ dates });
-        setIsEditDateDialogOpen(false);
-        setEditingDate(null);
-        setEditDateValue(null);
     };
 
     return {
-        state: { editingItem, prefillDate, visible, isDateDialogOpen, newDate, editingDate, editDateValue, isEditDateDialogOpen },
-        setters: { setVisible, setIsDateDialogOpen, setNewDate, setEditDateValue, setIsEditDateDialogOpen },
-        actions: { openEdit, openAdd, saveItem, removeItem, addDate, removeDate, openEditDate, changeDate }
+        state: { editingItem, prefillDate, visible, dateDialogMode, datePickerValue },
+        setters: { setVisible, setDatePickerValue },
+        actions: { openEdit, openAdd, saveItem, removeItem, openAddDate, removeDate, openEditDate, confirmDate, closeDateDialog, moveItemUp, moveItemDown }
     };
 };

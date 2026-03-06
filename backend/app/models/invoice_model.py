@@ -41,7 +41,8 @@ class InvoiceDB(Base):
 
     dates = relationship("InvoiceDateDB", back_populates="invoice", cascade="all, delete-orphan")
 
-    user_items = relationship("InvoiceItemDB", back_populates="invoice", cascade="all, delete-orphan")
+    user_items = relationship("InvoiceItemDB", back_populates="invoice", cascade="all, delete-orphan",
+                              order_by="InvoiceItemDB.position")
     default_items = relationship("InvoiceInvoiceDefaultItemAssociationDB", back_populates="invoice",
                                  cascade="all, delete-orphan")
 

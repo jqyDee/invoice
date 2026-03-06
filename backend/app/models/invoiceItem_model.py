@@ -14,6 +14,7 @@ class InvoiceItemDB(Base):
     description = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
     quantity = Column(Integer, default=1)
+    position = Column(Integer, nullable=True, default=0)
 
     invoice = relationship("InvoiceDB", back_populates="user_items")
 
