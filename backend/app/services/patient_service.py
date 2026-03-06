@@ -11,7 +11,7 @@ def load_patient(patient_id: int, db: Session) -> PatientDB:
     patient: Optional[PatientDB] = db.get(PatientDB, patient_id)
 
     if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
+        raise HTTPException(status_code=404, detail="Patient konnte nicht gefunden werden.")
 
     return patient
 

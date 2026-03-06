@@ -10,3 +10,6 @@ class InvoiceDateDB(Base):
     date = Column(Date, nullable=False)
 
     invoice = relationship("InvoiceDB", back_populates="dates")
+
+    # HP
+    items = relationship("InvoiceItemDB", back_populates="treatment_date", cascade="all, delete-orphan")

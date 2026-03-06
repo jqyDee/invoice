@@ -1,10 +1,10 @@
 import {Stepper} from "primereact/stepper";
 import {StepperPanel} from "primereact/stepperpanel";
-import {StepGeneralContent} from "./invoice-creation/step-general-content.tsx";
-import {StepItemsContent} from "./invoice-creation/step-items-content.tsx";
+import {StepGeneralContent} from "./invoice-edit/step-general-content.tsx";
+import {StepItemsContent} from "./invoice-edit/step-items-content.tsx";
 import React, {useRef} from "react";
-import {StepOverviewContent} from "./invoice-creation/step-overview-content.tsx";
-import {StepDetailsContent} from "./invoice-creation/step-details-content.tsx";
+import {StepOverviewContent} from "./invoice-edit/step-overview-content.tsx";
+import {StepDetailsContent} from "./invoice-edit/step-details-content.tsx";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
     createInvoiceInvoicesPostMutation,
@@ -23,7 +23,7 @@ import {useGlobalToast} from "../hooks/use-global-toast.ts";
 import {type InvoiceCreate, InvoiceType, type InvoiceUpdate} from "../api";
 
 
-export const InvoiceCreateView: React.FC = () => {
+export const InvoiceEditView: React.FC = () => {
     const { id } = useParams(); // Optional type
     const stepperRef = useRef<any>(null);
     const navigate = useNavigate();
@@ -126,7 +126,7 @@ export const InvoiceCreateView: React.FC = () => {
 
             navigate(generatePath(ROUTES.INVOICE, { id: result.invoice_id.toString() }));
         } catch (error) {
-            showToast({ severity: 'error', summary: 'Fehler', detail: "Speichern fehlgeschlagen" });
+            showToast({ severity: 'error', summary: 'Fehler', detail: `Rechnung konnte nicht gespeichert werden. ${JSON.stringify(error)}`});
         }
     };
 

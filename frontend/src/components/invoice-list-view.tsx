@@ -40,7 +40,7 @@ export const InvoiceListView: React.FC<InvoicesListProps> = ({ onlyDrafts }) => 
                 <div className="flex gap-2 align-items-center">
                     <label>Entwürfe anzeigen</label>
                     <InputSwitch checked={showDrafts} onChange={(e) => setShowDrafts(e.value)} />
-                    <Button onClick={() => navigate(generatePath(ROUTES.INVOICE_CREATE, {id : ""}))} icon="pi pi-plus" label="Neue Rechnung" className="p-button-rounded" />
+                    <Button onClick={() => navigate(generatePath(ROUTES.INVOICE_EDIT, {id : ""}))} icon="pi pi-plus" label="Neue Rechnung" className="p-button-rounded" />
                     <InputText value={search} placeholder="Suche..." onChange={(e) => setSearch(e.target.value)} style={{ minWidth: "20vw" }} />
                 </div>
             </div>

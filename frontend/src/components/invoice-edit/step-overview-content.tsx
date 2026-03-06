@@ -2,17 +2,16 @@ import React, {useMemo} from "react";
 import {InvoiceItemTable} from "../invoice/invoice-item-table.tsx";
 import {
     type Invoice,
-    type InvoiceCreate, type InvoiceItemCreate, InvoiceType, type InvoiceUpdate
+    type InvoiceCreate, InvoiceType, type InvoiceUpdate
 } from "../../api";
 import {InvoiceCalendar} from "../invoice/invoice-calendar.tsx";
 import {Header} from "../../utilities/header.tsx";
 import {InvoicePatientData} from "../invoice/invoice-patient-data.tsx";
 import {Total} from "../../utilities/total.tsx";
 import {InvoiceDetails} from "../invoice/invoice-details.tsx";
-import {useInvoiceTotal} from "../../hooks/use-invoice-total.ts";
+import {useInvoiceTotal} from "../../hooks/invoice/use-invoice-total.ts";
 import {useQuery} from "@tanstack/react-query";
 import {
-    getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
     getPatientsPatientsGetOptions
 } from "../../api/@tanstack/react-query.gen.ts";
 import {enforceNonNull} from "../../utilities/enforce-non-null.ts";
@@ -29,45 +28,6 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
     const { data: patients } = useQuery(getPatientsPatientsGetOptions());
     const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
 
-    const { data: allDefaults } = useQuery(getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
-        query: { invoice_type: invoice.type }
-    }));
-
-
-    const displayItems = useMemo(() => {
-        if ('items' in invoice && invoice.items) {
-            return invoice.items;
-        }
-
-        const userItems = invoice.user_items || [];
-        const defaultIds = 'default_item_ids' in invoice ? (invoice.default_item_ids || []) : [];
-
-        if (!allDefaults || defaultIds.length === 0) {
-            return userItems;
-        }
-
-        const activeDefaults = allDefaults.filter(d => defaultIds.includes(d.default_item_id));
-
-        const prepend = activeDefaults.filter(d => d.position === "PREPEND" || d.position === "BOTH");
-        const append = activeDefaults.filter(d => d.position === "APPEND" || d.position === "BOTH");
-
-        return [...prepend, ...userItems, ...append];
-    }, [invoice, allDefaults]);
-
-    console.log(displayItems)
-
-    const standardizedItems: InvoiceItemCreate[] = displayItems.map((item) => {
-        const dateCount = invoice.dates?.length || 1;
-        return {
-            description: item.description,
-            amount: item.amount,
-            // Use date multiplier if quantity is null
-            quantity: item.quantity ?? (isKG ? dateCount : 1),
-            number: item.number ?? null,
-            date: 'date' in item ? (item.date as string) : null,
-        };
-    });
-
     const datesAsDates = useMemo(() =>
         invoice.dates?.map(d => new Date(d.date)) || [],
     [invoice.dates]);
@@ -75,7 +35,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
     const calculatedTotal = useInvoiceTotal(
         enforceNonNull(invoice.type),
         enforceNonNull(invoice.user_items),
-        enforceNonNull(invoice.dates).map(d => new Date(d.date))
+        datesAsDates
     );
 
     return (
@@ -87,7 +47,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
             )}
 
             <Header title="Leistungsübersicht"/>
-            <InvoiceItemTable invoiceItems={standardizedItems} type={enforceNonNull(invoice.type)} isLoading={false} />
+            <InvoiceItemTable invoice={invoice} onChange={() => {}} readonly={true}/>
             <Total total={calculatedTotal}/>
 
             <Header title="Details"/>

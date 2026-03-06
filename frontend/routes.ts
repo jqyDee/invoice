@@ -2,7 +2,7 @@ import {PatientListView} from "./src/components/patient-list-view.tsx";
 import {ROUTES} from "./src/config/routes.ts";
 import {HomepageView} from "./src/components/homepage-view.tsx";
 import {InvoiceListView} from "./src/components/invoice-list-view.tsx";
-import {InvoiceCreateView} from "./src/components/invoice-create-view.tsx";
+import {InvoiceEditView} from "./src/components/invoice-edit-view.tsx";
 import {InvoiceDetailsView} from "./src/components/invoice-details-view.tsx";
 import {InvoicePreviewView} from "./src/components/invoice-preview-view.tsx";
 import {SettingsGeneralView} from "./src/components/settings-general-view.tsx";
@@ -24,8 +24,8 @@ export const InvoicesRoute = {
 }
 
 export const InvoiceCreateRoute = {
-    url: ROUTES.INVOICE_CREATE,
-    component: InvoiceCreateView
+    url: ROUTES.INVOICE_EDIT,
+    component: InvoiceEditView
 }
 
 export const InvoiceRoute = {

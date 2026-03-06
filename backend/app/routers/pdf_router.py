@@ -18,7 +18,7 @@ def get_pdf_invoice(
 ):
     settings = load_settings(db)
     if not settings:
-        raise HTTPException(status_code=404, detail="Bankdetails festlegen")
+        raise HTTPException(status_code=404, detail="Bankdetails müssen zuerst in den Einstellungen festgelegt werden.")
 
     invoice = load_invoice(invoice_id, db)
 

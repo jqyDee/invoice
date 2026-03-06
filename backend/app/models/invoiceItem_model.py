@@ -10,12 +10,13 @@ class InvoiceItemDB(Base):
     item_id = Column(Integer, primary_key=True, index=True)
     invoice_id = Column(Integer, ForeignKey("invoice.invoice_id"), nullable=False)
 
-    date = Column(Date, nullable=True)
     number = Column(String, nullable=True)
     description = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
     quantity = Column(Integer, default=1)
 
-    is_internal = Column(Boolean, default=False, nullable=False)
-
     invoice = relationship("InvoiceDB", back_populates="user_items")
+
+    # HP
+    date_id = Column(Integer, ForeignKey("invoice_date.date_id"), nullable=True)
+    treatment_date = relationship("InvoiceDateDB", back_populates="items")

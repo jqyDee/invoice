@@ -2,6 +2,7 @@ import React from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { type Invoice, type InvoiceCreate, InvoiceType, type InvoiceUpdate } from "../../api";
+import {toGermanStatus} from "../../utilities/status.ts";
 
 interface InvoiceDetailsProp {
     invoice: Invoice | InvoiceCreate | InvoiceUpdate;
@@ -20,7 +21,7 @@ export const InvoiceDetails: React.FC<InvoiceDetailsProp> = ({ invoice }) => {
         },
         {
             label: "Status",
-            value: ('status' in invoice) ? invoice.status : 'DRAFT'
+            value: toGermanStatus(('status' in invoice) ? invoice.status : 'DRAFT')
         },
     ];
 

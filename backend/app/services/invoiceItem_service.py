@@ -30,7 +30,7 @@ def load_default_item(
     db_item = db.scalar(statement)
 
     if not db_item:
-        raise HTTPException(status_code=404, detail="Standardposition nicht gefunden")
+        raise HTTPException(status_code=404, detail="Standardleistung konnte nicht gefunden werden.")
 
     return db_item
 
@@ -60,10 +60,10 @@ def validate_invoice_item(
 ):
     """Validate and enforce item fields."""
     if not default_item and item.amount < 0:
-        raise HTTPException(status_code=400, detail="Betrag darf nicht negativ sein")
+        raise HTTPException(status_code=400, detail="Betrag darf nicht negativ sein.")
 
     if not item.description:
-        raise HTTPException(status_code=400, detail="Beschreibung fehlt")
+        raise HTTPException(status_code=400, detail="Beschreibung darf nicht leer sein.")
 
     if inv_type == InvoiceType.KG:
         item.quantity = quantity
@@ -72,4 +72,4 @@ def validate_invoice_item(
         item.number = None
     elif inv_type == InvoiceType.HP:
         if not item.number:
-            raise HTTPException(status_code=400, detail="Ziffer fehlt")
+            raise HTTPException(status_code=400, detail="Ziffer darf nicht leer sein.")

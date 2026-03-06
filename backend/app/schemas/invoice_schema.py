@@ -2,7 +2,7 @@ from pydantic import BaseModel, field_validator
 from datetime import date, datetime
 from typing import List, Optional, Union
 
-from .defaultInvoiceItem_schema import DefaultInvoiceItemCreate, DefaultInvoiceItem
+from .defaultInvoiceItem_schema import DefaultInvoiceItem
 from ..models import InvoiceStatus
 from ..models.invoiceType_enum import InvoiceType
 from .invoiceItem_schema import InvoiceItem, InvoiceItemCreate, InvoiceItemUpdate
@@ -18,9 +18,13 @@ class InvoiceBase(BaseModel):
 
 
 class InvoiceCreate(InvoiceBase):
-    user_items: List[InvoiceItemCreate]
-    default_item_ids: List[int] = []
+    user_items: Optional[List[InvoiceItemCreate]] = None
     dates: Optional[List[InvoiceDateCreate]] = None
+    default_item_ids: List[int] = []
+
+
+class InvoiceMarkPaidRequest(BaseModel):
+    paid_at: date
 
 
 class InvoiceUpdate(BaseModel):
@@ -51,7 +55,7 @@ class Invoice(InvoiceBase):
     items: List[Union[DefaultInvoiceItem, InvoiceItem]]
 
     default_items: List[DefaultInvoiceItem]
-    user_items: List[InvoiceItemCreate]
+    user_items: List[InvoiceItem]
     dates: List[InvoiceDate]
     patient: Patient
 

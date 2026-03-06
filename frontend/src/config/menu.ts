@@ -18,7 +18,7 @@ export const menu: MenuItem[] = [
                 label: 'Allgemein', icon: 'pi pi-id-card', url: ROUTES.SETTINGS_GENERAL
             },
             {
-                label: 'Voreinstellungen', icon: 'pi pi-thumbtack', url: generatePath(ROUTES.SETTINGS_DEFAULTS, { type: '' })
+                label: 'Standardleistungen', icon: 'pi pi-thumbtack', url: generatePath(ROUTES.SETTINGS_DEFAULTS, { type: '' })
             },
         ]
     },

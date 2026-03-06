@@ -5,7 +5,7 @@ import {
 } from "../api/@tanstack/react-query.gen.ts";
 import {generatePath, useNavigate, useParams} from "react-router-dom";
 import React from "react";
-import {StepOverviewContent} from "./invoice-creation/step-overview-content.tsx";
+import {StepOverviewContent} from "./invoice-edit/step-overview-content.tsx";
 import {Button} from "primereact/button";
 import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
 import {ROUTES} from "../config/routes.ts";
@@ -30,6 +30,9 @@ export const InvoiceDetailsView: React.FC = () => {
                 queryKey: getInvoicesInvoicesGetQueryKey()
             })
             navigate(-1);
+        },
+        onError: (error) => {
+            showToast({ severity: 'error', summary: 'Error!', detail: `Rechnung konnte nicht gelöscht werden. ${error.detail}`, life: 3000});
         }
     });
 
@@ -67,6 +70,8 @@ export const InvoiceDetailsView: React.FC = () => {
         })
     }
 
+    const canBeEdited = !["DRAFT", "SAVED"].includes(invoice.status);
+
     return (
         <>
             <ConfirmDialog/>
@@ -80,12 +85,14 @@ export const InvoiceDetailsView: React.FC = () => {
                                 label="Löschen"
                                 icon="pi pi-trash"
                                 className="p-button-danger p-button-rounded"
+                                disabled={canBeEdited}
                                 onClick={confirm}/>
                             <Button
                                 label="Bearbeiten"
                                 icon="pi pi-pencil"
+                                disabled={canBeEdited}
                                 className="p-button-text p-button-rounded"
-                                onClick={() => navigate(generatePath(ROUTES.INVOICE_CREATE, { id: invoice.invoice_id.toString() }))}
+                                onClick={() => navigate(generatePath(ROUTES.INVOICE_EDIT, { id: invoice.invoice_id.toString() }))}
                             />
                         </div>
                         <Button

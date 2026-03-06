@@ -6,15 +6,19 @@ import { Button } from 'primereact/button';
 import {type InvoiceItemCreate, InvoiceType} from '../../api';
 import {InputTextarea} from "primereact/inputtextarea";
 
+export interface TreatmentFormData extends InvoiceItemCreate {
+    date?: string;
+}
+
 interface TreatmentFormProps {
-    initialData?: Partial<InvoiceItemCreate> | null;
-    onSave: (data: InvoiceItemCreate) => void;
+    initialData?: Partial<TreatmentFormData> | null;
+    onSave: (data: TreatmentFormData) => void;
     type: InvoiceType;
     onCancel: () => void;
 }
 
 export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData, onSave, type, onCancel }) => {
-    const { control, handleSubmit, formState: { errors } } = useForm<InvoiceItemCreate>({
+    const { control, handleSubmit, formState: { errors } } = useForm<TreatmentFormData>({
         defaultValues: initialData || {
             description: '',
             amount: 0,
@@ -23,7 +27,7 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
         }
     });
 
-    const getFormErrorMessage = (name: keyof InvoiceItemCreate) => {
+    const getFormErrorMessage = (name: keyof TreatmentFormData) => {
         return errors[name] && <small className="p-error block mt-1">{errors[name]?.message}</small>;
     };
 
@@ -92,7 +96,7 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                                         {...field}
                                         value={field.value || ''}
                                         placeholder="z.B. GÖÄ 1"
-                                        className={errors.date ? 'p-invalid' : ''}
+                                        className={errors.number ? 'p-invalid' : ''}
                                     />
                                     {getFormErrorMessage('number')}
                                 </>

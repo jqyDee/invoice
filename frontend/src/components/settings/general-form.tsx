@@ -51,8 +51,8 @@ export const GeneralForm: React.FC = () => {
             await queryClient.invalidateQueries({ queryKey: getSettingsSettingsGetOptions().queryKey });
             showToast({ severity: 'success', summary: 'Erfolg', detail: 'Einstellungen gespeichert.', life: 3000 });
         },
-        onError: () => {
-            showToast({ severity: 'error', summary: 'Fehler', detail: 'Einstellungen konnte nicht gespeichert werden. Bitte überprüfe deine Eingabe!', life: 3000 });
+        onError: (error) => {
+            showToast({ severity: 'error', summary: 'Fehler', detail: `Einstellungen konnte nicht gespeichert werden. ${error.detail}`, life: 3000 });
         }
     });
 

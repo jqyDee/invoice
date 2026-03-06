@@ -8,15 +8,12 @@ interface InvoiceCalendarProps {
 }
 
 export const InvoiceCalendar: React.FC<InvoiceCalendarProps> = ({dates, onChange}) => {
-    const dateCount = () => {
-        return "(" + dates.length + "/10)"
-    }
-
     return (
         <>
-            <Header title={"Behandlungstermine " + dateCount()} />
+            <Header title={`Behandlungstermine (${dates.length}/10)`} />
             <Calendar
                 value={dates}
+                showButtonBar
                 onChange={onChange}
                 selectionMode="multiple"
                 maxDateCount={10}

@@ -6,7 +6,6 @@ from typing import Optional
 class InvoiceItemBase(BaseModel):
     description: str
     amount: float
-    date: Optional[dateType] = None  # Used for HP
     number: Optional[str] = None  # Used for HP
     quantity: int = 1
 
@@ -22,6 +21,7 @@ class InvoiceItemUpdate(InvoiceItemBase):
 class InvoiceItem(InvoiceItemBase):
     item_id: int
     invoice_id: int
+    date_id: Optional[int] = None
 
     class Config:
         from_attributes = True
