@@ -15,7 +15,7 @@ import {
     setPaymentDueMutation,
     setPaidMutation
 } from "../../api/@tanstack/react-query.gen.ts";
-import {toLocalDateString} from "../../utilities/local-date-string.ts";
+import {toGermanDateString, toLocalDateString} from "../../utilities/local-date-string.ts";
 import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
 
 interface InvoiceTableProps {
@@ -108,8 +108,13 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 sortField="updated_at"
                 sortOrder={-1}
             >
-                <Column field="invoice_number" header="Rechnungsnummer" className="font-bold" sortable />
-                <Column field="invoice_date" header="Rechnungsdatum" sortable />
+                <Column field="invoice_number" header="Rechnungsnummer" sortable />
+                <Column
+                    field="invoice_date"
+                    header="Rechnungsdatum"
+                    sortable
+                    body={(e: Invoice) => toGermanDateString(new Date(e.invoice_date))}
+                />
                 <Column field="type" header="Rechnungstyp" sortable />
                 <Column field="updated_at"
                         header="Änderungsdatum"
