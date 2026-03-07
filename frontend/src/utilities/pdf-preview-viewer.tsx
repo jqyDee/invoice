@@ -19,7 +19,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
         staleTime: 0,             // Always consider the data stale instantly
         gcTime: 0,                // Garbage collect immediately (React Query v5)
                                   // Note: Use `cacheTime: 0` if you are on React Query v4
-        refetchOnMount: 'always', // Always fetch a fresh PDF when opening the view
+        // refetchOnMount: 'always', // Always fetch a fresh PDF when opening the view
         // refetchOnWindowFocus: true // Refetch if they alt-tab away and come back
     });
 

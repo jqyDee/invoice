@@ -24,10 +24,6 @@ class InvoiceCreate(InvoiceBase):
     save_as_draft: bool = False
 
 
-class InvoiceMarkPaidRequest(BaseModel):
-    paid_at: date
-
-
 class InvoiceUpdate(BaseModel):
     patient_id: Optional[int] = None
     invoice_date: Optional[date] = None
@@ -50,6 +46,7 @@ class Invoice(InvoiceBase):
     created_at: datetime
     updated_at: datetime
 
+    kilometers_at_billing: Optional[int] = None
     total: float
     total_travel_distance: float
     is_locked: bool
@@ -70,3 +67,7 @@ class Invoice(InvoiceBase):
 
     class Config:
         from_attributes = True
+
+
+class InvoiceMarkPaidRequest(BaseModel):
+    paid_at: date

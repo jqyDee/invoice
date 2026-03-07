@@ -133,8 +133,11 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     <Column
                         field="amount"
                         header="Betrag"
-                        body={(d) => d.isEmpty ? '' : `${d.amount.toFixed(2)} €`}
-                        style={{ width: '15%' }}
+                        align="right"
+                        body={(d) =>
+                            <span className="align-items-end">{d.isEmpty ? '' : `${d.amount.toFixed(2)} €`}</span>
+                        }
+                        style={{ width: '10%' }}
                     />
                     {!readonly &&
                         <Column

@@ -28,6 +28,7 @@ export const InvoiceDetails: React.FC<InvoiceDetailsProp> = ({ invoice }) => {
     // Add payment info if it's a full invoice
     if (isFullInvoice(invoice)) {
         rows.push({ label: "Bezahlt am", value: invoice.paid_at ?? '-' });
+        rows.push({ label: "Kilometer pro Fahrt", value: `${invoice.kilometers_at_billing?.toFixed(1) ?? '-'} km`});
         rows.push({
             label: "Gesamt Kilometer",
             value: `${invoice.total_travel_distance.toFixed(1)} km`

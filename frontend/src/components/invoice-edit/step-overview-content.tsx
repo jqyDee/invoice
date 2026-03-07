@@ -36,10 +36,9 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
     const { data: availableDefaults } = useQuery(
         getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } })
     );
-    const defaultItems =
-        'default_items' in invoice && invoice.default_items
-            ? invoice.default_items
-            : (availableDefaults || []).filter(d => invoice.default_item_ids?.includes(d.default_item_id));
+    const defaultItems = 'invoice_id' in invoice
+        ? invoice.default_items
+        : (availableDefaults || []).filter(d => invoice.default_item_ids?.includes(d.default_item_id));
 
     const calculatedTotal = useInvoiceTotal(
         enforceNonNull(invoice.type),

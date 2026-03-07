@@ -124,42 +124,23 @@ class InvoiceDB(Base):
             self.patient.kilometers_to_travel if self.patient else 0
         )
 
-        # Switch multiplier based on Invoice Type
-        if self.type == InvoiceType.KG:
-            multiplier = len(self.dates) if self.dates else 0
-        else:  # For HP
-            multiplier = len(self.user_items) if self.user_items else 0
+        multiplier = len(self.dates) if self.dates else 0
 
-        return km_per_trip * multiplier
+        return km_per_trip * multiplier * 2  # as we have 2 trips, to and from
 
     @total_travel_distance.expression
     def total_travel_distance(cls):
         """SQL-level: Multiplies stored distance (or patient fallback) by date/item count based on type."""
         from .patient_model import PatientDB
         from .invoiceDate_model import InvoiceDateDB
-        from .invoiceItem_model import InvoiceItemDB
 
         # Subquery: Count of Dates
-        date_count_sub = (
+        multiplier = (
             select(func.count(InvoiceDateDB.date_id))
             .where(InvoiceDateDB.invoice_id == cls.invoice_id)
             .scalar_subquery()
         )
 
-        # Subquery: Count of User Items
-        item_count_sub = (
-            select(func.count(InvoiceItemDB.item_id))
-            .where(InvoiceItemDB.invoice_id == cls.invoice_id)
-            .scalar_subquery()
-        )
-
-        # SQL Case statement: If KG -> use date count, else -> use item count
-        effective_multiplier = case(
-            (cls.type.in_([InvoiceType.KG]), date_count_sub),
-            else_=item_count_sub
-        )
-
-        # SQL Fallback for kilometers
         effective_km = func.coalesce(
             cls.kilometers_at_billing,
             select(PatientDB.kilometers_to_travel)
@@ -167,4 +148,4 @@ class InvoiceDB(Base):
             .scalar_subquery()
         )
 
-        return effective_multiplier * effective_km
+        return multiplier * effective_km * 2  # as we have 2 trips, to and from
