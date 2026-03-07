@@ -1,24 +1,24 @@
 import { useMemo } from 'react';
-import { InvoiceType, type InvoiceItem, type InvoiceItemCreate } from '../../api';
+import { InvoiceType } from '../../api';
 
 /**
  * Berechnet die Gesamtsumme basierend auf dem Rechnungstyp.
- * KG: (Summe Einzelbeträge) * Anzahl Tage
- * HP: Summe (Betrag * Menge) pro Item
+ * KG: Anzahl Tage * Summe Einzelbeträge (user + default items)
+ * HP: Summe Einzelbeträge (user + default items)
  */
 export const useInvoiceTotal = (
     type: InvoiceType,
-    items: (InvoiceItem | InvoiceItemCreate)[],
+    items: { amount: number }[],
     dates: Date[]
 ) => {
     const isKG = type === InvoiceType.KG;
 
     return useMemo(() => {
+        const sumOfAmounts = items.reduce((acc, item) => acc + (item.amount || 0), 0);
         if (isKG) {
-            const sumOfAmounts = items.reduce((acc, item) => acc + (item.amount || 0), 0);
-            return sumOfAmounts * dates.length;
+            return dates.length * sumOfAmounts;
         } else {
-            return items.reduce((acc, item) => acc + ((item.amount || 0) * (item.quantity || 1)), 0);
+            return sumOfAmounts;
         }
     }, [items, dates, isKG]);
 };

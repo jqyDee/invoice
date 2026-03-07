@@ -41,20 +41,20 @@ export const PatientListView: React.FC = () => {
                 <Header title="Patienten"/>
 
                 <div className="flex gap-2 w-full md:w-auto">
-                    <IconField iconPosition="left">
+                    <IconField iconPosition="left" className="w-full">
                         <InputIcon className="pi pi-search" />
                         <InputText
                             value={search}
                             placeholder="Suche..."
                             onChange={(e) => setSearch(e.target.value)}
-                            style={{ minWidth: "20vw" }}
+                            className="w-full md:w-15rem"
                         />
                     </IconField>
                     <Button
                         onClick={() => { setSelectedPatient(null); setVisible(true); }}
                         icon="pi pi-plus"
                         label="Neu"
-                        className="p-button-rounded w-full md:w-10"
+                        className="p-button-rounded flex-shrink-0"
                     />
                 </div>
             </div>

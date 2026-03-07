@@ -21,6 +21,7 @@ class InvoiceCreate(InvoiceBase):
     user_items: Optional[List[InvoiceItemCreate]] = None
     dates: Optional[List[InvoiceDateCreate]] = None
     default_item_ids: List[int] = []
+    save_as_draft: bool = False
 
 
 class InvoiceMarkPaidRequest(BaseModel):
@@ -36,6 +37,7 @@ class InvoiceUpdate(BaseModel):
     user_items: Optional[List[InvoiceItemUpdate]] = None
     default_item_ids: Optional[List[int]] = None
     dates: Optional[List[InvoiceDateUpdate]] = None
+    save_as_draft: Optional[bool] = None
 
 
 class Invoice(InvoiceBase):

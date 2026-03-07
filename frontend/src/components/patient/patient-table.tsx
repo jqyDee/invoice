@@ -28,6 +28,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
             stripedRows
             showGridlines
             removableSort
+            size="small"
             loading={isLoading}
         >
             <Column field="label" header="Kürzel" className="font-bold" />

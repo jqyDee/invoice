@@ -9,7 +9,7 @@ import {generatePath, useNavigate} from "react-router-dom";
 import {ROUTES} from "../config/routes.ts";
 import {Header} from "../utilities/header.tsx";
 import {IconField} from "primereact/iconfield";
-import {InputIcon} from "primereact/inputicon"; // Import Table
+import {InputIcon} from "primereact/inputicon";
 
 interface InvoicesListProps {
     onlyDrafts?: boolean;
@@ -49,7 +49,7 @@ export const InvoiceListView: React.FC<InvoicesListProps> = ({ onlyDrafts }) => 
                         aria-label="Filter"
                     />
 
-                    <IconField iconPosition="left">
+                    <IconField iconPosition="left" className="w-full">
                         <InputIcon className="pi pi-search" />
                         <InputText
                             value={search}

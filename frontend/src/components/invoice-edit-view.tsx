@@ -1,136 +1,32 @@
-import {Stepper} from "primereact/stepper";
-import {StepperPanel} from "primereact/stepperpanel";
-import {StepGeneralContent} from "./invoice-edit/step-general-content.tsx";
-import {StepItemsContent} from "./invoice-edit/step-items-content.tsx";
-import React, {useRef} from "react";
-import {StepOverviewContent} from "./invoice-edit/step-overview-content.tsx";
-import {StepDetailsContent} from "./invoice-edit/step-details-content.tsx";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {
-    createInvoiceInvoicesPostMutation,
-    getInvoicesInvoicesGetQueryKey,
-    getInvoiceInvoicesInvoiceIdGetOptions,
-    updateInvoiceInvoicesInvoiceIdPatchMutation,
-    getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
-    getInvoiceInvoicesInvoiceIdGetQueryKey
-} from "../api/@tanstack/react-query.gen.ts";
-import {Header} from "../utilities/header.tsx";
-import {Button} from "primereact/button";
-import {generatePath, useNavigate, useParams} from "react-router-dom";
-import {ROUTES} from "../config/routes.ts";
-import {toLocalDateString} from "../utilities/local-date-string.ts";
-import {useGlobalToast} from "../hooks/use-global-toast.ts";
-import {type InvoiceCreate, InvoiceType, type InvoiceUpdate} from "../api";
+import React from "react";
+import { Stepper } from "primereact/stepper";
+import { StepperPanel } from "primereact/stepperpanel";
+import { Button } from "primereact/button";
+import { StepGeneralContent } from "./invoice-edit/step-general-content.tsx";
+import { StepItemsContent } from "./invoice-edit/step-items-content.tsx";
+import { StepOverviewContent } from "./invoice-edit/step-overview-content.tsx";
+import { StepDetailsContent } from "./invoice-edit/step-details-content.tsx";
+import { UnsavedChangesDialog } from "./invoice-edit/unsaved-changes-dialog.tsx";
+import { Header } from "../utilities/header.tsx";
+import { useInvoiceEdit } from "../hooks/invoice/use-invoice-edit.ts";
 
 
 export const InvoiceEditView: React.FC = () => {
-    const { id } = useParams(); // Optional type
-    const stepperRef = useRef<any>(null);
-    const navigate = useNavigate();
+    const {
+        id,
+        invoice,
+        updateInvoice,
+        isLoading,
+        stepperRef,
+        goNext,
+        goPrev,
+        handleSave,
+        blocker,
+        showLeaveDialog,
+        handleSaveDraft,
+    } = useInvoiceEdit();
 
-    const [invoice, setInvoice] = React.useState<InvoiceCreate | InvoiceUpdate>({
-        patient_id: 0,
-        invoice_date: toLocalDateString(new Date()),
-        type: InvoiceType.HP,
-        user_items: [],
-        default_item_ids: [], // Track IDs for the association table
-        dates: [],
-        diagnosis: "",
-    });
-
-    const {showToast} = useGlobalToast();
-
-    const {data: invoiceToUpdate, isLoading } = useQuery({
-        ...getInvoiceInvoicesInvoiceIdGetOptions({
-            path: {invoice_id: parseInt(id!)} // this is safe as this can only run if invoiceId is present
-        }),
-        enabled: !!id,
-        retry: false,
-    })
-
-    const { data: availableDefaults } = useQuery(getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
-        query: { invoice_type: invoice.type }
-    }));
-
-    React.useEffect(() => {
-        if (id && invoiceToUpdate) {
-            // Logic for UPDATE: Use existing associations from the DB
-            setInvoice({
-                patient_id: invoiceToUpdate.patient_id,
-                invoice_date: invoiceToUpdate.invoice_date,
-                type: invoiceToUpdate.type,
-                user_items: invoiceToUpdate.user_items,
-                default_item_ids: invoiceToUpdate.default_items.map(d => d.default_item_id),
-                dates: invoiceToUpdate.dates,
-                diagnosis: invoiceToUpdate.diagnosis,
-            });
-        } else if (!id && availableDefaults) {
-            // Logic for CREATE: Set globally active defaults by default
-            const activeGlobalIds = availableDefaults
-                .filter(d => d.is_active_global) // Filter for globally active items
-                .map(d => d.default_item_id);
-
-            setInvoice(prev => ({
-                ...prev,
-                default_item_ids: activeGlobalIds
-            }));
-        }
-    }, [id, invoiceToUpdate, availableDefaults]);
-
-    const updateInvoice = (fields: Partial<InvoiceCreate | InvoiceUpdate>) => {
-        setInvoice(prev => ({ ...prev, ...fields }));
-    };
-
-
-    const queryClient = useQueryClient();
-
-    const createMutation = useMutation({
-        ...createInvoiceInvoicesPostMutation(),
-        onSuccess: () => handleSuccess(false)
-    });
-
-    const updateMutation = useMutation({
-        ...updateInvoiceInvoicesInvoiceIdPatchMutation(),
-        onSuccess: () => handleSuccess(true)
-    });
-
-    const handleSuccess = async (isUpdate: boolean) => {
-        showToast({
-            severity: 'success',
-            summary: 'Fertig!',
-            detail: `Rechnung wurde ${isUpdate ? 'aktualisiert' : 'gespeichert'}.`,
-            life: 3000
-        });
-        await queryClient.invalidateQueries({ queryKey: getInvoicesInvoicesGetQueryKey() });
-    };
-
-    const handleSave = async () => {
-        try {
-            let result;
-            if (id) {
-                result = await updateMutation.mutateAsync({
-                    path: { invoice_id: parseInt(id) },
-                    body: invoice as InvoiceUpdate
-                });
-            } else {
-                result = await createMutation.mutateAsync({
-                    body: invoice as InvoiceCreate
-                });
-            }
-
-            await queryClient.invalidateQueries({
-                queryKey: getInvoiceInvoicesInvoiceIdGetQueryKey({
-                    path: {invoice_id: result.invoice_id}
-                })
-            })
-
-            navigate(generatePath(ROUTES.INVOICE, { id: result.invoice_id.toString() }));
-        } catch (error) {
-            showToast({ severity: 'error', summary: 'Fehler', detail: `Rechnung konnte nicht gespeichert werden. ${JSON.stringify(error)}`});
-        }
-    };
-
-    if (isLoading) return <div>Laden...</div>
+    if (isLoading) return <div>Laden...</div>;
 
     return (
         <div className="card">
@@ -140,7 +36,7 @@ export const InvoiceEditView: React.FC = () => {
                     <StepGeneralContent
                         invoice={invoice}
                         onChange={updateInvoice}
-                        next={() => stepperRef.current.nextCallback()}
+                        next={goNext}
                     />
                 </StepperPanel>
 
@@ -148,8 +44,8 @@ export const InvoiceEditView: React.FC = () => {
                     <StepItemsContent
                         invoice={invoice}
                         onChange={updateInvoice}
-                        prev={() => stepperRef.current.prevCallback()}
-                        next={() => stepperRef.current.nextCallback()}
+                        prev={goPrev}
+                        next={goNext}
                     />
                 </StepperPanel>
 
@@ -157,8 +53,8 @@ export const InvoiceEditView: React.FC = () => {
                     <StepDetailsContent
                         invoice={invoice}
                         onChange={updateInvoice}
-                        prev={() => stepperRef.current.prevCallback()}
-                        next={() => stepperRef.current.nextCallback()}
+                        prev={goPrev}
+                        next={goNext}
                     />
                 </StepperPanel>
 
@@ -172,7 +68,7 @@ export const InvoiceEditView: React.FC = () => {
                                     label="Zurück"
                                     icon="pi pi-arrow-left"
                                     className="p-button-text"
-                                    onClick={() => stepperRef.current.prevCallback()}
+                                    onClick={goPrev}
                                 />
                                 <Button
                                     label={`Rechnung ${id ? "aktualisieren" : "erstellen"}`}
@@ -185,6 +81,13 @@ export const InvoiceEditView: React.FC = () => {
                     />
                 </StepperPanel>
             </Stepper>
+
+            <UnsavedChangesDialog
+                visible={showLeaveDialog}
+                onHide={() => blocker.reset?.()}
+                onLeave={() => blocker.proceed?.()}
+                onSaveDraft={handleSaveDraft}
+            />
         </div>
     );
 };

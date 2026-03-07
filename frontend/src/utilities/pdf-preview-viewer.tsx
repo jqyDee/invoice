@@ -14,15 +14,21 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
     const { showToast } = useGlobalToast();
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    const { data: pdfData, error, isLoading } = useQuery(queryOptions);
+    const { data: pdfData, error, isLoading } = useQuery({
+        ...queryOptions,
+        staleTime: 0,             // Always consider the data stale instantly
+        gcTime: 0,                // Garbage collect immediately (React Query v5)
+                                  // Note: Use `cacheTime: 0` if you are on React Query v4
+        refetchOnMount: 'always', // Always fetch a fresh PDF when opening the view
+        // refetchOnWindowFocus: true // Refetch if they alt-tab away and come back
+    });
 
     useEffect(() => {
         if (error) {
             showToast({
                 severity: 'error',
                 summary: 'Fehler',
-                // Cast to any to safely access your backend's specific .detail property
-                detail: `PDF konnte nicht geladen werden. ${(error as any).detail || error.message}`,
+                detail: `PDF konnte nicht geladen werden. ${error.detail || error.message}`,
                 life: 5000
             });
         }

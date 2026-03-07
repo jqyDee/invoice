@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { Dialog } from "primereact/dialog";
 import { Calendar } from "primereact/calendar";
-import {type Invoice, InvoiceStatus, type Patient} from "../../api";
+import {type Invoice, InvoiceStatus} from "../../api";
 import {generatePath, useNavigate} from "react-router-dom";
 import {ROUTES} from "../../config/routes.ts";
 import {toGermanStatus, toSeverityStatus} from "../../utilities/status.ts";
@@ -101,15 +101,20 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 emptyMessage="Keine Rechnungen gefunden"
                 className="mt-2"
                 stripedRows
+                size="small"
                 removableSort
                 showGridlines
                 loading={isLoading}
+                sortField="updated_at"
+                sortOrder={-1}
             >
                 <Column field="invoice_number" header="Rechnungsnummer" className="font-bold" sortable />
                 <Column field="invoice_date" header="Rechnungsdatum" sortable />
                 <Column field="type" header="Rechnungstyp" sortable />
-                <Column field="updated_at" header="Änderungsdatum" sortable
-                        body={(e: Patient) => new Date(e.created_at).toLocaleString('de-DE', {
+                <Column field="updated_at"
+                        header="Änderungsdatum"
+                        sortable
+                        body={(e: Invoice) => new Date(e.created_at).toLocaleString('de-DE', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',
@@ -118,7 +123,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                         })}
                 />
                 <Column
-                    field="is_draft"
+                    field="status"
                     header="Status"
                     sortable
                     body={(e: Invoice) => (

@@ -19,7 +19,12 @@ export const SettingsDefaultsView: React.FC = () => {
                 <Header title="Voreinstellungen" />
 
                 <div className="flex gap-2 w-full md:w-auto">
-                    <Button className="p-button-rounded" label="Neue Voreinstellung" icon="pi pi-plus" onClick={openEdit}/>
+                    <Button
+                        className="p-button-rounded w-full md:w-auto"
+                        label="Neue Voreinstellung"
+                        icon="pi pi-plus"
+                        onClick={openEdit}
+                    />
                 </div>
             </div>
 

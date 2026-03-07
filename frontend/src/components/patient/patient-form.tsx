@@ -11,9 +11,10 @@ import {
     getPatientsPatientsGetOptions,
     updatePatientPatientsPatientIdPutMutation,
 } from '../../api/@tanstack/react-query.gen.ts';
-import {Gender, type Patient, type PatientCreate} from '../../api';
+import {Gender, type HttpValidationError, type Patient, type PatientCreate} from '../../api';
 import {confirmDialog, ConfirmDialog} from "primereact/confirmdialog";
 import {useGlobalToast} from "../../hooks/use-global-toast.ts";
+import {toGermanGender} from "../../utilities/gender.ts";
 
 interface PatientFormProps {
     onSuccess?: () => void;
@@ -25,7 +26,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
 
     const { control, handleSubmit, reset, formState: {errors}, watch, setValue } = useForm<PatientCreate>({
         defaultValues: patientToEdit || {
-            label: '', first_name: '', last_name: '', gender: Gender.FEMALE, street: '',
+            label: '', first_name: '', last_name: '', gender: Gender.MALE, street: '',
             street_number: '', postal_code: '', city: '', birthday: '',
             kilometers_to_travel: 0, email: '', telephone: ''
         }
@@ -48,24 +49,33 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
 
     const createMutation = useMutation({
         ...createPatientPatientsPostMutation(),
-        onSuccess: () => handleSuccess()
+        onSuccess: () => handleSuccess(),
+        onError: (error) => handleError(error)
     });
 
     const updateMutation = useMutation({
         ...updatePatientPatientsPatientIdPutMutation(),
-        onSuccess: () => handleSuccess()
+        onSuccess: () => handleSuccess(),
+        onError: (error) => handleError(error)
     });
 
     const deleteMutation = useMutation({
         ...deletePatientPatientsPatientIdDeleteMutation(),
-        onSuccess: () => handleSuccess()
+        onSuccess: () => handleSuccess(true),
+        onError: (error) => handleError(error)
     });
 
-    const handleSuccess = async () => {
+    const handleSuccess = async (isDelete?: boolean) => {
         await queryClient.invalidateQueries({ queryKey: getPatientsPatientsGetOptions().queryKey });
         reset();
+        showToast({ severity: 'success', summary: 'Erfolg', detail: `Patientendaten ${isDelete ? "gelöscht" : "gespeichert"}.`, life: 3000 });
         onSuccess?.();
     };
+
+    const handleError = (error: HttpValidationError) => {
+        reset();
+        showToast({ severity: 'error', summary: 'Error', detail: `Patientendaten konnten nicht gespeichert werden. ${JSON.stringify(error.detail)}`, life: 3000 });
+    }
 
     const deletePatient = async (id: number) => {
         await deleteMutation.mutateAsync({
@@ -87,7 +97,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
 
     const accept = async () => {
         await deletePatient(patientToEdit!.patient_id);
-        showToast({ severity: 'success', summary: 'Fertig!', detail: 'Patient wurde gelöscht.', life: 3000});
     }
 
     const {showToast} = useGlobalToast();
@@ -115,7 +124,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
         <form onSubmit={handleSubmit(onSubmit)} className="grid p-fluid mt-2">
             <ConfirmDialog />
             <div className="col-12 field">
-                <label htmlFor="label" className="font-bold">Kürzel</label>
+                <label htmlFor="label" className="font-bold">Kürzel (abgeleitet aus Vor- und Nachname)</label>
                 <Controller
                     name="label"
                     control={control}
@@ -133,12 +142,14 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                                 {...field}
                                 maxLength={4}
                                 disabled={true}
+                                className={errors.first_name ? 'p-invalid' : ''}
                                 onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
                                     target.value = target.value.toUpperCase().replace(/[^A-Z]/g, '');
                                     field.onChange(target.value);
                                 }}
                             />
+                            {getFormErrorMessage('label')}
                         </>
                     )}
                 />
@@ -171,7 +182,16 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
             <div className="col-12 md:col-6 field">
                 <label htmlFor="gender" className="font-bold">Geschlecht</label>
                 <Controller name="gender" control={control}
-                            render={({ field }) => <Dropdown id={field.name} {...field} options={Object.values(Gender)} />}
+                            render={({ field }) =>
+                                <Dropdown
+                                    id={field.name}
+                                    {...field}
+                                    options={Object.values(Gender).map((g) => ({
+                                        label: toGermanGender(g),
+                                        value: g
+                                    }))}
+                                />
+                            }
                 />
             </div>
 

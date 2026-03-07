@@ -16,6 +16,8 @@ export const toGermanStatus = (status: InvoiceStatus): string => {
         case InvoiceStatus.PAID:
             statusString = "Bezahlt"
             break
+        default:
+            statusString = status;
     }
 
     return statusString;

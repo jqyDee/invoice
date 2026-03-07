@@ -12,6 +12,7 @@ import {InvoiceDetails} from "../invoice/invoice-details.tsx";
 import {useInvoiceTotal} from "../../hooks/invoice/use-invoice-total.ts";
 import {useQuery} from "@tanstack/react-query";
 import {
+    getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
     getPatientsPatientsGetOptions
 } from "../../api/@tanstack/react-query.gen.ts";
 import {enforceNonNull} from "../../utilities/enforce-non-null.ts";
@@ -32,9 +33,17 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
         invoice.dates?.map(d => new Date(d.date)) || [],
     [invoice.dates]);
 
+    const { data: availableDefaults } = useQuery(
+        getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } })
+    );
+    const defaultItems =
+        'default_items' in invoice && invoice.default_items
+            ? invoice.default_items
+            : (availableDefaults || []).filter(d => invoice.default_item_ids?.includes(d.default_item_id));
+
     const calculatedTotal = useInvoiceTotal(
         enforceNonNull(invoice.type),
-        enforceNonNull(invoice.user_items),
+        [...(invoice.user_items || []), ...defaultItems],
         datesAsDates
     );
 

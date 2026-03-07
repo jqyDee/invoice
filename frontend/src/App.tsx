@@ -1,5 +1,5 @@
 import React from "react"
-import {Routes, Route, BrowserRouter} from "react-router-dom"
+import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import "primereact/resources/themes/mdc-light-indigo/theme.css";
 import "primeflex/primeflex.css"
@@ -24,34 +24,38 @@ const client = new QueryClient({
     },
 });
 
+const router = createBrowserRouter([
+    {
+        element: <MainLayout />,
+        children: [
+            {
+                element: <CardLayout />,
+                children: [
+                    { path: HomeRoute.url, Component: HomeRoute.component },
+                    { path: PatientsRoute.url, Component: PatientsRoute.component },
+                    { path: InvoicesRoute.url, Component: InvoicesRoute.component },
+                    { path: InvoiceCreateRoute.url, Component: InvoiceCreateRoute.component },
+                    { path: InvoiceRoute.url, Component: InvoiceRoute.component },
+                    { path: SettingsGeneralRoute.url, Component: SettingsGeneralRoute.component },
+                    { path: SettingsDefaultsRoute.url, Component: SettingsDefaultsRoute.component },
+                    { path: SettingsTherapyClausesRoute.url, Component: SettingsTherapyClausesRoute.component },
+                    { path: SettingsPrivacyClausesRoute.url, Component: SettingsPrivacyClausesRoute.component },
+                ],
+            },
+            // Preview pages — no Card, but still inside MainLayout
+            { path: InvoicePreviewRoute.url, Component: InvoicePreviewRoute.component },
+            { path: TherapyPreviewRoute.url, Component: TherapyPreviewRoute.component },
+            { path: PrivacyPreviewRoute.url, Component: PrivacyPreviewRoute.component },
+        ],
+    },
+]);
+
 const App: React.FC = () => {
     return (
         <QueryClientProvider client={client}>
-            <BrowserRouter>
-                <ToastProvider>
-                    <Routes>
-                        <Route element={<MainLayout />}>
-                            {/* Standard Pages wrapped in a Card */}
-                            <Route element={<CardLayout />}>
-                                <Route path={HomeRoute.url} Component={HomeRoute.component}/>
-                                <Route path={PatientsRoute.url} Component={PatientsRoute.component} />
-                                <Route path={InvoicesRoute.url} Component={InvoicesRoute.component} />
-                                <Route path={InvoiceCreateRoute.url} Component={InvoiceCreateRoute.component} />
-                                <Route path={InvoiceRoute.url} Component={InvoiceRoute.component} />
-                                <Route path={SettingsGeneralRoute.url} Component={SettingsGeneralRoute.component} />
-                                <Route path={SettingsDefaultsRoute.url} Component={SettingsDefaultsRoute.component} />
-                                <Route path={SettingsTherapyClausesRoute.url} Component={SettingsTherapyClausesRoute.component} />
-                                <Route path={SettingsPrivacyClausesRoute.url} Component={SettingsPrivacyClausesRoute.component} />
-                            </Route>
-
-                            {/* Preview Page - No Card, but still has NavbarView */}
-                            <Route path={InvoicePreviewRoute.url} Component={InvoicePreviewRoute.component} />
-                            <Route path={TherapyPreviewRoute.url} Component={TherapyPreviewRoute.component} />
-                            <Route path={PrivacyPreviewRoute.url} Component={PrivacyPreviewRoute.component} />
-                        </Route>
-                    </Routes>
-                </ToastProvider>
-            </BrowserRouter>
+            <ToastProvider>
+                <RouterProvider router={router} />
+            </ToastProvider>
         </QueryClientProvider>
     )
 }

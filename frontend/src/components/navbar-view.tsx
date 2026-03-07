@@ -4,13 +4,15 @@
  */
 import React from 'react';
 import {Menubar} from "primereact/menubar";
-import {menu} from "../config/menu.ts";
+import {useNavigate} from "react-router-dom";
+import {buildMenu} from "../config/menu.ts";
 
 /**
  * NavbarView component.
  */
 export const NavbarView: React.FC = () => {
+    const navigate = useNavigate();
     return (
-        <Menubar model={menu} className="gap-2"/>
+        <Menubar model={buildMenu(navigate)} className="gap-4"/>
     );
 }

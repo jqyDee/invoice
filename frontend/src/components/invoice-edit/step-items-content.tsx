@@ -9,6 +9,8 @@ import { enforceNonNull } from "../../utilities/enforce-non-null.ts";
 import { toLocalDateString } from "../../utilities/local-date-string.ts";
 import {InvoiceItemTable} from "../invoice/invoice-item-table.tsx";
 import {InvoiceDefaultItemTable} from "../invoice/invoice-default-item-table.tsx";
+import {useQuery} from "@tanstack/react-query";
+import {getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
 
 interface StepItemsProps {
     invoice: InvoiceCreate | InvoiceUpdate
@@ -20,9 +22,15 @@ interface StepItemsProps {
 export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, prev, next }) => {
     const isKG = invoice.type === InvoiceType.KG;
 
+    const { data: availableDefaults } = useQuery(
+        getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } })
+    );
+    const selectedDefaults = (availableDefaults || [])
+        .filter(d => invoice.default_item_ids?.includes(d.default_item_id));
+
     const calculatedTotal = useInvoiceTotal(
         enforceNonNull(invoice.type),
-        enforceNonNull(invoice.user_items),
+        [...(invoice.user_items || []), ...selectedDefaults],
         enforceNonNull(invoice.dates).map(d => new Date(d.date))
     );
 

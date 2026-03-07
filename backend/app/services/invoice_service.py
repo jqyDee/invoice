@@ -74,7 +74,7 @@ def create_invoice_logic(
     Main entry point for creating an invoice.
     Decides by the provided type, how and which items to add.
     """
-    invoice_data = new_invoice.model_dump(exclude={"user_items", "dates", "default_item_ids"})
+    invoice_data = new_invoice.model_dump(exclude={"user_items", "dates", "default_item_ids", "save_as_draft"})
     db_invoice = InvoiceDB(**invoice_data)
     db_invoice.status = InvoiceStatus.DRAFT
     add_db(db_invoice, db)
@@ -90,8 +90,9 @@ def create_invoice_logic(
     _link_default_items(db_invoice, new_invoice.default_item_ids, db)
 
     db_invoice.kilometers_at_billing = patient.kilometers_to_travel
-    db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice, patient)
-    db_invoice.status = InvoiceStatus.SAVED
+    if not new_invoice.save_as_draft:
+        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice, patient)
+        db_invoice.status = InvoiceStatus.SAVED
 
     return db_invoice
 
@@ -172,6 +173,11 @@ def update_invoice_logic(
         if invoice_update.user_items is not None:
             _sync_standalone_items(db_invoice, invoice_update.user_items)
 
+    if invoice_update.save_as_draft is False and db_invoice.status == InvoiceStatus.DRAFT:
+        patient = load_patient(db_invoice.patient_id, db)
+        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice, patient)
+        db_invoice.status = InvoiceStatus.SAVED
+
     db_invoice.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_invoice)
@@ -179,7 +185,7 @@ def update_invoice_logic(
 
 
 def _apply_scalar_updates(db_invoice: InvoiceDB, invoice_update: InvoiceUpdate) -> None:
-    update_data = invoice_update.model_dump(exclude_unset=True, exclude={"user_items", "dates", "default_item_ids"})
+    update_data = invoice_update.model_dump(exclude_unset=True, exclude={"user_items", "dates", "default_item_ids", "save_as_draft"})
     for key, value in update_data.items():
         setattr(db_invoice, key, value)
 
