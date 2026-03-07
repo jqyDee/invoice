@@ -39,7 +39,7 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
     const selectedType = watch('type');
 
     React.useEffect(() => {
-        trigger(['quantity', 'number']);
+        trigger(['quantity', 'number']).then();
     }, [selectedType, trigger]);
 
     const getFormErrorMessage = (name: keyof DefaultInvoiceItemCreate) => {

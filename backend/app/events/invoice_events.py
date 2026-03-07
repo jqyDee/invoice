@@ -23,7 +23,7 @@ def _touch_invoice(connection, invoice_id: int):
 @event.listens_for(InvoiceItemDB, "after_insert")
 @event.listens_for(InvoiceItemDB, "after_update")
 @event.listens_for(InvoiceItemDB, "after_delete")
-def invoice_item_changed(mapper, connection, target):
+def invoice_item_changed(_, connection, target):
     if target.invoice_id:
         _touch_invoice(connection, target.invoice_id)
 
@@ -31,6 +31,6 @@ def invoice_item_changed(mapper, connection, target):
 @event.listens_for(InvoiceDateDB, "after_insert")
 @event.listens_for(InvoiceDateDB, "after_update")
 @event.listens_for(InvoiceDateDB, "after_delete")
-def invoice_date_changed(mapper, connection, target):
+def invoice_date_changed(_, connection, target):
     if target.invoice_id:
         _touch_invoice(connection, target.invoice_id)

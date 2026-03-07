@@ -1,6 +1,6 @@
 from ..models import InvoiceDB, SettingsDB, Gender
 from ..pdf.invoice_pdf import InvoicePdf
-from ..utilities.config import NORMAL_FONT_SIZE, TREATMENT_FONT_SIZE, RECIPIENT_OFFSET, CACHE_DIR
+from ..utilities.config import NORMAL_FONT_SIZE, TREATMENT_FONT_SIZE, RECIPIENT_OFFSET
 from ..utilities.path_utilitiy import generate_invoice_path
 
 
@@ -46,7 +46,7 @@ class InvoiceHp(InvoicePdf):
         self.treatment_table = [["Datum", "Ziffer", "Art der Behandlung", "Betrag", ""]]
         self.manual_pagebreak = False
 
-        for d in sorted(invoice.dates, key=lambda d: d.date):
+        for d in sorted(invoice.dates, key=lambda date: date.date):
             date_str = d.date.strftime("%d.%m.%y") + "\n"
             date_str += "\n".join("" for _ in d.items)
 

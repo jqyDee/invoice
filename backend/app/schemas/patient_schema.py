@@ -2,7 +2,7 @@ from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Optional
 
-from ..models import Gender, InvoiceType
+from ..models import Gender
 
 
 class PatientBase(BaseModel):

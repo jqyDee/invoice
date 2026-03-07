@@ -1,23 +1,31 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from __future__ import annotations
+
+from typing import Optional, TYPE_CHECKING
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from .base_model import Base
+
+if TYPE_CHECKING:
+    from .invoice_model import InvoiceDB
+    from .invoiceDate_model import InvoiceDateDB
 
 
 class InvoiceItemDB(Base):
     __tablename__ = "invoice_item"
 
-    item_id = Column(Integer, primary_key=True, index=True)
-    invoice_id = Column(Integer, ForeignKey("invoice.invoice_id"), nullable=False)
+    item_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    invoice_id: Mapped[int] = mapped_column(ForeignKey("invoice.invoice_id"))
 
-    number = Column(String, nullable=True)
-    description = Column(String, nullable=False)
-    amount = Column(Float, nullable=False)
-    quantity = Column(Integer, default=1)
-    position = Column(Integer, nullable=True, default=0)
+    number: Mapped[Optional[str]] = mapped_column()
+    description: Mapped[str] = mapped_column()
+    amount: Mapped[float] = mapped_column()
+    quantity: Mapped[int] = mapped_column(default=1)
+    position: Mapped[Optional[int]] = mapped_column(default=0)
 
-    invoice = relationship("InvoiceDB", back_populates="user_items")
+    invoice: Mapped[InvoiceDB] = relationship(back_populates="user_items")
 
     # HP
-    date_id = Column(Integer, ForeignKey("invoice_date.date_id"), nullable=True)
-    treatment_date = relationship("InvoiceDateDB", back_populates="items")
+    date_id: Mapped[Optional[int]] = mapped_column(ForeignKey("invoice_date.date_id"))
+    treatment_date: Mapped[Optional[InvoiceDateDB]] = relationship(back_populates="items")

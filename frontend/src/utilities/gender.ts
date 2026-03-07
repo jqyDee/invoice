@@ -1,7 +1,7 @@
 import {Gender} from "../api";
 
 export const toGermanGender = (gender: Gender): string => {
-    let genderString: string = "";
+    let genderString: string;
 
     switch (gender) {
         case Gender.FEMALE:

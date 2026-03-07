@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, Integer, String, Text
+from sqlalchemy import Text
 from sqlalchemy.sql import expression
+from sqlalchemy.orm import Mapped, mapped_column
 
 from .base_model import Base
 
@@ -7,8 +8,8 @@ from .base_model import Base
 class PrivacyClauseDB(Base):
     __tablename__ = "privacy_clause"
 
-    clause_id = Column(Integer, primary_key=True, index=True)
-    number = Column(Integer, nullable=False)
-    title = Column(String, nullable=False)
-    description = Column(Text, nullable=False)  # \n\n = paragraph break
-    is_preamble = Column(Boolean, nullable=False, server_default=expression.false())
+    clause_id:   Mapped[int] = mapped_column(primary_key=True, index=True)
+    number:      Mapped[int] = mapped_column()
+    title:       Mapped[str] = mapped_column()
+    description: Mapped[str] = mapped_column(Text)  # \n\n = paragraph break
+    is_preamble: Mapped[bool] = mapped_column(server_default=expression.false())

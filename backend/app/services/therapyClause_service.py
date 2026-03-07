@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.therapyClause_model import TherapyClauseDB
@@ -6,11 +7,11 @@ from ..schemas.therapyClause_schema import TherapyClauseCreate, TherapyClauseUpd
 
 
 def load_clauses(db: Session) -> list[TherapyClauseDB]:
-    return db.query(TherapyClauseDB).order_by(TherapyClauseDB.number).all()
+    return list(db.scalars(select(TherapyClauseDB).order_by(TherapyClauseDB.number)).all())
 
 
 def load_clause(clause_id: int, db: Session) -> TherapyClauseDB:
-    clause = db.query(TherapyClauseDB).filter(TherapyClauseDB.clause_id == clause_id).first()
+    clause = db.scalars(select(TherapyClauseDB).where(TherapyClauseDB.clause_id == clause_id)).first()
     if not clause:
         raise HTTPException(status_code=404, detail="Klausel nicht gefunden.")
     return clause

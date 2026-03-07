@@ -15,7 +15,6 @@ import {
     getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
     getPatientsPatientsGetOptions
 } from "../../api/@tanstack/react-query.gen.ts";
-import {enforceNonNull} from "../../utilities/enforce-non-null.ts";
 
 interface StepOverviewProps {
     invoice: Invoice | InvoiceCreate | InvoiceUpdate;
@@ -40,9 +39,13 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
         ? invoice.default_items
         : (availableDefaults || []).filter(d => invoice.default_item_ids?.includes(d.default_item_id));
 
+    const isSavedInvoice = 'invoice_id' in invoice;
+    const userItems = (!isKG && !isSavedInvoice)
+        ? (invoice.dates || []).flatMap((d: any) => d.items || [])
+        : (invoice.user_items || []);
+
     const calculatedTotal = useInvoiceTotal(
-        enforceNonNull(invoice.type),
-        [...(invoice.user_items || []), ...defaultItems],
+        [...userItems, ...defaultItems],
         datesAsDates
     );
 

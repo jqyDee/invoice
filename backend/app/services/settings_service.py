@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import SettingsDB
@@ -7,7 +8,7 @@ from app.schemas import SettingsUpdate
 
 
 def load_settings(db: Session) -> SettingsDB:
-    settings: Optional[SettingsDB] = db.query(SettingsDB).first()
+    settings: Optional[SettingsDB] = db.scalars(select(SettingsDB)).first()
 
     return settings
 

@@ -1,10 +1,11 @@
-from sqlalchemy import or_
+from sqlalchemy import or_, select
 from typing import Optional
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from ..models import PatientDB
 from ..schemas import Patient, PatientCreate
-from ..services.patient_service import load_patient, perform_create_patient, perform_update_patient
+from ..services.patient_service import load_patient, perform_create_patient, perform_update_patient, \
+    perform_delete_patient
 from ..utilities.database import get_db
 
 router = APIRouter(prefix="/patients", tags=["patients"])
@@ -15,7 +16,7 @@ def get_patients(
         search: Optional[str] = Query(None),  # New search parameter
         db: Session = Depends(get_db)
 ):
-    query = db.query(PatientDB)
+    statement = select(PatientDB)
 
     if search:
         # This handles searching "First Last", "Last First", or just parts of either
@@ -25,9 +26,9 @@ def get_patients(
             PatientDB.last_name.ilike(f"%{search}%"),
             (PatientDB.first_name + " " + PatientDB.last_name).ilike(f"%{search}%")
         )
-        query = query.filter(search_filter)
+        statement = statement.where(search_filter)
 
-    return query.all()
+    return list(db.scalars(statement).all())
 
 
 @router.get("/{patient_id}", response_model=Patient)
@@ -51,10 +52,7 @@ def delete_patient(
         patient_id: int,
         db: Session = Depends(get_db)
 ):
-    db_patient = load_patient(patient_id, db)
-    db.delete(db_patient)
-    db.commit()
-    return db_patient
+    return perform_delete_patient(patient_id, db)
 
 
 @router.put("/{patient_id}", response_model=Patient)

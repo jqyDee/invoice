@@ -1,6 +1,5 @@
 import re
-from pydantic import BaseModel, field_validator, Field
-from typing import Optional
+from pydantic import BaseModel, field_validator
 
 
 class SettingsBase(BaseModel):

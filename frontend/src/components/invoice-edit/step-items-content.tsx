@@ -28,9 +28,12 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
     const selectedDefaults = (availableDefaults || [])
         .filter(d => invoice.default_item_ids?.includes(d.default_item_id));
 
+    const userItems = isKG
+        ? (invoice.user_items || [])
+        : (invoice.dates || []).flatMap(d => d.items || []);
+
     const calculatedTotal = useInvoiceTotal(
-        enforceNonNull(invoice.type),
-        [...(invoice.user_items || []), ...selectedDefaults],
+        [...userItems, ...selectedDefaults],
         enforceNonNull(invoice.dates).map(d => new Date(d.date))
     );
 

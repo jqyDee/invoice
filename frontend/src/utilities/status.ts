@@ -1,7 +1,7 @@
 import {InvoiceStatus} from "../api";
 
 export const toGermanStatus = (status: InvoiceStatus): string => {
-    let statusString: string = "";
+    let statusString: string;
 
     switch (status) {
         case InvoiceStatus.DRAFT:

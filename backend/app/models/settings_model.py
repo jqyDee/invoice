@@ -1,14 +1,18 @@
-from sqlalchemy import Column, Integer, String, Float
+from typing import Optional
+
+from sqlalchemy.orm import Mapped, mapped_column
+
 from .base_model import Base
+
 
 class SettingsDB(Base):
     __tablename__ = "settings"
 
-    settings_id = Column(Integer, primary_key=True)
+    settings_id: Mapped[int] = mapped_column(primary_key=True)
 
-    iban = Column(String)
-    bic = Column(String)
-    tax_id = Column(String)
+    iban: Mapped[Optional[str]] = mapped_column()
+    bic: Mapped[Optional[str]] = mapped_column()
+    tax_id: Mapped[Optional[str]] = mapped_column()
 
-    price_from = Column(Float, default=100.0)
-    price_to = Column(Float, default=110.0)
+    price_from: Mapped[Optional[float]] = mapped_column(default=100.0)
+    price_to: Mapped[Optional[float]] = mapped_column(default=110.0)

@@ -1,16 +1,28 @@
-from sqlalchemy import Column, Integer, Date, ForeignKey
-from sqlalchemy.orm import relationship
+from __future__ import annotations
+
+import datetime
+from typing import List, TYPE_CHECKING
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+
 from .base_model import Base
+
+if TYPE_CHECKING:
+    from .invoice_model import InvoiceDB
+    from .invoiceItem_model import InvoiceItemDB
+
 
 class InvoiceDateDB(Base):
     __tablename__ = "invoice_date"
 
-    date_id = Column(Integer, primary_key=True, index=True)
-    invoice_id = Column(Integer, ForeignKey("invoice.invoice_id"), nullable=False)
-    date = Column(Date, nullable=False)
+    date_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    invoice_id: Mapped[int] = mapped_column(ForeignKey("invoice.invoice_id"))
+    date: Mapped[datetime.date] = mapped_column()
 
-    invoice = relationship("InvoiceDB", back_populates="dates")
+    invoice: Mapped[InvoiceDB] = relationship(back_populates="dates")
 
     # HP
-    items = relationship("InvoiceItemDB", back_populates="treatment_date", cascade="all, delete-orphan",
-                         order_by="InvoiceItemDB.position")
+    items: Mapped[List[InvoiceItemDB]] = relationship(
+        back_populates="treatment_date", cascade="all, delete-orphan", order_by="InvoiceItemDB.position"
+    )

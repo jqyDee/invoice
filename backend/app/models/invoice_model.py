@@ -1,9 +1,13 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Text, Enum, DateTime, Boolean, select, func, \
-    case, Float
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
+from __future__ import annotations
 
+from typing import Optional, List
+from datetime import datetime, timezone, date
+
+from sqlalchemy import ForeignKey, Text, Enum, DateTime, select, func, case
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+
+from .patient_model import PatientDB
 from .invoiceItem_model import InvoiceItemDB
 from .invoiceDate_model import InvoiceDateDB
 from .invoiceInvoiceDefaultItem_association import InvoiceInvoiceDefaultItemAssociationDB
@@ -17,34 +21,37 @@ from .invoiceType_enum import InvoiceType
 class InvoiceDB(Base):
     __tablename__ = "invoice"
 
-    invoice_id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patient.patient_id"), nullable=False)
+    invoice_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.patient_id"))
 
-    invoice_number = Column(String, unique=True, index=True, nullable=True)
-    invoice_date = Column(Date, nullable=False)
-    kilometers_at_billing = Column(Float, nullable=True)
+    invoice_number: Mapped[Optional[str]] = mapped_column(unique=True, index=True)
+    invoice_date: Mapped[date] = mapped_column()
+    kilometers_at_billing: Mapped[Optional[float]] = mapped_column()
 
-    created_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), nullable=False,
-                        default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
-    pdf_generated_at = Column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )
+    pdf_generated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
-    type = Column(Enum(InvoiceType), nullable=False, default=InvoiceType.KG)
+    type: Mapped[InvoiceType] = mapped_column(Enum(InvoiceType), default=InvoiceType.KG)
+    status: Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), default=InvoiceStatus.DRAFT)
+    paid_at: Mapped[Optional[date]] = mapped_column()
 
-    status = Column(Enum(InvoiceStatus), nullable=False, default=InvoiceStatus.DRAFT)
-    paid_at = Column(Date, nullable=True)
+    diagnosis: Mapped[Optional[str]] = mapped_column(Text)
 
-    diagnosis = Column(Text, nullable=True)
+    patient: Mapped[PatientDB] = relationship(back_populates="invoices")
 
-    patient = relationship("PatientDB", back_populates="invoices")
+    dates: Mapped[List[InvoiceDateDB]] = relationship(back_populates="invoice", cascade="all, delete-orphan")
 
-    dates = relationship("InvoiceDateDB", back_populates="invoice", cascade="all, delete-orphan")
-
-    user_items = relationship("InvoiceItemDB", back_populates="invoice", cascade="all, delete-orphan",
-                              order_by="InvoiceItemDB.position")
-    default_items = relationship("InvoiceInvoiceDefaultItemAssociationDB", back_populates="invoice",
-                                 cascade="all, delete-orphan")
+    user_items: Mapped[List[InvoiceItemDB]] = relationship(
+        back_populates="invoice", cascade="all, delete-orphan", order_by="InvoiceItemDB.position"
+    )
+    default_items: Mapped[List[InvoiceInvoiceDefaultItemAssociationDB]] = relationship(
+        back_populates="invoice", cascade="all, delete-orphan"
+    )
 
     @property
     def is_locked(self) -> bool:
@@ -131,9 +138,6 @@ class InvoiceDB(Base):
     @total_travel_distance.expression
     def total_travel_distance(cls):
         """SQL-level: Multiplies stored distance (or patient fallback) by date/item count based on type."""
-        from .patient_model import PatientDB
-        from .invoiceDate_model import InvoiceDateDB
-
         # Subquery: Count of Dates
         multiplier = (
             select(func.count(InvoiceDateDB.date_id))
