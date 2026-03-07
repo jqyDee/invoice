@@ -1,4 +1,6 @@
 from fpdf import FPDF, XPos, YPos
+
+from ..utilities import INVOICE_FOOTER_FONT_SIZE
 from ..utilities.config import LOGO_PATH, FONTS_DIR
 from ..models import InvoiceDB, SettingsDB
 
@@ -74,16 +76,22 @@ class InvoicePdf(FPDF):
 
         # Position at 3.5 cm from bottom
         self.set_y(-35)
-        # Roboto italic 8
-        self.set_font("Roboto", "B", 8)
+        self.set_font("Roboto", "B", INVOICE_FOOTER_FONT_SIZE)
         self.cell(0, 5, "Bankverbindung", align="C")
         self.ln(3)
-        self.cell(0, 5, f"IBAN: {self.iban}", align="C")
+
+        clean_iban = self.iban.replace(" ", "")
+        formatted_iban = " ".join(clean_iban[i:i + 4] for i in range(0, len(clean_iban), 4))
+        self.cell(0, 5, f"IBAN: {formatted_iban}", align="C")
         self.ln(3)
         self.cell(0, 5, f"BIC: {self.bic}", align="C")
         self.ln(3)
         self.set_font("Roboto", "", 6)
         self.cell(1, 5, f"Rechnungsnummer: {self.invoice_number}", align="L")
-        self.cell(0, 5, f"Steuer Nummer: {self.tax_id} - Ust. Befreit nach §4 UStG", align="C")
+
+        clean_tax_id = self.tax_id.replace(" ", "").replace("/", "")
+        parts = [clean_tax_id[:3], clean_tax_id[3:6], clean_tax_id[6:]]
+        formatted_tax_id = "/".join(p for p in parts if p)
+        self.cell(0, 5, f"Steuer Nummer: {formatted_tax_id} - Ust. Befreit nach §4 UStG", align="C")
         # Page number
         self.cell(0, 5, "Seite " + str(self.page_no()) + " von {nb}", align="R")
