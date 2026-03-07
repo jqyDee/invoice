@@ -11,14 +11,17 @@ export const SettingsPrivacyClausesView: React.FC = () => {
 
     return (
         <div className="flex-column">
-            <div className="flex justify-content-between align-items-center">
+            <div className="flex flex-column md:flex-row justify-content-between md:align-items-center gap-3 mb-3">
                 <Header title="Datenschutz-Klauseln" />
-                <Button
-                    className="p-button-rounded"
-                    label="Neue Klausel"
-                    icon="pi pi-plus"
-                    onClick={() => setVisible(true)}
-                />
+
+                <div className="flex gap-2 w-full md:w-auto">
+                    <Button
+                        className="p-button-rounded w-full md:w-auto"
+                        label="Neue Klausel"
+                        icon="pi pi-plus"
+                        onClick={() => setVisible(true)}
+                    />
+                </div>
             </div>
 
             <Dialog

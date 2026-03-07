@@ -24,9 +24,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
             key="patient_id"
             emptyMessage="Keine Patienten gefunden."
             className="mt-2"
-
             breakpoint="960px"
-
             stripedRows
             showGridlines
             removableSort

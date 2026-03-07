@@ -132,7 +132,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                                 id={field.name}
                                 {...field}
                                 maxLength={4}
-                                className={errors.label ? 'p-invalid' : ''}
                                 disabled={true}
                                 onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
@@ -140,7 +139,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                                     field.onChange(target.value);
                                 }}
                             />
-                            {getFormErrorMessage('label')}
                         </>
                     )}
                 />

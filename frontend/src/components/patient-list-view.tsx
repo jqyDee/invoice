@@ -8,6 +8,8 @@ import { PatientForm } from "./patient/patient-form.tsx";
 import { InputText } from "primereact/inputtext";
 import { PatientTable } from "./patient/patient-table.tsx";
 import {Header} from "../utilities/header.tsx"; // Import Table
+import { IconField } from 'primereact/iconfield';
+import {InputIcon} from "primereact/inputicon";
 
 export const PatientListView: React.FC = () => {
     const [visible, setVisible] = React.useState(false);
@@ -37,18 +39,22 @@ export const PatientListView: React.FC = () => {
         <div className="flex-column">
             <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-3 gap-3">
                 <Header title="Patienten"/>
-                <div className="flex flex-column sm:flex-row w-full md:w-auto gap-2">
+
+                <div className="flex gap-2 w-full md:w-auto">
+                    <IconField iconPosition="left">
+                        <InputIcon className="pi pi-search" />
+                        <InputText
+                            value={search}
+                            placeholder="Suche..."
+                            onChange={(e) => setSearch(e.target.value)}
+                            style={{ minWidth: "20vw" }}
+                        />
+                    </IconField>
                     <Button
                         onClick={() => { setSelectedPatient(null); setVisible(true); }}
                         icon="pi pi-plus"
-                        label="Neuer Patient"
+                        label="Neu"
                         className="p-button-rounded w-full md:w-10"
-                    />
-                    <InputText
-                        value={search}
-                        placeholder="Suche..."
-                        onChange={(e) => setSearch(e.target.value)}
-                        style={{ minWidth: "20vw" }}
                     />
                 </div>
             </div>

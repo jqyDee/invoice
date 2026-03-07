@@ -97,7 +97,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 paginator
                 rows={10}
                 key="invoice_id"
-                tableStyle={{ minWidth: "50rem" }}
+                breakpoint="960px"
                 emptyMessage="Keine Rechnungen gefunden"
                 className="mt-2"
                 stripedRows
