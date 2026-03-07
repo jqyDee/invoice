@@ -35,18 +35,28 @@ export const PatientListView: React.FC = () => {
 
     return (
         <div className="flex-column">
-            <div className="flex justify-content-between">
+            <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-3 gap-3">
                 <Header title="Patienten"/>
-                <div className="flex align-items-center gap-2">
-                    <Button onClick={() => { setSelectedPatient(null); setVisible(true); }} icon="pi pi-plus" label="Neuer Patient" className="p-button-rounded" />
-                    <InputText value={search} placeholder="Suche..." onChange={(e) => setSearch(e.target.value)} style={{ minWidth: "20vw" }} />
+                <div className="flex flex-column sm:flex-row w-full md:w-auto gap-2">
+                    <Button
+                        onClick={() => { setSelectedPatient(null); setVisible(true); }}
+                        icon="pi pi-plus"
+                        label="Neuer Patient"
+                        className="p-button-rounded w-full md:w-10"
+                    />
+                    <InputText
+                        value={search}
+                        placeholder="Suche..."
+                        onChange={(e) => setSearch(e.target.value)}
+                        style={{ minWidth: "20vw" }}
+                    />
                 </div>
             </div>
 
             <Dialog
                 header={selectedPatient ? "Patient bearbeiten" : "Neuen Patienten anlegen"}
                 visible={visible}
-                style={{ maxWidth: '50vw' }}
+                style={{ maxWidth: '80vw'}}
                 onHide={() => setVisible(false)}
             >
                 <PatientForm patientToEdit={selectedPatient} onSuccess={() => setVisible(false)} />

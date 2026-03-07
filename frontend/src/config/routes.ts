@@ -8,5 +8,7 @@ export const ROUTES = {
     SETTINGS_GENERAL : "/settings-general",
     SETTINGS_DEFAULTS: "/settings-defaults/:type?",
     THERAPY_PREVIEW: "/therapy/:id/pdf",
-    SETTINGS_THERAPY_CLAUSES: "/settings/therapy-clauses"
+    SETTINGS_THERAPY_CLAUSES: "/settings/therapy-clauses",
+    PRIVACY_PREVIEW: "/privacy/:id/pdf",
+    SETTINGS_PRIVACY_CLAUSES: "/settings/privacy-clauses"
 } as const;

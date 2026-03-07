@@ -23,6 +23,9 @@ export const menu: MenuItem[] = [
             {
                 label: 'Therapie-Klauseln', icon: 'pi pi-file-edit', url: ROUTES.SETTINGS_THERAPY_CLAUSES
             },
+            {
+                label: 'Datenschutz-Klauseln', icon: 'pi pi-shield', url: ROUTES.SETTINGS_PRIVACY_CLAUSES
+            },
         ]
     },
 ];

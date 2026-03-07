@@ -10,7 +10,9 @@ from ..models import InvoiceDB, InvoiceType, SettingsDB, PatientDB
 from ..pdf import InvoiceKg
 from ..pdf.invoice_hp_pdf import InvoiceHp
 from ..pdf.therapy_pdf import Therapy
+from ..pdf.privacy_pdf import Privacy
 from ..services.therapyClause_service import load_clauses
+from ..services.privacyClause_service import load_privacy_clauses
 
 logger = logging.getLogger('uvicorn.error')
 
@@ -61,5 +63,13 @@ def check_and_regenerate_therapy_pdf(
     clauses = load_clauses(db)
     try:
         Therapy(patient, settings, clauses)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def check_and_regenerate_privacy_pdf(patient: PatientDB, db: Session):
+    clauses = load_privacy_clauses(db)
+    try:
+        Privacy(patient, clauses)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

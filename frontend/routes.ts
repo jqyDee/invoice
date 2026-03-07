@@ -9,6 +9,8 @@ import {SettingsDefaultsView} from "./src/components/settings-defaults-view.tsx"
 import {InvoicePreviewView} from "./src/components/invoice-preview-view.tsx";
 import {TherapyPreviewView} from "./src/components/therapy-preview-view.tsx";
 import {SettingsTherapyClausesView} from "./src/components/settings-therapy-clauses-view.tsx";
+import {PrivacyPreviewView} from "./src/components/privacy-preview-view.tsx";
+import {SettingsPrivacyClausesView} from "./src/components/settings-privacy-clauses-view.tsx";
 
 export const HomeRoute = {
     url: ROUTES.HOME,
@@ -58,4 +60,14 @@ export const TherapyPreviewRoute = {
 export const SettingsTherapyClausesRoute = {
     url: ROUTES.SETTINGS_THERAPY_CLAUSES,
     component: SettingsTherapyClausesView
+}
+
+export const PrivacyPreviewRoute = {
+    url: ROUTES.PRIVACY_PREVIEW,
+    component: PrivacyPreviewView
+}
+
+export const SettingsPrivacyClausesRoute = {
+    url: ROUTES.SETTINGS_PRIVACY_CLAUSES,
+    component: SettingsPrivacyClausesView
 }

@@ -11,3 +11,4 @@ from .defaultInvoiceItemPosition_enum import DefaultInvoiceItemPosition
 from .defaultInvoiceItem_model import DefaultInvoiceItemDB
 from .invoiceInvoiceDefaultItem_association import InvoiceInvoiceDefaultItemAssociationDB
 from .therapyClause_model import TherapyClauseDB
+from .privacyClause_model import PrivacyClauseDB

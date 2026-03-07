@@ -22,9 +22,11 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
             paginator
             rows={10}
             key="patient_id"
-            tableStyle={{ minWidth: '50rem' }}
             emptyMessage="Keine Patienten gefunden."
             className="mt-2"
+
+            breakpoint="960px"
+
             stripedRows
             showGridlines
             removableSort
@@ -54,7 +56,16 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
                             <Button
                                 icon="pi pi-file-pdf"
                                 className="p-button-rounded"
+                                tooltip="Therapie-Vereinbarung"
+                                tooltipOptions={{ showDelay: 1000 }}
                                 onClick={() => navigate(generatePath(ROUTES.THERAPY_PREVIEW, { id: e.patient_id.toString() }))}
+                            />
+                            <Button
+                                icon="pi pi-shield"
+                                className="p-button-rounded"
+                                tooltip="Datenschutzerklärung"
+                                tooltipOptions={{ showDelay: 1000 }}
+                                onClick={() => navigate(generatePath(ROUTES.PRIVACY_PREVIEW, { id: e.patient_id.toString() }))}
                             />
                             <Button
                                 onClick={() => onEdit(e)}

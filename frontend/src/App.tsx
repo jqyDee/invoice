@@ -9,7 +9,8 @@ import {
     InvoicePreviewRoute,
     InvoiceRoute,
     InvoicesRoute,
-    PatientsRoute, SettingsDefaultsRoute, SettingsGeneralRoute, SettingsTherapyClausesRoute, TherapyPreviewRoute
+    PatientsRoute, PrivacyPreviewRoute, SettingsDefaultsRoute, SettingsGeneralRoute, SettingsPrivacyClausesRoute,
+    SettingsTherapyClausesRoute, TherapyPreviewRoute
 } from "../routes.ts";
 import {MainLayout} from "./components/layouts/main-layout.tsx";
 import {CardLayout} from "./components/layouts/card-layout.tsx";
@@ -40,11 +41,13 @@ const App: React.FC = () => {
                                 <Route path={SettingsGeneralRoute.url} Component={SettingsGeneralRoute.component} />
                                 <Route path={SettingsDefaultsRoute.url} Component={SettingsDefaultsRoute.component} />
                                 <Route path={SettingsTherapyClausesRoute.url} Component={SettingsTherapyClausesRoute.component} />
+                                <Route path={SettingsPrivacyClausesRoute.url} Component={SettingsPrivacyClausesRoute.component} />
                             </Route>
 
                             {/* Preview Page - No Card, but still has NavbarView */}
                             <Route path={InvoicePreviewRoute.url} Component={InvoicePreviewRoute.component} />
                             <Route path={TherapyPreviewRoute.url} Component={TherapyPreviewRoute.component} />
+                            <Route path={PrivacyPreviewRoute.url} Component={PrivacyPreviewRoute.component} />
                         </Route>
                     </Routes>
                 </ToastProvider>

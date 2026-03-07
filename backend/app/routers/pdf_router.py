@@ -6,8 +6,9 @@ from ..services.invoice_service import load_invoice
 from ..services.patient_service import load_patient
 from ..services.settings_service import load_settings
 from ..utilities.database import get_db
-from ..services.pdf_service import check_and_regenerate_invoice_pdf, check_and_regenerate_therapy_pdf
-from ..utilities.path_utilitiy import generate_invoice_path, generate_therapy_path
+from ..services.pdf_service import check_and_regenerate_invoice_pdf, check_and_regenerate_therapy_pdf, \
+    check_and_regenerate_privacy_pdf
+from ..utilities.path_utilitiy import generate_invoice_path, generate_therapy_path, generate_privacy_path
 
 router = APIRouter(prefix="/pdf", tags=["pdf"])
 
@@ -56,6 +57,29 @@ def get_pdf_therapy(
     return FileResponse(
         path=pdf_path,
         filename=f"{patient.patient_id}-{patient.label}-therapy.pdf",
+        content_disposition_type="inline",
+        media_type='application/pdf',
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        }
+    )
+
+
+@router.get("/privacy/{patient_id}")
+def get_pdf_privacy(
+        patient_id: int,
+        db: Session = Depends(get_db)
+):
+    patient = load_patient(patient_id, db)
+
+    pdf_path = generate_privacy_path(patient)
+    check_and_regenerate_privacy_pdf(patient, db)
+
+    return FileResponse(
+        path=pdf_path,
+        filename=f"{patient.patient_id}-{patient.label}-privacy.pdf",
         content_disposition_type="inline",
         media_type='application/pdf',
         headers={

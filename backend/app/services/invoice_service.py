@@ -133,7 +133,7 @@ def _link_default_items(db_invoice: InvoiceDB, default_item_ids: list[int], db: 
 
 
 def _generate_unique_invoice_number(db: Session, invoice: InvoiceDB, patient: PatientDB) -> str:
-    base_number = f"{invoice.invoice_date}{"-H" if invoice.type == InvoiceType.HP else ""}-{patient.label}"
+    base_number = f"{invoice.invoice_date}{'-H' if invoice.type == InvoiceType.HP else ''}-{patient.label}"
 
     statement = select(InvoiceDB).where(
         InvoiceDB.invoice_number == base_number

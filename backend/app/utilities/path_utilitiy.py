@@ -14,3 +14,7 @@ def generate_therapy_path(
         patient: PatientDB
 ) -> Path:
     return CACHE_DIR / f"{patient.patient_id}-{patient.label}-therapy.pdf"
+
+
+def generate_privacy_path(patient: PatientDB) -> Path:
+    return CACHE_DIR / f"{patient.patient_id}-{patient.label}-privacy.pdf"
