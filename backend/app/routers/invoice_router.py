@@ -11,12 +11,13 @@ router = APIRouter(prefix="/invoices", tags=["invoices"])
 
 @router.get("/", response_model=list[Invoice])
 def get_invoices(
-        show_drafts: bool = Query(True),
-        only_drafts: bool = Query(False),
+        show_drafts: Optional[bool] = Query(True),
+        only_drafts: Optional[bool] = Query(False),
+        only_open: Optional[bool] = Query(False),
         search: Optional[str] = Query(None),
         db: Session = Depends(get_db)
 ):
-    return load_invoices(show_drafts, only_drafts, search, db)
+    return load_invoices(show_drafts, only_drafts, only_open, search, db)
 
 
 @router.post("/", response_model=Invoice)

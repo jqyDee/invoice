@@ -27,12 +27,12 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
     const { state, setters, actions } = useInvoiceItemMutations(invoice, onChange);
 
     const headerTemplate = (data: any) => (
-        <div className="flex align-items-center justify-content-between py-2">
+        <div className="flex flex-column md:flex-row md:align-items-center md:justify-content-between py-2 gap-3">
             <div className="flex align-items-center gap-2 text-lg font-bold">
                 <i className="pi pi-calendar text-primary"></i><span>{toGermanDateString(new Date(data.date ?? ''))}</span>
             </div>
             {!readonly && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     <Button
                         icon="pi pi-plus"
                         label="Leistung"
@@ -62,7 +62,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     <Dialog
                         header={state.editingItem ? "Behandlung bearbeiten" : "Neue Behandlung"}
                         visible={state.visible}
-                        style={{ width: '40vw' }}
+                        style={{ maxWidth: '80vw' }}
                         onHide={() => setters.setVisible(false)}
                     >
                         <InvoiceTreatmentForm
@@ -120,7 +120,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         field="number"
                         header="Ziffer"
                         body={(d) => d.isEmpty ? '' : d.number}
-                        style={{ width: '15%' }}
+                        style={{ width: '10%' }}
                     />
                     <Column
                         field="description"
@@ -128,7 +128,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         body={(d) => d.isEmpty
                             ? <span className="text-color-secondary italic">Keine Leistungen hinterlegt</span>
                             : d.description}
-                        style={{ width: '50%' }}
+                        style={{ width: '70%' }}
                     />
                     <Column
                         field="amount"
@@ -154,7 +154,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                                     onMoveDown={actions.moveItemDown}
                                 />
                             }
-                            style={{ width: '20%' }}
+                            style={{ width: '10%' }}
                         />
                     }
                 </DataTable>

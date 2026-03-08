@@ -24,32 +24,36 @@ export const ActionCell = ({ item, readonly, isKG, onEdit, onDel, onMoveUp, onMo
     const isWarning = !isKG && (!item.number || !item.date);
 
     return (
-        <div className="flex justify-content-end gap-1">
+        <div className="flex flex-column md:flex-row justify-content-end gap-1">
             {isWarning && <Tag severity="warning" icon="pi pi-exclamation-circle" rounded />}
-            {!isKG && onMoveUp && (
+            <div className="flex">
+                {!isKG && onMoveUp && (
+                    <Button
+                        icon="pi pi-angle-up"
+                        className="p-button-text p-button-rounded p-button-sm"
+                        onClick={() => onMoveUp(item.date!, item._originalIndex)}
+                    />
+                )}
+                {!isKG && onMoveDown && (
+                    <Button
+                        icon="pi pi-angle-down"
+                        className="p-button-text p-button-rounded p-button-sm"
+                        onClick={() => onMoveDown(item.date!, item._originalIndex)}
+                    />
+                )}
+            </div>
+            <div className="flex">
                 <Button
-                    icon="pi pi-angle-up"
-                    className="p-button-text p-button-rounded p-button-sm"
-                    onClick={() => onMoveUp(item.date!, item._originalIndex)}
+                    icon="pi pi-pencil"
+                    className="p-button-text p-button-rounded"
+                    onClick={() => onEdit(item)}
                 />
-            )}
-            {!isKG && onMoveDown && (
                 <Button
-                    icon="pi pi-angle-down"
-                    className="p-button-text p-button-rounded p-button-sm"
-                    onClick={() => onMoveDown(item.date!, item._originalIndex)}
+                    icon="pi pi-trash"
+                    className="p-button-text p-button-danger p-button-rounded"
+                    onClick={() => onDel(isKG ? undefined : item.date, item, isKG ? undefined : item._originalIndex)}
                 />
-            )}
-            <Button
-                icon="pi pi-pencil"
-                className="p-button-text p-button-rounded"
-                onClick={() => onEdit(item)}
-            />
-            <Button
-                icon="pi pi-trash"
-                className="p-button-text p-button-danger p-button-rounded"
-                onClick={() => onDel(isKG ? undefined : item.date, item, isKG ? undefined : item._originalIndex)}
-            />
+            </div>
         </div>
     );
 };

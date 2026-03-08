@@ -59,7 +59,7 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
 
     return (
         <div className="grid">
-            <div className="col-6 flex flex-column">
+            <div className="col-12 md:col-6 flex flex-column">
                 <Header title="Patient auswählen"/>
                 <AutoComplete
                     value={patientValue}
@@ -75,7 +75,7 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
                     forceSelection
                 />
             </div>
-            <div className="col-6 flex flex-column">
+            <div className="col-12 md:col-6 flex flex-column">
                 <Header title="Rechnungstyp" />
                 <SelectButton
                     value={invoice.type}

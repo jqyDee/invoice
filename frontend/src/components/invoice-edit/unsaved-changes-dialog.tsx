@@ -20,15 +20,15 @@ export const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
             visible={visible}
             onHide={onHide}
             header="Ungespeicherte Änderungen"
-            style={{ width: "30vw" }}
+            style={{ maxWidth: "80vw" }}
             footer={
-                <div className="flex justify-content-between gap-2">
+                <div className="flex flex-column md:flex-row justify-content-between gap-2">
                     <Button
                         label="Abbrechen"
                         className="p-button-text"
                         onClick={onHide}
                     />
-                    <div>
+                    <div className="flex flex-column md:flex-row gap-2">
                         <Button
                             label="Verlassen"
                             className="p-button-outlined p-button-danger"

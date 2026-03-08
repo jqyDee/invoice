@@ -71,6 +71,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 header="Zahlungsdatum"
                 visible={paidDialogInvoiceId !== null}
                 onHide={() => setPaidDialogInvoiceId(null)}
+                style={{ minWidth: '30vw' }}
             >
                 <div className="flex flex-column gap-3">
                     <Calendar value={paidDate} onChange={(e) => setPaidDate(e.value as Date)} inline />

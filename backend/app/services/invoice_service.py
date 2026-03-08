@@ -22,6 +22,7 @@ from ..utilities.database import add_db
 def load_invoices(
         show_drafts: bool,
         only_drafts: bool,
+        only_open: bool,
         search: Optional[str],
         db: Session
 ) -> list[InvoiceDB]:
@@ -29,9 +30,12 @@ def load_invoices(
         joinedload(InvoiceDB.user_items),
         joinedload(InvoiceDB.dates),
         joinedload(InvoiceDB.patient),
-        # Eagerly load the default items through the association table
         joinedload(InvoiceDB.default_items).joinedload(InvoiceInvoiceDefaultItemAssociationDB.default_item),
     )
+
+    if only_open:
+        statement = statement.where(InvoiceDB.status.in_([InvoiceStatus.SAVED, InvoiceStatus.PAYMENT_DUE]))
+        return list(db.scalars(statement).unique().all())
 
     if only_drafts:
         statement = statement.where(InvoiceDB.status.is_(InvoiceStatus.DRAFT))
