@@ -1,0 +1,41 @@
+# Deployment compose for the Windows machine.
+# Images are pulled from GHCR and kept up to date automatically by Watchtower.
+#
+# One-time setup on the Windows machine:
+#   1. docker login ghcr.io -u <your-github-username>
+#      (use a GitHub PAT with read:packages scope as the password)
+#   2. Replace OWNER/REPO below with your actual GitHub owner and repo name,
+#      e.g. ghcr.io/mfischbach/invoice-python-backend:latest
+#   3. docker compose -f docker-compose.deploy.yml up -d
+
+services:
+  backend:
+    image: ghcr.io/OWNER/REPO-backend:latest
+    container_name: backend
+    volumes:
+      - ./data:/app/data
+      - ./cache:/app/cache
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/OWNER/REPO-frontend:latest
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Check for new images every 5 minutes, remove old images after update.
+    # Adjust --interval (seconds) to your preference.
+    command: --interval 300 --cleanup
+    restart: unless-stopped
