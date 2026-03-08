@@ -15,7 +15,7 @@ from ..models import (
     InvoiceInvoiceDefaultItemAssociationDB, InvoiceStatus, InvoiceType
 )
 from ..schemas import InvoiceCreate, InvoiceUpdate, InvoiceDateUpdate, InvoiceItemCreate
-from ..schemas.invoice_schema import TemplateItemResponse, InvoiceDateGroup, InvoiceTemplateResponse
+from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceDateGroup, InvoiceTemplateResponse
 from ..utilities.database import add_db
 
 
@@ -345,6 +345,28 @@ def get_template_items(invoice_type: InvoiceType, db: Session) -> list[TemplateI
                 invoice_id=inv.invoice_id,
                 invoice_date=inv.invoice_date,
             ))
+    return result
+
+
+def get_template_diagnoses(db: Session) -> list[DiagnosisTemplateResponse]:
+    """Return deduplicated diagnoses from all non-draft HP invoices, newest first."""
+    invoices = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
+                             search=None, db=db, invoice_type=InvoiceType.HP)
+    invoices.sort(key=lambda inv: inv.invoice_date, reverse=True)
+    seen: set[str] = set()
+    result: list[DiagnosisTemplateResponse] = []
+    for inv in invoices:
+        if not inv.diagnosis or inv.diagnosis in seen:
+            continue
+        seen.add(inv.diagnosis)
+        result.append(DiagnosisTemplateResponse(
+            diagnosis=inv.diagnosis,
+            patient_id=inv.patient_id,
+            patient_first_name=inv.patient.first_name,
+            patient_last_name=inv.patient.last_name,
+            invoice_id=inv.invoice_id,
+            invoice_date=inv.invoice_date,
+        ))
     return result
 
 

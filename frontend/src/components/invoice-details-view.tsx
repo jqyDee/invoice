@@ -29,7 +29,7 @@ export const InvoiceDetailsView: React.FC = () => {
             await queryClient.invalidateQueries({
                 queryKey: getInvoicesInvoicesGetQueryKey()
             })
-            navigate(-1);
+            navigate(ROUTES.INVOICES);
         },
         onError: (error) => {
             showToast({ severity: 'error', summary: 'Error!', detail: `Rechnung konnte nicht gelöscht werden. ${error.detail}`, life: 3000});

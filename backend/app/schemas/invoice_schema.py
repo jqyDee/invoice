@@ -85,6 +85,15 @@ class TemplateItemResponse(BaseModel):
     invoice_date: date
 
 
+class DiagnosisTemplateResponse(BaseModel):
+    diagnosis: str
+    patient_id: int
+    patient_first_name: str
+    patient_last_name: str
+    invoice_id: int
+    invoice_date: date
+
+
 class InvoiceDateGroup(BaseModel):
     date: date
     items: List[InvoiceItemCreate]

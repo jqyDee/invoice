@@ -90,21 +90,24 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
                 />
             )}
 
-            <div className="flex gap-2">
-                <Button
-                    label="Vorlage laden"
-                    icon="pi pi-copy"
-                    className="p-button-outlined"
-                    onClick={() => setTemplatePickerVisible(true)}
-                />
-                {isKG && (
+            <div className="flex flex-column md:flex-row justify-content-between md:align-items-center gap-3">
+                <Header title="Leistungen" />
+                <div className="flex gap-2">
                     <Button
-                        label="Letzte Vorlage"
-                        icon="pi pi-history"
-                        className="p-button-outlined"
-                        onClick={handleLoadLastKG}
+                        label="Vorlage laden"
+                        icon="pi pi-copy"
+                        className="p-button-outlined p-button-contrast"
+                        onClick={() => setTemplatePickerVisible(true)}
                     />
-                )}
+                    {isKG && (
+                        <Button
+                            label="Letzte Vorlage"
+                            icon="pi pi-history"
+                            className="p-button-outlined p-button-contrast"
+                            onClick={handleLoadLastKG}
+                        />
+                    )}
+                </div>
             </div>
             <InvoiceTemplateInvoicePicker
                 visible={templatePickerVisible}
@@ -113,7 +116,6 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
                 patientId={invoice.patient_id!}
                 onSelect={handleTemplateSelect}
             />
-            <Header title="Leistungen" />
             <InvoiceItemTable invoice={invoice} onChange={onChange} readonly={false} patientId={invoice.patient_id!}/>
 
             <InvoiceDefaultItemTable invoice={invoice} onChange={onChange}/>

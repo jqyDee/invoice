@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from ..utilities.database import get_db, add_db
 from ..models import InvoiceType
 from ..schemas import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate
-from ..schemas.invoice_schema import TemplateItemResponse, InvoiceTemplateResponse
-from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic, get_template_items, get_invoice_template
+from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceTemplateResponse
+from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic, get_template_items, get_template_diagnoses, get_invoice_template
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
@@ -38,6 +38,11 @@ def get_template_items_endpoint(
     db: Session = Depends(get_db)
 ):
     return get_template_items(invoice_type, db)
+
+
+@router.get("/template-diagnoses", response_model=list[DiagnosisTemplateResponse])
+def get_template_diagnoses_endpoint(db: Session = Depends(get_db)):
+    return get_template_diagnoses(db)
 
 
 @router.get("/{invoice_id}/template", response_model=InvoiceTemplateResponse)

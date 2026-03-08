@@ -5,26 +5,23 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useQuery } from '@tanstack/react-query';
 import {
-    getTemplateItemsEndpointInvoicesTemplateItemsGetOptions,
+    getTemplateDiagnosesEndpointInvoicesTemplateDiagnosesGetOptions,
 } from '../../api/@tanstack/react-query.gen.ts';
-import { InvoiceType, type TemplateItemResponse } from '../../api';
-import type { TreatmentFormData } from './invoice-treatment-form.tsx';
+import { type DiagnosisTemplateResponse } from '../../api';
 
-interface InvoiceItemTemplatePanelProps {
+interface InvoiceDiagnosisTemplatePanelProps {
     patientId: number;
-    invoiceType: InvoiceType;
-    onSelect: (item: Partial<TreatmentFormData>) => void;
+    onSelect: (diagnosis: string) => void;
 }
 
-export const InvoiceItemTemplatePanel: React.FC<InvoiceItemTemplatePanelProps> = ({
-    patientId, invoiceType, onSelect,
+export const InvoiceDiagnosisTemplatePanel: React.FC<InvoiceDiagnosisTemplatePanelProps> = ({
+    patientId, onSelect,
 }) => {
-    const isHP = invoiceType === InvoiceType.HP;
     const [expanded, setExpanded] = useState(false);
     const [filter, setFilter] = useState('');
 
     const { data: allItems = [] } = useQuery(
-        getTemplateItemsEndpointInvoicesTemplateItemsGetOptions({ query: { invoice_type: invoiceType } })
+        getTemplateDiagnosesEndpointInvoicesTemplateDiagnosesGetOptions()
     );
 
     const filtered = useMemo(() => {
@@ -36,40 +33,34 @@ export const InvoiceItemTemplatePanel: React.FC<InvoiceItemTemplatePanelProps> =
         if (!filter) return sorted;
         const lower = filter.toLowerCase();
         return sorted.filter(item =>
-            item.description.toLowerCase().includes(lower) ||
-            (isHP && (item.number ?? '').toLowerCase().includes(lower))
+            item.diagnosis.toLowerCase().includes(lower)
         );
-    }, [allItems, patientId, filter, isHP]);
+    }, [allItems, patientId, filter]);
 
-    const handleRowSelect = (item: TemplateItemResponse) => {
-        onSelect({
-            description: item.description,
-            amount: item.amount,
-            number: item.number ?? undefined,
-            quantity: item.quantity,
-        });
+    const handleRowSelect = (item: DiagnosisTemplateResponse) => {
+        onSelect(item.diagnosis);
         setExpanded(false);
         setFilter('');
     };
 
-    const rowClassName = (item: TemplateItemResponse) =>
+    const rowClassName = (item: DiagnosisTemplateResponse) =>
         item.patient_id === patientId ? 'font-bold' : '';
 
-    const patientNameBody = (item: TemplateItemResponse) =>
+    const patientNameBody = (item: DiagnosisTemplateResponse) =>
         `${item.patient_first_name} ${item.patient_last_name}`;
 
     return (
         <div className="mb-3">
             <Button
                 label={expanded ? 'Aus Vorlage wählen ▲' : 'Aus Vorlage wählen ▼'}
-                className="p-button-outlined p-button-contrast p-button-sm w-full md:w-auto"
+                className="p-button-outlined p-button-contrast p-button-sm w-12 md:w-auto"
                 onClick={() => setExpanded(v => !v)}
                 type="button"
             />
             {expanded && (
-                <div className="mt-2 border-1 surface-border border-round-sm p-3 flex flex-column gap-2">
+                <div className="mt-2 border-1 border-round-sm p-3 flex flex-column gap-2">
                     <InputText
-                        placeholder="Nach Beschreibung filtern..."
+                        placeholder="Nach Diagnose filtern..."
                         value={filter}
                         onChange={e => setFilter(e.target.value)}
                         className="w-full"
@@ -78,7 +69,7 @@ export const InvoiceItemTemplatePanel: React.FC<InvoiceItemTemplatePanelProps> =
                     <DataTable
                         value={filtered}
                         selectionMode="single"
-                        onRowSelect={e => handleRowSelect(e.data as TemplateItemResponse)}
+                        onRowSelect={e => handleRowSelect(e.data as DiagnosisTemplateResponse)}
                         emptyMessage="Keine Vorlagen gefunden."
                         stripedRows
                         size="small"
@@ -88,15 +79,9 @@ export const InvoiceItemTemplatePanel: React.FC<InvoiceItemTemplatePanelProps> =
                         rows={10}
                         rowsPerPageOptions={[10, 25, 50]}
                     >
-                        <Column field="description" header="Beschreibung" style={{ width: isHP ? '50%' : '65%' }} />
-                        {isHP && <Column field="number" header="Ziffer" style={{ width: '15%' }} />}
-                        <Column
-                            field="amount"
-                            header="Betrag"
-                            body={(item: TemplateItemResponse) => `${item.amount.toFixed(2)} €`}
-                            style={{ width: '15%' }}
-                        />
-                        <Column header="Patient" body={patientNameBody} style={{ width: '20%' }} />
+                        <Column field="diagnosis" header="Diagnose" style={{ width: '60%' }} />
+                        <Column header="Patient" body={patientNameBody} style={{ width: '25%' }} />
+                        <Column field="invoice_date" header="Datum" style={{ width: '15%' }} />
                     </DataTable>
                 </div>
             )}

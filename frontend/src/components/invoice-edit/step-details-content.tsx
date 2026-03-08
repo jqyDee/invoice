@@ -4,6 +4,7 @@ import {InputText} from "primereact/inputtext";
 import {Header} from "../../utilities/header.tsx";
 import {InputTextarea} from "primereact/inputtextarea";
 import {type InvoiceCreate, InvoiceType, type InvoiceUpdate} from "../../api";
+import {InvoiceDiagnosisTemplatePanel} from "../invoice/invoice-diagnosis-template-panel.tsx";
 
 interface StepDetailsProps {
     invoice: InvoiceCreate | InvoiceUpdate;
@@ -15,24 +16,30 @@ interface StepDetailsProps {
 export const StepDetailsContent: React.FC<StepDetailsProps> = ({ invoice, onChange, prev, next }) => {
     return (
         <>
-            <div className="flex flex-column md:flex-row">
-                <div className="col-12 md:col-6 flex flex-column">
+            <div className="flex flex-column">
+                <div>
                     <Header title="Rechnungsdatum"/>
                     <InputText
                         id="invoiceDate"
                         value={invoice.invoice_date}
                         onChange={(e) => onChange({ invoice_date: e.target.value })}
                         type="date"
+                        className="w-12"
                     />
                 </div>
                 { (invoice.type === InvoiceType.HP) &&
-                    <div className="col-12 md:col-6 flex flex-column">
+                    <div>
                         <Header title="Diagnose"/>
+                        <InvoiceDiagnosisTemplatePanel
+                            patientId={invoice.patient_id!}
+                            onSelect={(d) => onChange({ diagnosis: d })}
+                        />
                         <InputTextarea
                             id="invoiceDate"
                             value={invoice.diagnosis || ""}
                             autoResize
                             onChange={(e) => onChange({ diagnosis: e.target.value })}
+                            className="w-12"
                         />
                     </div>
                 }
