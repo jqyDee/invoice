@@ -10,21 +10,29 @@ import { InvoiceTreatmentForm} from './invoice-treatment-form';
 import { toGermanDateString} from '../../utilities/local-date-string';
 import {useInvoiceItemDisplayItems} from "../../hooks/invoice/use-invoice-item-display.ts";
 import {useInvoiceItemMutations} from "../../hooks/invoice/use-invoice-item-mutation.ts";
-import React from "react";
+import React, { useState } from "react";
 import {ActionCell} from "./invoice-item-action-cell.tsx";
+import {InvoiceItemTemplatePanel} from "./invoice-item-template-panel.tsx";
+import {InvoiceBlockTemplatePicker} from "./invoice-block-template-picker.tsx";
+import type {TreatmentFormData} from "./invoice-treatment-form.tsx";
 
 interface InvoiceItemTableProps {
     invoice: Invoice | InvoiceCreate | InvoiceUpdate;
     onChange?: (fields: Partial<InvoiceCreate | InvoiceUpdate>) => void;
     readonly?: boolean;
+    patientId?: number;
 }
 
-export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onChange, readonly = false }) => {
+export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onChange, readonly = false, patientId }) => {
     const isKG = invoice.type === InvoiceType.KG;
 
     const { data: allDefaults } = useQuery({ ...getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } }), enabled: readonly });
     const displayItems = useInvoiceItemDisplayItems(invoice, allDefaults, readonly, isKG);
     const { state, setters, actions } = useInvoiceItemMutations(invoice, onChange);
+
+    const [templateInitialData, setTemplateInitialData] = useState<Partial<TreatmentFormData> | null>(null);
+    const [formKey, setFormKey] = useState(0);
+    const [blockPickerDate, setBlockPickerDate] = useState<string | null>(null);
 
     const headerTemplate = (data: any) => (
         <div className="flex flex-column md:flex-row md:align-items-center md:justify-content-between py-2 gap-3">
@@ -38,6 +46,12 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         label="Leistung"
                         className="p-button-rounded"
                         onClick={() => actions.openAdd(data.date)}
+                    />
+                    <Button
+                        icon="pi pi-clone"
+                        label="Block laden"
+                        className="p-button-rounded p-button-outlined"
+                        onClick={() => setBlockPickerDate(data.date)}
                     />
                     <Button
                         icon="pi pi-pencil"
@@ -57,19 +71,52 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
     return (
         <div className="flex flex-column gap-3 w-full">
             {/* Dialogs */}
+            {!readonly && !isKG && patientId && (
+                <InvoiceBlockTemplatePicker
+                    visible={blockPickerDate !== null}
+                    onHide={() => setBlockPickerDate(null)}
+                    patientId={patientId}
+                    onSelect={(items) => {
+                        const dates = [...(invoice.dates || [])] as any[];
+                        const idx = dates.findIndex(d => d.date === blockPickerDate);
+                        if (idx !== -1) {
+                            dates[idx] = { ...dates[idx], items };
+                            onChange?.({ dates });
+                        }
+                        setBlockPickerDate(null);
+                    }}
+                />
+            )}
             {!readonly && (
                 <>
                     <Dialog
                         header={state.editingItem ? "Behandlung bearbeiten" : "Neue Behandlung"}
                         visible={state.visible}
                         style={{ maxWidth: '80vw' }}
-                        onHide={() => setters.setVisible(false)}
+                        onHide={() => {
+                            setters.setVisible(false);
+                            setTemplateInitialData(null);
+                        }}
                     >
+                        {!state.editingItem && patientId && (
+                            <InvoiceItemTemplatePanel
+                                patientId={patientId}
+                                invoiceType={invoice.type!}
+                                onSelect={(item) => {
+                                    setTemplateInitialData(state.prefillDate ? { ...item, date: state.prefillDate } : item);
+                                    setFormKey(k => k + 1);
+                                }}
+                            />
+                        )}
                         <InvoiceTreatmentForm
-                            initialData={state.editingItem || (state.prefillDate ? { date: state.prefillDate } : null)}
+                            key={formKey}
+                            initialData={templateInitialData || state.editingItem || (state.prefillDate ? { date: state.prefillDate } : null)}
                             type={invoice.type!}
                             onSave={actions.saveItem}
-                            onCancel={() => setters.setVisible(false)}
+                            onCancel={() => {
+                                setters.setVisible(false);
+                                setTemplateInitialData(null);
+                            }}
                         />
                     </Dialog>
                     <Dialog

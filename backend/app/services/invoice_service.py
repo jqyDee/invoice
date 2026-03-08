@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from typing import Optional
 
 from fastapi import HTTPException
@@ -12,10 +12,10 @@ from ..models import (
     InvoiceDB,
     InvoiceDateDB,
     InvoiceItemDB,
-    PatientDB,
     InvoiceInvoiceDefaultItemAssociationDB, InvoiceStatus, InvoiceType
 )
-from ..schemas import InvoiceCreate, InvoiceUpdate, InvoiceDateUpdate
+from ..schemas import InvoiceCreate, InvoiceUpdate, InvoiceDateUpdate, InvoiceItemCreate
+from ..schemas.invoice_schema import TemplateItemResponse, InvoiceDateGroup, InvoiceTemplateResponse
 from ..utilities.database import add_db
 
 
@@ -24,7 +24,8 @@ def load_invoices(
         only_drafts: bool,
         only_open: bool,
         search: Optional[str],
-        db: Session
+        db: Session,
+        invoice_type: Optional[InvoiceType] = None,
 ) -> list[InvoiceDB]:
     statement = select(InvoiceDB).options(
         joinedload(InvoiceDB.user_items),
@@ -41,6 +42,9 @@ def load_invoices(
         statement = statement.where(InvoiceDB.status.is_(InvoiceStatus.DRAFT))
     elif not show_drafts:
         statement = statement.where(InvoiceDB.status.is_not(InvoiceStatus.DRAFT))
+
+    if invoice_type:
+        statement = statement.where(InvoiceDB.type == invoice_type)
 
     if search:
         statement = statement.where(
@@ -78,13 +82,15 @@ def create_invoice_logic(
     Main entry point for creating an invoice.
     Decides by the provided type, how and which items to add.
     """
+    patient = load_patient(new_invoice.patient_id, db)
+    invoice_number = _generate_unique_invoice_number(db, new_invoice.invoice_date, new_invoice.type, patient.label)
+
     invoice_data = new_invoice.model_dump(exclude={"user_items", "dates", "default_item_ids", "save_as_draft"})
     db_invoice = InvoiceDB(**invoice_data)
     db_invoice.status = InvoiceStatus.DRAFT
     add_db(db_invoice, db)
     db.flush()
 
-    patient = load_patient(new_invoice.patient_id, db)
 
     if new_invoice.type == InvoiceType.HP:
         _create_hp_dates_and_items(new_invoice, db_invoice, db)
@@ -95,7 +101,7 @@ def create_invoice_logic(
 
     db_invoice.kilometers_at_billing = patient.kilometers_to_travel
     if not new_invoice.save_as_draft:
-        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice, patient)
+        db_invoice.invoice_number = invoice_number
         db_invoice.status = InvoiceStatus.SAVED
 
     return db_invoice
@@ -140,8 +146,8 @@ def _link_default_items(db_invoice: InvoiceDB, default_item_ids: list[int], db: 
         ))
 
 
-def _generate_unique_invoice_number(db: Session, invoice: InvoiceDB, patient: PatientDB) -> str:
-    base_number = f"{invoice.invoice_date}{'-H' if invoice.type == InvoiceType.HP else ''}-{patient.label}"
+def _generate_unique_invoice_number(db: Session, invoice_date: date, invoice_type: InvoiceType, patient_label: str) -> str:
+    base_number = f"{invoice_date}{'-H' if invoice_type == InvoiceType.HP else ''}-{patient_label}"
 
     statement = select(InvoiceDB).where(
         InvoiceDB.invoice_number == base_number
@@ -182,7 +188,7 @@ def update_invoice_logic(
 
     if invoice_update.save_as_draft is False and db_invoice.status == InvoiceStatus.DRAFT:
         patient = load_patient(db_invoice.patient_id, db)
-        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice, patient)
+        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice.invoice_date, db_invoice.type, patient.label)
         db_invoice.status = InvoiceStatus.SAVED
 
     db_invoice.updated_at = datetime.now(timezone.utc)
@@ -307,6 +313,63 @@ def _sync_standalone_dates(db_invoice: InvoiceDB, incoming_dates: list) -> None:
             existing_dates[d_in.date_id].date = d_in.date
         else:
             db_invoice.dates.append(InvoiceDateDB(**d_in.model_dump(exclude={"date_id", "items"})))
+
+
+def get_template_items(invoice_type: InvoiceType, db: Session) -> list[TemplateItemResponse]:
+    """Return deduplicated template items across all non-draft invoices of the given type."""
+    invoices = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
+                             search=None, db=db, invoice_type=invoice_type)
+    invoices.sort(key=lambda inv: inv.invoice_date, reverse=True)
+
+    seen: set[tuple] = set()
+    result: list[TemplateItemResponse] = []
+
+    for inv in invoices:
+        source_items = (
+            inv.user_items if inv.type == InvoiceType.KG
+            else [item for d in inv.dates for item in d.items]
+        )
+        for i in source_items:
+            key = (i.description, i.amount, i.number)
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(TemplateItemResponse(
+                description=i.description,
+                amount=i.amount,
+                number=i.number,
+                quantity=i.quantity or 1,
+                patient_id=inv.patient_id,
+                patient_first_name=inv.patient.first_name,
+                patient_last_name=inv.patient.last_name,
+                invoice_id=inv.invoice_id,
+                invoice_date=inv.invoice_date,
+            ))
+    return result
+
+
+def get_invoice_template(invoice_id: int, db: Session) -> InvoiceTemplateResponse:
+    inv = load_invoice(invoice_id, db)
+
+    first_date = date.min
+    one_day = timedelta(days=1)
+
+    if inv.type == InvoiceType.KG:
+        items = [InvoiceItemCreate(description=i.description, amount=i.amount,
+                                   number=i.number, quantity=i.quantity)
+                 for i in inv.user_items]
+        return InvoiceTemplateResponse(type=inv.type, user_items=items)
+    else:
+        sorted_dates = sorted(inv.dates, key=lambda d: d.date)
+        groups = [
+            InvoiceDateGroup(date=first_date + (idx * one_day), items=[
+                InvoiceItemCreate(description=i.description, amount=i.amount,
+                                  number=i.number, quantity=i.quantity)
+                for i in d.items
+            ])
+            for idx, d in enumerate(sorted_dates)
+        ]
+        return InvoiceTemplateResponse(type=inv.type, date_groups=groups)
 
 
 def _sync_standalone_items(db_invoice: InvoiceDB, incoming_items: list) -> None:

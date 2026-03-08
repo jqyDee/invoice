@@ -120,7 +120,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 <Column field="updated_at"
                         header="Änderungsdatum"
                         sortable
-                        body={(e: Invoice) => new Date(e.created_at).toLocaleString('de-DE', {
+                        body={(e: Invoice) => new Date(e.updated_at).toLocaleString('de-DE', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',

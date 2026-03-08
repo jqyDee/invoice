@@ -71,3 +71,26 @@ class Invoice(InvoiceBase):
 
 class InvoiceMarkPaidRequest(BaseModel):
     paid_at: date
+
+
+class TemplateItemResponse(BaseModel):
+    description: str
+    amount: float
+    number: Optional[str] = None
+    quantity: int = 1
+    patient_id: int
+    patient_first_name: str
+    patient_last_name: str
+    invoice_id: int
+    invoice_date: date
+
+
+class InvoiceDateGroup(BaseModel):
+    date: date
+    items: List[InvoiceItemCreate]
+
+
+class InvoiceTemplateResponse(BaseModel):
+    type: InvoiceType
+    user_items: List[InvoiceItemCreate] = []
+    date_groups: List[InvoiceDateGroup] = []

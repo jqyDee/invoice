@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from 'primereact/button';
-import { InvoiceType, type InvoiceCreate, type InvoiceUpdate } from "../../api";
+import { InvoiceType, type InvoiceCreate, type InvoiceUpdate, type InvoiceItemCreate, type InvoiceDateGroup } from "../../api";
 import { InvoiceCalendar } from "../invoice/invoice-calendar.tsx";
 import { Header } from "../../utilities/header.tsx";
 import { Total } from "../../utilities/total.tsx";
@@ -10,7 +10,9 @@ import { toLocalDateString } from "../../utilities/local-date-string.ts";
 import {InvoiceItemTable} from "../invoice/invoice-item-table.tsx";
 import {InvoiceDefaultItemTable} from "../invoice/invoice-default-item-table.tsx";
 import {useQuery} from "@tanstack/react-query";
-import {getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
+import {getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions, getInvoicesInvoicesGetOptions} from "../../api/@tanstack/react-query.gen.ts";
+import {InvoiceTemplateInvoicePicker} from "../invoice/invoice-template-invoice-picker.tsx";
+import {getLastKGInvoiceItems} from "../../utilities/template-items.ts";
 
 interface StepItemsProps {
     invoice: InvoiceCreate | InvoiceUpdate
@@ -21,6 +23,39 @@ interface StepItemsProps {
 
 export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, prev, next }) => {
     const isKG = invoice.type === InvoiceType.KG;
+    const [templatePickerVisible, setTemplatePickerVisible] = useState(false);
+
+    const { data: allInvoices = [] } = useQuery(getInvoicesInvoicesGetOptions({ query: { invoice_type: InvoiceType.KG, show_drafts: false } }));
+
+    const handleLoadLastKG = () => {
+        const items = getLastKGInvoiceItems(allInvoices, invoice.patient_id!);
+        if (items) onChange({ user_items: items });
+    };
+
+    const handleTemplateSelect = (user_items: InvoiceItemCreate[], date_groups?: InvoiceDateGroup[]) => {
+        if (isKG) {
+            onChange({ user_items });
+        } else if (date_groups && date_groups.length > 0) {
+            const existingDates = invoice.dates || [];
+            if (existingDates.length > 0) {
+                // Positional replacement: keep existing dates, replace items
+                onChange({
+                    dates: existingDates.map((d, i) => ({
+                        ...d,
+                        items: date_groups[i]?.items ?? d.items,
+                    })),
+                });
+            } else {
+                // No existing dates: create new date entries from the template
+                onChange({
+                    dates: date_groups.map(g => ({
+                        date: g.date,
+                        items: g.items,
+                    })),
+                });
+            }
+        }
+    };
 
     const { data: availableDefaults } = useQuery(
         getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } })
@@ -55,8 +90,31 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
                 />
             )}
 
+            <div className="flex gap-2">
+                <Button
+                    label="Vorlage laden"
+                    icon="pi pi-copy"
+                    className="p-button-outlined"
+                    onClick={() => setTemplatePickerVisible(true)}
+                />
+                {isKG && (
+                    <Button
+                        label="Letzte Vorlage"
+                        icon="pi pi-history"
+                        className="p-button-outlined"
+                        onClick={handleLoadLastKG}
+                    />
+                )}
+            </div>
+            <InvoiceTemplateInvoicePicker
+                visible={templatePickerVisible}
+                onHide={() => setTemplatePickerVisible(false)}
+                invoiceType={invoice.type!}
+                patientId={invoice.patient_id!}
+                onSelect={handleTemplateSelect}
+            />
             <Header title="Leistungen" />
-            <InvoiceItemTable invoice={invoice} onChange={onChange} readonly={false}/>
+            <InvoiceItemTable invoice={invoice} onChange={onChange} readonly={false} patientId={invoice.patient_id!}/>
 
             <InvoiceDefaultItemTable invoice={invoice} onChange={onChange}/>
             <Total total={calculatedTotal}/>

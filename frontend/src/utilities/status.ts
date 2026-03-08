@@ -33,7 +33,7 @@ export const toSeverityStatus = (status: InvoiceStatus): severity => {
             severityString = "info"
             break
         case InvoiceStatus.SAVED:
-            severityString = "secondary"
+            severityString = "info"
             break
         case InvoiceStatus.PAYMENT_DUE:
             severityString = "warning"

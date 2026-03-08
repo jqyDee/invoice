@@ -3,8 +3,10 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from ..utilities.database import get_db, add_db
+from ..models import InvoiceType
 from ..schemas import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate
-from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic
+from ..schemas.invoice_schema import TemplateItemResponse, InvoiceTemplateResponse
+from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic, get_template_items, get_invoice_template
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
@@ -15,9 +17,10 @@ def get_invoices(
         only_drafts: Optional[bool] = Query(False),
         only_open: Optional[bool] = Query(False),
         search: Optional[str] = Query(None),
+        invoice_type: Optional[InvoiceType] = Query(None),
         db: Session = Depends(get_db)
 ):
-    return load_invoices(show_drafts, only_drafts, only_open, search, db)
+    return load_invoices(show_drafts, only_drafts, only_open, search, db, invoice_type)
 
 
 @router.post("/", response_model=Invoice)
@@ -27,6 +30,19 @@ def create_invoice(
 ):
     db_invoice = create_invoice_logic(invoice_new, db)
     return add_db(db_invoice, db)
+
+
+@router.get("/template-items", response_model=list[TemplateItemResponse])
+def get_template_items_endpoint(
+    invoice_type: InvoiceType = Query(...),
+    db: Session = Depends(get_db)
+):
+    return get_template_items(invoice_type, db)
+
+
+@router.get("/{invoice_id}/template", response_model=InvoiceTemplateResponse)
+def get_invoice_template_endpoint(invoice_id: int, db: Session = Depends(get_db)):
+    return get_invoice_template(invoice_id, db)
 
 
 @router.get("/{invoice_id}", response_model=Invoice)

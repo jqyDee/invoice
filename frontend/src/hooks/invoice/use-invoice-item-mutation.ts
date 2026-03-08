@@ -39,7 +39,12 @@ export const useInvoiceItemMutations = (
         if (!onChange) return;
         if (isKG) {
             const items = [...(invoice.user_items || [])];
-            editingItem ? items[items.findIndex(i => i === editingItem)] = formData : items.push(formData);
+            if (editingItem) {
+                const idx = editingItem._originalIndex ?? -1;
+                if (idx >= 0) items[idx] = formData;
+            } else {
+                items.push(formData);
+            }
             onChange({ user_items: items });
         } else {
             const dates = [...(invoice.dates || [])];
@@ -71,7 +76,14 @@ export const useInvoiceItemMutations = (
 
     const removeItem = (date: string | undefined, item: InvoiceItemCreate, index?: number) => {
         if (!onChange) return;
-        if (isKG) onChange({ user_items: invoice.user_items!.filter((i: InvoiceItemCreate) => i !== item) });
+        if (isKG) {
+            const idx = (item as any)._originalIndex ?? -1;
+            if (idx >= 0) {
+                const items = [...(invoice.user_items || [])];
+                items.splice(idx, 1);
+                onChange({ user_items: items });
+            }
+        }
         else {
             const dates = [...(invoice.dates || [])];
             dates.find(d => d.date === date)?.items!.splice(index!, 1);
@@ -86,7 +98,8 @@ export const useInvoiceItemMutations = (
 
     const openEditDate = (date: string) => {
         setEditingDate(date);
-        setDatePickerValue(new Date(date + 'T00:00:00'));
+        const parsed = new Date(date + 'T00:00:00');
+        setDatePickerValue(parsed.getFullYear() < 1000 ? new Date() : parsed);
         setDateDialogMode('edit');
     };
 

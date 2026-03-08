@@ -14,7 +14,6 @@ export const useInvoiceTotal = (
 ) => {
     return useMemo(() => {
         const dateCount = Math.max(dates.length, 1);
-        console.log(type)
         const total = items.reduce((acc, item) => {
             const qty = type === InvoiceType.KG ? dateCount : 1;
             return acc + (item.amount || 0) * qty;

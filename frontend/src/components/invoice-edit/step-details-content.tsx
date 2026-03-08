@@ -16,7 +16,7 @@ export const StepDetailsContent: React.FC<StepDetailsProps> = ({ invoice, onChan
     return (
         <>
             <div className="flex flex-column md:flex-row">
-                <div className="flex flex-column">
+                <div className="col-12 md:col-6 flex flex-column">
                     <Header title="Rechnungsdatum"/>
                     <InputText
                         id="invoiceDate"
@@ -26,7 +26,7 @@ export const StepDetailsContent: React.FC<StepDetailsProps> = ({ invoice, onChan
                     />
                 </div>
                 { (invoice.type === InvoiceType.HP) &&
-                    <div className="flex flex-column">
+                    <div className="col-12 md:col-6 flex flex-column">
                         <Header title="Diagnose"/>
                         <InputTextarea
                             id="invoiceDate"
