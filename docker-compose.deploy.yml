@@ -10,7 +10,7 @@
 
 services:
   backend:
-    image: ghcr.io/OWNER/REPO-backend:latest
+    image: ghcr.io/jqydee/invoice-backend:latest
     container_name: backend
     volumes:
       - ./data:/app/data
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/OWNER/REPO-frontend:latest
+    image: ghcr.io/jqydee/invoice-frontend:latest
     container_name: frontend
     depends_on:
       - backend
