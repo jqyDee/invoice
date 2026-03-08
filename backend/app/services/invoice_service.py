@@ -30,7 +30,7 @@ def load_invoices(
         joinedload(InvoiceDB.dates),
         joinedload(InvoiceDB.patient),
         # Eagerly load the default items through the association table
-        joinedload(InvoiceDB.default_items).joinedload(InvoiceInvoiceDefaultItemAssociationDB.default_item)
+        joinedload(InvoiceDB.default_items).joinedload(InvoiceInvoiceDefaultItemAssociationDB.default_item),
     )
 
     if only_drafts:
@@ -52,7 +52,7 @@ def load_invoice(invoice_id: int, db: Session) -> InvoiceDB:
         .options(
             joinedload(InvoiceDB.patient),
             joinedload(InvoiceDB.user_items),
-            joinedload(InvoiceDB.default_items),
+            joinedload(InvoiceDB.default_items).joinedload(InvoiceInvoiceDefaultItemAssociationDB.default_item),
             joinedload(InvoiceDB.dates),
         )
         .where(InvoiceDB.invoice_id == invoice_id)
@@ -116,7 +116,10 @@ def _create_kg_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB
     for date_schema in (new_invoice.dates or []):
         db.add(InvoiceDateDB(invoice_id=db_invoice.invoice_id, date=date_schema.date))
 
+    date_count = len(new_invoice.dates or [])
+
     for idx, item_schema in enumerate(new_invoice.user_items or []):
+        validate_invoice_item(item_schema, new_invoice.type, date_count)
         db.add(InvoiceItemDB(
             **item_schema.model_dump(),
             invoice_id=db_invoice.invoice_id,

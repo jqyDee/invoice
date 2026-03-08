@@ -34,7 +34,8 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
 
     const calculatedTotal = useInvoiceTotal(
         [...userItems, ...selectedDefaults],
-        enforceNonNull(invoice.dates).map(d => new Date(d.date))
+        enforceNonNull(invoice.dates).map(d => new Date(d.date)),
+        enforceNonNull(invoice.type)
     );
 
     // Calculate item count to disable the Next button safely

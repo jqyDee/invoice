@@ -15,6 +15,7 @@ import {
     getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
     getPatientsPatientsGetOptions
 } from "../../api/@tanstack/react-query.gen.ts";
+import {enforceNonNull} from "../../utilities/enforce-non-null.ts";
 
 interface StepOverviewProps {
     invoice: Invoice | InvoiceCreate | InvoiceUpdate;
@@ -46,7 +47,8 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
 
     const calculatedTotal = useInvoiceTotal(
         [...userItems, ...defaultItems],
-        datesAsDates
+        datesAsDates,
+        enforceNonNull(invoice.type)
     );
 
     return (

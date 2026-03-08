@@ -67,8 +67,6 @@ def validate_invoice_item(
 
     if inv_type == InvoiceType.KG:
         item.quantity = quantity
-        if not default_item:
-            item.date = None
         item.number = None
     elif inv_type == InvoiceType.HP:
         if not item.number:
