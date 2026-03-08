@@ -34,6 +34,9 @@ up-prod: openapi
 up: build
 	docker compose up
 
+deploy:
+	docker compose -f docker-compose.deploy.yml up -d
+
 # Stop containers
 down:
 	docker compose down
