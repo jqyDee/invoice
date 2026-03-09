@@ -13,7 +13,6 @@ export const HomepageView: React.FC = () => {
 
     return (
         <div className="flex flex-column gap-2">
-            <Header title="Testing" />
             <Header title="Offene Rechnungen"/>
             <InvoiceTable invoices={openInvoices} isLoading={openInvoicesLoading} />
         </div>
