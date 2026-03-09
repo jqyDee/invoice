@@ -10,7 +10,7 @@
 
 services:
   backend:
-    image: ghcr.io/OWNER/REPO-backend:latest
+    image: ghcr.io/jqydee/invoice-backend:latest
     container_name: backend
     volumes:
       - ./data:/app/data
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/OWNER/REPO-frontend:latest
+    image: ghcr.io/jqydee/invoice-frontend:latest
     container_name: frontend
     depends_on:
       - backend
@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
 
   watchtower:
-    image: containrrr/watchtower
+    image: nickfedor/watchtower:latest
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
