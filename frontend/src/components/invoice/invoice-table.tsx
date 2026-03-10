@@ -50,7 +50,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
         }
 
         confirmDialog({
-            message: 'Das Herausgeben einer Rechnung kann nicht rückgängig gemacht werden. Bitte stellen Sie die Korrekheit der Rechnung sicher vor dem Herausgeben.',
+            message: 'Nach dem Herausgeben einer Rechnung kann diese nicht mehr bearbeitet werden. Stellen Sie sicher das die Rechnung korrekt ist!',
             header: 'Herausgeben?',
             icon: 'pi pi-info-circle',
             defaultFocus: 'reject',

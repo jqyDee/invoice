@@ -55,11 +55,11 @@ export function extractTemplateItems(invoices: Invoice[], currentPatientId: numb
     return items;
 }
 
-export function getLastKGInvoiceItems(invoices: Invoice[], patientId: number): InvoiceItemCreate[] | null {
+export function getLastKGInvoiceItems(invoices: Invoice[], patientId: number, invoiceType: InvoiceType = InvoiceType.KG): InvoiceItemCreate[] | null {
     const patientKGInvoices = invoices
         .filter(inv =>
             inv.patient_id === patientId &&
-            inv.type === InvoiceType.KG &&
+            inv.type === invoiceType &&
             inv.status !== InvoiceStatus.DRAFT
         )
         .sort((a, b) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime());

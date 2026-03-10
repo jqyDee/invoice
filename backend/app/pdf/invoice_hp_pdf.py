@@ -12,7 +12,7 @@ class InvoiceHp(InvoicePdf):
             invoice: InvoiceDB,
             settings: SettingsDB,
     ):
-        super().__init__(invoice, settings, hide_physio=True)
+        super().__init__(invoice, settings)
 
         self.set_margins(17, 17, 17)
 

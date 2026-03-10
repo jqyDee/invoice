@@ -9,8 +9,9 @@ import {Column} from "primereact/column";
 import {TabMenu} from "primereact/tabmenu";
 import {useSettingsDefaultsMenu} from "../../config/settings-defaults-menu.ts";
 import {useParams} from "react-router-dom";
-import {type DefaultInvoiceItem, DefaultInvoiceItemPosition, InvoiceType} from "../../api";
+import {type DefaultInvoiceItem, InvoiceType} from "../../api";
 import {InputSwitch} from "primereact/inputswitch";
+import {toGermanDefaultPosition} from "../../utilities/default-position.ts";
 
 
 export const DefaultItemTable: React.FC = () => {
@@ -50,12 +51,6 @@ export const DefaultItemTable: React.FC = () => {
         );
     };
 
-    const positionToGerman = (p: DefaultInvoiceItemPosition): string => {
-        if (p === DefaultInvoiceItemPosition.BOTH) return "Vorne & Hinten"
-        else if (p === DefaultInvoiceItemPosition.APPEND) return "Hinten"
-        else return "Vorne"
-    }
-
     return (
         <div>
             <TabMenu model={menuItems}/>
@@ -75,8 +70,8 @@ export const DefaultItemTable: React.FC = () => {
                     <Column field="number" header="Ziffer" sortable/>
                 }
                 <Column field="description" header="Beschreibung" sortable/>
-                <Column field="amount" header="Einzelpreis" sortable/>
-                <Column header="Einfügeposition" sortable body={positionToGerman}/>
+                <Column field="amount" header="Einzelpreis" sortable body={(i: DefaultInvoiceItem) => <span>{i.amount.toFixed(2)} €</span>}/>
+                <Column header="Einfügeposition" sortable body={(i: DefaultInvoiceItem) => <span>{toGermanDefaultPosition(i.position)}</span>}/>
                 {!type &&
                     <Column field="type" header="Rechnungstyp" sortable/>
                 }

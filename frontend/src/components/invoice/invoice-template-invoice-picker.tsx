@@ -27,7 +27,8 @@ interface InvoiceTemplateInvoicePickerProps {
 export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePickerProps> = ({
     visible, onHide, invoiceType, patientId, onSelect,
 }) => {
-    const isKG = invoiceType === InvoiceType.KG;
+    const isKGorGT = invoiceType === InvoiceType.KG || invoiceType === InvoiceType.GT;
+
     const [filter, setFilter] = useState('');
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>({});
 
@@ -58,7 +59,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
     };
 
     const rowExpansionTemplate = (inv: Invoice) => {
-        if (isKG) {
+        if (isKGorGT) {
             return (
                 <DataTable value={inv.user_items} size="small" className="p-2">
                     <Column field="description" header="Beschreibung" style={{ width: '70%' }} />
@@ -91,7 +92,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
             throwOnError: true,
         })
 
-        if (isKG) {
+        if (isKGorGT) {
             onSelect(template?.user_items ?? []);
         } else {
             onSelect([], template?.date_groups);
@@ -146,7 +147,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
                     <Column
                         header="Positionen"
                         body={(inv: Invoice) => {
-                            return isKG
+                            return isKGorGT
                                 ? inv.user_items.length
                                 : inv.dates.reduce((s, d) => s + (d.items?.length ?? 0), 0);
                         }}

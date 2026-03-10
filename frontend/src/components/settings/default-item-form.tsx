@@ -15,6 +15,7 @@ import {
     type DefaultInvoiceItemCreate
 } from '../../api';
 import { useGlobalToast } from "../../hooks/use-global-toast.ts";
+import {toGermanDefaultPosition} from "../../utilities/default-position.ts";
 
 interface DefaultItemFormProps {
     onSuccess?: () => void;
@@ -78,7 +79,11 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                     rules={{ required: 'Typ ist erforderlich.' }}
                     render={({ field }) => (
                         <>
-                            <Dropdown id={field.name} {...field} options={Object.values(InvoiceType)} />
+                            <Dropdown
+                                id={field.name}
+                                {...field}
+                                options={Object.values(InvoiceType)}
+                            />
                             {getFormErrorMessage('type')}
                         </>
                     )}
@@ -130,7 +135,14 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                     rules={{ required: 'Position ist erforderlich.' }}
                     render={({ field }) => (
                         <>
-                            <Dropdown id={field.name} {...field} options={Object.values(DefaultInvoiceItemPosition)} />
+                            <Dropdown
+                                id={field.name}
+                                {...field}
+                                options={Object.values(DefaultInvoiceItemPosition).map((g) => ({
+                                    label: toGermanDefaultPosition(g),
+                                    value: g
+                                }))}
+                            />
                             {getFormErrorMessage('position')}
                         </>
                     )}
@@ -149,7 +161,7 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
             </div>
 
             <div className="col-12">
-                <h3 className="mt-0">Krankengymnastik</h3>
+                <h3 className="mt-0">Krankengymnastik / Gestalttherapie</h3>
             </div>
 
             <div className="col-12 field">

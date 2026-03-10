@@ -13,7 +13,7 @@ export const useInvoiceItemMutations = (
     invoice: Invoice | InvoiceCreate | InvoiceUpdate,
     onChange?: (fields: Partial<InvoiceCreate | InvoiceUpdate>) => void
 ) => {
-    const isKG = invoice.type === InvoiceType.KG;
+    const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
     const [editingItem, setEditingItem] = useState<any>(undefined);
     const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
@@ -37,7 +37,7 @@ export const useInvoiceItemMutations = (
 
     const saveItem = (formData: TreatmentFormData) => {
         if (!onChange) return;
-        if (isKG) {
+        if (isKGorGT) {
             const items = [...(invoice.user_items || [])];
             if (editingItem) {
                 const idx = editingItem._originalIndex ?? -1;
@@ -76,7 +76,7 @@ export const useInvoiceItemMutations = (
 
     const removeItem = (date: string | undefined, item: InvoiceItemCreate, index?: number) => {
         if (!onChange) return;
-        if (isKG) {
+        if (isKGorGT) {
             const idx = (item as any)._originalIndex ?? -1;
             if (idx >= 0) {
                 const items = [...(invoice.user_items || [])];

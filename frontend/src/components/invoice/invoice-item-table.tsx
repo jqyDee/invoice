@@ -24,10 +24,10 @@ interface InvoiceItemTableProps {
 }
 
 export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onChange, readonly = false, patientId }) => {
-    const isKG = invoice.type === InvoiceType.KG;
+    const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
     const { data: allDefaults } = useQuery({ ...getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } }), enabled: readonly });
-    const displayItems = useInvoiceItemDisplayItems(invoice, allDefaults, readonly, isKG);
+    const displayItems = useInvoiceItemDisplayItems(invoice, allDefaults, readonly, isKGorGT);
     const { state, setters, actions } = useInvoiceItemMutations(invoice, onChange);
 
     const [templateInitialData, setTemplateInitialData] = useState<Partial<TreatmentFormData> | null>(null);
@@ -71,7 +71,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
     return (
         <div className="flex flex-column gap-3 w-full">
             {/* Dialogs */}
-            {!readonly && !isKG && patientId && (
+            {!readonly && !isKGorGT && patientId && (
                 <InvoiceBlockTemplatePicker
                     visible={blockPickerDate !== null}
                     onHide={() => setBlockPickerDate(null)}
@@ -150,7 +150,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
             )}
 
             {/* Tables */}
-            {!isKG ? (
+            {!isKGorGT ? (
                 <DataTable
                     value={displayItems}
                     rowGroupMode="subheader"
@@ -195,7 +195,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                             body={(item) =>
                                 <ActionCell
                                     item={item}
-                                    isKG={isKG}
+                                    isKGorGT={isKGorGT}
                                     readonly={readonly}
                                     onEdit={actions.openEdit}
                                     onDel={actions.removeItem}
@@ -236,7 +236,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         <Column body={(item) =>
                             <ActionCell
                                 item={item}
-                                isKG={isKG}
+                                isKGorGT={isKGorGT}
                                 readonly={readonly}
                                 onEdit={actions.openEdit}
                                 onDel={actions.removeItem}
@@ -249,7 +249,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
             )}
 
             {/* Add Buttons */}
-            {!readonly && !isKG &&
+            {!readonly && !isKGorGT &&
                 <Button
                     label="Neues Datum hinzufügen"
                     icon="pi pi-calendar-plus"
@@ -257,7 +257,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     onClick={actions.openAddDate}
                 />
             }
-            {!readonly && isKG &&
+            {!readonly && isKGorGT &&
                 <Button
                     label="Behandlungsart hinzufügen"
                     icon="pi pi-plus"

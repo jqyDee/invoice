@@ -22,18 +22,18 @@ interface StepItemsProps {
 }
 
 export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, prev, next }) => {
-    const isKG = invoice.type === InvoiceType.KG;
+    const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
     const [templatePickerVisible, setTemplatePickerVisible] = useState(false);
 
-    const { data: allInvoices = [] } = useQuery(getInvoicesInvoicesGetOptions({ query: { invoice_type: InvoiceType.KG, show_drafts: false } }));
+    const { data: allInvoices = [] } = useQuery(getInvoicesInvoicesGetOptions({ query: { invoice_type: invoice.type, show_drafts: false } }));
 
     const handleLoadLastKG = () => {
-        const items = getLastKGInvoiceItems(allInvoices, invoice.patient_id!);
+        const items = getLastKGInvoiceItems(allInvoices, invoice.patient_id!, invoice.type!);
         if (items) onChange({ user_items: items });
     };
 
     const handleTemplateSelect = (user_items: InvoiceItemCreate[], date_groups?: InvoiceDateGroup[]) => {
-        if (isKG) {
+        if (isKGorGT) {
             onChange({ user_items });
         } else if (date_groups && date_groups.length > 0) {
             const existingDates = invoice.dates || [];
@@ -63,7 +63,7 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
     const selectedDefaults = (availableDefaults || [])
         .filter(d => invoice.default_item_ids?.includes(d.default_item_id));
 
-    const userItems = isKG
+    const userItems = isKGorGT
         ? (invoice.user_items || [])
         : (invoice.dates || []).flatMap(d => d.items || []);
 
@@ -74,14 +74,14 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
     );
 
     // Calculate item count to disable the Next button safely
-    const itemCount = isKG
+    const itemCount = isKGorGT
         ? (invoice.user_items?.length || 0)
         : (invoice.dates?.flatMap(d => d.items || []).length || 0);
 
     return (
         <div className="flex flex-column gap-4">
             {/* Standalone Calendar for KG Dates */}
-            {isKG && (
+            {isKGorGT && (
                 <InvoiceCalendar
                     dates={invoice.dates?.map(d => new Date(d.date)) || []}
                     onChange={(e) =>
@@ -99,7 +99,7 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
                         className="p-button-outlined p-button-contrast"
                         onClick={() => setTemplatePickerVisible(true)}
                     />
-                    {isKG && (
+                    {isKGorGT && (
                         <Button
                             label="Letzte Vorlage"
                             icon="pi pi-history"
@@ -130,7 +130,7 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({ invoice, onChange, 
                     iconPos="right"
                     disabled={
                         (itemCount === 0 && (!invoice.default_item_ids || invoice.default_item_ids.length === 0)) ||
-                        (isKG && (!invoice.dates || invoice.dates.length === 0))
+                        (isKGorGT && (!invoice.dates || invoice.dates.length === 0))
                     }
                     onClick={next}
                 />
