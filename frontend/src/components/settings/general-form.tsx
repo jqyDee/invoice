@@ -145,7 +145,8 @@ export const GeneralForm: React.FC = () => {
                             id={field.name}
                             value={field.value}
                             onChange={(e) => field.onChange(e.value)}
-                            mask="99 999 999 999" // Format: 12 345 678 901
+                            mask="999/999/99999" // Format: 12 345 678 901
+                            unmask={true}
                             placeholder="00 000 000 000"
                             className={errors.tax_id ? 'p-invalid' : ''}
                         />

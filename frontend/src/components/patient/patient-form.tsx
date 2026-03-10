@@ -291,7 +291,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                 <Controller name="telephone" control={control} render={({ field }) => <InputText id={field.name} {...field} />} />
             </div>
 
-            <div className="col-12 flex justify-content-end mt-4 gap-2">
+            <div className="col-12 flex justify-content-between mt-4 gap-2">
                 <>
                     { patientToEdit &&
                         <Button type="button" onClick={confirm} icon="pi pi-trash" label="Löschen" className="w-auto p-button-danger p-button-rounded"/>
