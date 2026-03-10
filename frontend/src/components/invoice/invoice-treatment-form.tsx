@@ -18,6 +18,8 @@ interface TreatmentFormProps {
 }
 
 export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData, onSave, type, onCancel }) => {
+    const isKGorGT = type === InvoiceType.KG || type === InvoiceType.GT;
+
     const { control, handleSubmit, formState: { errors } } = useForm<TreatmentFormData>({
         defaultValues: initialData || {
             description: '',
@@ -81,7 +83,7 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                 />
             </div>
 
-            {type !== InvoiceType.KG && (
+            {!isKGorGT && (
                 <>
                     <div className="col-12 md:col-6 field">
                         <label htmlFor="ziffer" className="font-bold">Ziffer</label>

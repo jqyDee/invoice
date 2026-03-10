@@ -16,5 +16,8 @@ export const useSettingsDefaultsMenu= (): MenuItem[]  => {
         {
             label: 'Heilpraktiker', icon: 'pi pi-chart-line', command: () => navigate(generatePath(ROUTES.SETTINGS_DEFAULTS, { type: 'HP' }))
         },
+        {
+            label: 'Gestalttherapie', icon: 'pi pi-chart-line', command: () => navigate(generatePath(ROUTES.SETTINGS_DEFAULTS, { type: 'GT' }))
+        },
     ]
 };

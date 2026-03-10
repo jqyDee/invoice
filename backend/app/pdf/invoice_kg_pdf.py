@@ -3,7 +3,7 @@ from ..utilities.config import NORMAL_FONT_SIZE, TREATMENT_FONT_SIZE, RECIPIENT_
 from ..models import InvoiceDB, Gender, SettingsDB
 
 
-class InvoiceKg(InvoicePdf):
+class InvoiceKgGt(InvoicePdf):
     """Creates the KG PDF and outputs to given filepath"""
 
     def __init__(
@@ -11,7 +11,7 @@ class InvoiceKg(InvoicePdf):
             invoice: InvoiceDB,
             settings: SettingsDB
     ):
-        super().__init__(invoice, settings, hide_physio=False)
+        super().__init__(invoice, settings)
 
         self.set_margins(17, 17, 17)
 

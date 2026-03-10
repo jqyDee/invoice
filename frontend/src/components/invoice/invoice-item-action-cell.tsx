@@ -12,29 +12,29 @@ interface DisplayItem extends InvoiceItemCreate {
 interface ActionCellProps {
     item: DisplayItem;
     readonly: boolean;
-    isKG: boolean;
+    isKGorGT: boolean;
     onEdit: (item: DisplayItem) => void;
     onDel: (date: string | undefined, item: DisplayItem, index?: number) => void;
     onMoveUp?: (date: string, index: number) => void;
     onMoveDown?: (date: string, index: number) => void;
 }
 
-export const ActionCell = ({ item, readonly, isKG, onEdit, onDel, onMoveUp, onMoveDown }: ActionCellProps) => {
+export const ActionCell = ({ item, readonly, isKGorGT, onEdit, onDel, onMoveUp, onMoveDown }: ActionCellProps) => {
     if (readonly || item.isEmpty || item.isDefault) return null;
-    const isWarning = !isKG && (!item.number || !item.date);
+    const isWarning = !isKGorGT && (!item.number || !item.date);
 
     return (
         <div className="flex flex-column md:flex-row justify-content-end gap-1">
             {isWarning && <Tag severity="warning" icon="pi pi-exclamation-circle" rounded />}
             <div className="flex">
-                {!isKG && onMoveUp && (
+                {!isKGorGT && onMoveUp && (
                     <Button
                         icon="pi pi-angle-up"
                         className="p-button-text p-button-rounded p-button-sm"
                         onClick={() => onMoveUp(item.date!, item._originalIndex)}
                     />
                 )}
-                {!isKG && onMoveDown && (
+                {!isKGorGT && onMoveDown && (
                     <Button
                         icon="pi pi-angle-down"
                         className="p-button-text p-button-rounded p-button-sm"
@@ -51,7 +51,7 @@ export const ActionCell = ({ item, readonly, isKG, onEdit, onDel, onMoveUp, onMo
                 <Button
                     icon="pi pi-trash"
                     className="p-button-text p-button-danger p-button-rounded"
-                    onClick={() => onDel(isKG ? undefined : item.date, item, isKG ? undefined : item._originalIndex)}
+                    onClick={() => onDel(isKGorGT ? undefined : item.date, item, isKGorGT ? undefined : item._originalIndex)}
                 />
             </div>
         </div>

@@ -15,7 +15,8 @@ from ..models import (
     InvoiceInvoiceDefaultItemAssociationDB, InvoiceStatus, InvoiceType
 )
 from ..schemas import InvoiceCreate, InvoiceUpdate, InvoiceDateUpdate, InvoiceItemCreate
-from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceDateGroup, InvoiceTemplateResponse
+from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceDateGroup, \
+    InvoiceTemplateResponse
 from ..utilities.database import add_db
 
 
@@ -54,7 +55,10 @@ def load_invoices(
     return list(db.scalars(statement).unique().all())
 
 
-def load_invoice(invoice_id: int, db: Session) -> InvoiceDB:
+def load_invoice(
+        invoice_id: int,
+        db: Session
+) -> InvoiceDB:
     statement = (
         select(InvoiceDB)
         .options(
@@ -91,7 +95,6 @@ def create_invoice_logic(
     add_db(db_invoice, db)
     db.flush()
 
-
     if new_invoice.type == InvoiceType.HP:
         _create_hp_dates_and_items(new_invoice, db_invoice, db)
     else:
@@ -107,7 +110,11 @@ def create_invoice_logic(
     return db_invoice
 
 
-def _create_hp_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB, db: Session) -> None:
+def _create_hp_dates_and_items(
+        new_invoice: InvoiceCreate,
+        db_invoice: InvoiceDB,
+        db: Session
+) -> None:
     for date_schema in (new_invoice.dates or []):
         db_date = InvoiceDateDB(invoice_id=db_invoice.invoice_id, date=date_schema.date)
         db.add(db_date)
@@ -122,7 +129,11 @@ def _create_hp_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB
             ))
 
 
-def _create_kg_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB, db: Session) -> None:
+def _create_kg_dates_and_items(
+        new_invoice: InvoiceCreate,
+        db_invoice: InvoiceDB,
+        db: Session
+) -> None:
     for date_schema in (new_invoice.dates or []):
         db.add(InvoiceDateDB(invoice_id=db_invoice.invoice_id, date=date_schema.date))
 
@@ -138,7 +149,11 @@ def _create_kg_dates_and_items(new_invoice: InvoiceCreate, db_invoice: InvoiceDB
         ))
 
 
-def _link_default_items(db_invoice: InvoiceDB, default_item_ids: list[int], db: Session) -> None:
+def _link_default_items(
+        db_invoice: InvoiceDB,
+        default_item_ids: list[int],
+        db: Session
+) -> None:
     for d_id in default_item_ids:
         db.add(InvoiceInvoiceDefaultItemAssociationDB(
             invoice_id=db_invoice.invoice_id,
@@ -146,8 +161,14 @@ def _link_default_items(db_invoice: InvoiceDB, default_item_ids: list[int], db: 
         ))
 
 
-def _generate_unique_invoice_number(db: Session, invoice_date: date, invoice_type: InvoiceType, patient_label: str) -> str:
-    base_number = f"{invoice_date}{'-H' if invoice_type == InvoiceType.HP else ''}-{patient_label}"
+def _generate_unique_invoice_number(
+        db: Session,
+        invoice_date: date,
+        invoice_type: InvoiceType,
+
+        patient_label: str
+) -> str:
+    base_number = f"{invoice_date}-{invoice_type.value}-{patient_label}"
 
     statement = select(InvoiceDB).where(
         InvoiceDB.invoice_number == base_number
@@ -188,7 +209,8 @@ def update_invoice_logic(
 
     if invoice_update.save_as_draft is False and db_invoice.status == InvoiceStatus.DRAFT:
         patient = load_patient(db_invoice.patient_id, db)
-        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice.invoice_date, db_invoice.type, patient.label)
+        db_invoice.invoice_number = _generate_unique_invoice_number(db, db_invoice.invoice_date, db_invoice.type,
+                                                                    patient.label)
         db_invoice.status = InvoiceStatus.SAVED
 
     db_invoice.updated_at = datetime.now(timezone.utc)
@@ -197,13 +219,20 @@ def update_invoice_logic(
     return db_invoice
 
 
-def _apply_scalar_updates(db_invoice: InvoiceDB, invoice_update: InvoiceUpdate) -> None:
-    update_data = invoice_update.model_dump(exclude_unset=True, exclude={"user_items", "dates", "default_item_ids", "save_as_draft"})
+def _apply_scalar_updates(
+        db_invoice: InvoiceDB,
+        invoice_update: InvoiceUpdate
+) -> None:
+    update_data = invoice_update.model_dump(exclude_unset=True,
+                                            exclude={"user_items", "dates", "default_item_ids", "save_as_draft"})
     for key, value in update_data.items():
         setattr(db_invoice, key, value)
 
 
-def _update_default_items(db_invoice: InvoiceDB, default_item_ids: list[int]) -> None:
+def _update_default_items(
+        db_invoice: InvoiceDB,
+        default_item_ids: list[int]
+) -> None:
     db_invoice.default_items.clear()
     for d_id in default_item_ids:
         db_invoice.default_items.append(InvoiceInvoiceDefaultItemAssociationDB(
@@ -212,7 +241,11 @@ def _update_default_items(db_invoice: InvoiceDB, default_item_ids: list[int]) ->
         ))
 
 
-def _sync_hp_nested_structure(db_invoice: InvoiceDB, incoming_dates: list[InvoiceDateUpdate], db: Session) -> None:
+def _sync_hp_nested_structure(
+        db_invoice: InvoiceDB,
+        incoming_dates: list[InvoiceDateUpdate],
+        db: Session
+) -> None:
     """Syncs HP dates and their nested items."""
     existing_dates = {d.date_id: d for d in db_invoice.dates}
     incoming_ids = {d.date_id for d in incoming_dates if d.date_id is not None}
@@ -232,7 +265,11 @@ def _sync_hp_nested_structure(db_invoice: InvoiceDB, incoming_dates: list[Invoic
             _create_hp_date_with_items(db_invoice, d_schema, db)
 
 
-def _create_hp_date_with_items(db_invoice: InvoiceDB, d_schema: InvoiceDateUpdate, db: Session) -> None:
+def _create_hp_date_with_items(
+        db_invoice: InvoiceDB,
+        d_schema: InvoiceDateUpdate,
+        db: Session
+) -> None:
     new_date = InvoiceDateDB(invoice_id=db_invoice.invoice_id, date=d_schema.date)
     db.add(new_date)
     db.flush()
@@ -246,7 +283,12 @@ def _create_hp_date_with_items(db_invoice: InvoiceDB, d_schema: InvoiceDateUpdat
         ))
 
 
-def _sync_items_for_date(db_invoice: InvoiceDB, db_date: InvoiceDateDB, incoming_items: list, db: Session) -> None:
+def _sync_items_for_date(
+        db_invoice: InvoiceDB,
+        db_date: InvoiceDateDB,
+        incoming_items: list,
+        db: Session
+) -> None:
     """Helper to sync items linked to a specific date_id."""
     existing_items = {i.item_id: i for i in db_date.items}
     incoming_ids = {i.item_id for i in incoming_items if i.item_id is not None}
@@ -277,7 +319,10 @@ def _sync_items_for_date(db_invoice: InvoiceDB, db_date: InvoiceDateDB, incoming
         db_item.position = idx
 
 
-def set_payment_due(invoice_id: int, db: Session) -> InvoiceDB:
+def set_payment_due(
+        invoice_id: int,
+        db: Session
+) -> InvoiceDB:
     db_invoice = load_invoice(invoice_id, db)
     if db_invoice.is_locked:
         raise HTTPException(status_code=409, detail="Rechnung ist bereits gesperrt.")
@@ -288,7 +333,11 @@ def set_payment_due(invoice_id: int, db: Session) -> InvoiceDB:
     return db_invoice
 
 
-def set_paid(invoice_id: int, paid_at: date, db: Session) -> InvoiceDB:
+def set_paid(
+        invoice_id: int,
+        paid_at: date,
+        db: Session
+) -> InvoiceDB:
     db_invoice = load_invoice(invoice_id, db)
     if db_invoice.status != InvoiceStatus.PAYMENT_DUE:
         raise HTTPException(status_code=409, detail="Rechnung muss herausgegeben sein.")
@@ -300,7 +349,10 @@ def set_paid(invoice_id: int, paid_at: date, db: Session) -> InvoiceDB:
     return db_invoice
 
 
-def _sync_standalone_dates(db_invoice: InvoiceDB, incoming_dates: list) -> None:
+def _sync_standalone_dates(
+        db_invoice: InvoiceDB,
+        incoming_dates: list
+) -> None:
     existing_dates = {d.date_id: d for d in db_invoice.dates}
     incoming_ids = {d.date_id for d in incoming_dates if d.date_id is not None}
 
@@ -315,7 +367,10 @@ def _sync_standalone_dates(db_invoice: InvoiceDB, incoming_dates: list) -> None:
             db_invoice.dates.append(InvoiceDateDB(**d_in.model_dump(exclude={"date_id", "items"})))
 
 
-def get_template_items(invoice_type: InvoiceType, db: Session) -> list[TemplateItemResponse]:
+def get_template_items(
+        invoice_type: InvoiceType,
+        db: Session
+) -> list[TemplateItemResponse]:
     """Return deduplicated template items across all non-draft invoices of the given type."""
     invoices = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
                              search=None, db=db, invoice_type=invoice_type)
@@ -348,7 +403,9 @@ def get_template_items(invoice_type: InvoiceType, db: Session) -> list[TemplateI
     return result
 
 
-def get_template_diagnoses(db: Session) -> list[DiagnosisTemplateResponse]:
+def get_template_diagnoses(
+        db: Session
+) -> list[DiagnosisTemplateResponse]:
     """Return deduplicated diagnoses from all non-draft HP invoices, newest first."""
     invoices = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
                              search=None, db=db, invoice_type=InvoiceType.HP)
@@ -370,7 +427,10 @@ def get_template_diagnoses(db: Session) -> list[DiagnosisTemplateResponse]:
     return result
 
 
-def get_invoice_template(invoice_id: int, db: Session) -> InvoiceTemplateResponse:
+def get_invoice_template(
+        invoice_id: int,
+        db: Session
+) -> InvoiceTemplateResponse:
     inv = load_invoice(invoice_id, db)
 
     first_date = date.min
@@ -394,7 +454,10 @@ def get_invoice_template(invoice_id: int, db: Session) -> InvoiceTemplateRespons
         return InvoiceTemplateResponse(type=inv.type, date_groups=groups)
 
 
-def _sync_standalone_items(db_invoice: InvoiceDB, incoming_items: list) -> None:
+def _sync_standalone_items(
+        db_invoice: InvoiceDB,
+        incoming_items: list
+) -> None:
     existing_items = {i.item_id: i for i in db_invoice.user_items if i.date_id is None}
     incoming_ids = {i.item_id for i in incoming_items if i.item_id is not None}
     date_count = len(db_invoice.dates) or 1

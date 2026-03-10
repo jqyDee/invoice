@@ -65,7 +65,7 @@ def validate_invoice_item(
     if not item.description:
         raise HTTPException(status_code=400, detail="Beschreibung darf nicht leer sein.")
 
-    if inv_type == InvoiceType.KG:
+    if inv_type in [InvoiceType.KG, InvoiceType.GT]:
         item.quantity = quantity
         item.number = None
     elif inv_type == InvoiceType.HP:

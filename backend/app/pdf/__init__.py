@@ -1,1 +1,0 @@
-from .invoice_kg_pdf import InvoiceKg

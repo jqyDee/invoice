@@ -7,8 +7,8 @@ from pathlib import Path
 from sqlalchemy.orm.session import Session
 
 from ..models import InvoiceDB, InvoiceType, SettingsDB, PatientDB
-from ..pdf import InvoiceKg
 from ..pdf.invoice_hp_pdf import InvoiceHp
+from ..pdf.invoice_kg_pdf import InvoiceKgGt
 from ..pdf.therapy_pdf import Therapy
 from ..pdf.privacy_pdf import Privacy
 from ..services.therapyClause_service import load_clauses
@@ -37,12 +37,19 @@ def _regenerate_invoice_pdf(
         settings: SettingsDB,
         db: Session
 ):
-    if invoice.type == InvoiceType.KG:
+    print(invoice.type)
+
+    print(InvoiceType.__members__)
+
+    if not isinstance(invoice.type, InvoiceType):
+        raise HTTPException(status_code=404, detail="Invoice type not found")
+
+    if invoice.type in [InvoiceType.KG, InvoiceType.GT]:
         try:
-            InvoiceKg(invoice, settings)
+            InvoiceKgGt(invoice, settings)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-    else:
+    elif invoice.type == InvoiceType.HP:
         try:
             InvoiceHp(invoice, settings)
         except Exception as e:

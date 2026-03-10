@@ -52,11 +52,13 @@ export const GeneralForm: React.FC = () => {
             showToast({ severity: 'success', summary: 'Erfolg', detail: 'Einstellungen gespeichert.', life: 3000 });
         },
         onError: (error) => {
-            showToast({ severity: 'error', summary: 'Fehler', detail: `Einstellungen konnte nicht gespeichert werden. ${error.detail}`, life: 3000 });
+            showToast({ severity: 'error', summary: 'Fehler', detail: `Einstellungen konnte nicht gespeichert werden. ${JSON.stringify(error.detail)}`, life: 3000 });
         }
     });
 
     const onSubmit = (data: SettingsUpdate) => {
+        data.iban = data.iban.toUpperCase();
+        console.log(data)
         updateMutation.mutate({ body: data });
     };
 
@@ -66,19 +68,33 @@ export const GeneralForm: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="grid p-fluid mt-2">
             {/* IBAN: DE + 20 digits for Germany */}
             <div className="col-12 field">
-                <label htmlFor="iban" className="font-bold">IBAN (DE)</label>
+                <label htmlFor="iban" className="font-bold">IBAN</label>
                 <Controller
                     name="iban"
                     control={control}
-                    rules={{ required: 'IBAN ist erforderlich.' }}
+                    rules={{
+                        required: 'IBAN ist erforderlich.',
+                        pattern: {
+                            value: /^[a-zA-Z]{2}\d{20}$/,
+                            message: 'Format: DE99 9999 9999 9999 9999 99!'
+                        },
+                    }}
                     render={({ field }) => (
                         <InputMask
                             id={field.name}
                             value={field.value}
-                            onChange={(e) => field.onChange(e.value)}
                             mask="aa99 9999 9999 9999 9999 99" // Standard German format
                             placeholder="DE00 0000 0000 0000 0000 00"
+                            unmask={true}
                             className={errors.iban ? 'p-invalid' : ''}
+                            style={{ textTransform: 'uppercase' }}
+                            onChange={(e) => {
+                                const cleanedValue = e.value
+                                    ? e.value.replace(/[^a-zA-Z0-9]/g, '')
+                                    : '';
+
+                                field.onChange(cleanedValue);
+                            }}
                         />
                     )}
                 />
@@ -91,15 +107,26 @@ export const GeneralForm: React.FC = () => {
                 <Controller
                     name="bic"
                     control={control}
-                    rules={{ required: 'BIC ist erforderlich.' }}
+                    rules={{
+                        required: 'BIC ist erforderlich.',
+                        pattern: {
+                            value: /^[a-zA-Z]{6}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?$/,
+                            message: 'Format: 8 oder 11 Zeichen (z.B. AAAAAA11 oder AAAAAA11XXX)'
+                        },
+                    }}
                     render={({ field }) => (
                         <InputMask
                             id={field.name}
                             value={field.value}
-                            onChange={(e) => field.onChange(e.value)}
-                            mask="aaaaaaaa?aaa" // 8 chars required, 3 optional
+                            mask="aaaaaa**?***"
                             placeholder="XXXXXXXX"
+                            unmask={true}
+                            style={{ textTransform: 'uppercase' }}
                             className={errors.bic ? 'p-invalid' : ''}
+                            onChange={(e) => {
+                                const cleanValue = e.value ? e.value.replace(/[^a-zA-Z0-9]/g, '') : '';
+                                field.onChange(cleanValue);
+                            }}
                         />
                     )}
                 />
@@ -118,7 +145,8 @@ export const GeneralForm: React.FC = () => {
                             id={field.name}
                             value={field.value}
                             onChange={(e) => field.onChange(e.value)}
-                            mask="99 999 999 999" // Format: 12 345 678 901
+                            mask="999/999/99999" // Format: 12 345 678 901
+                            unmask={true}
                             placeholder="00 000 000 000"
                             className={errors.tax_id ? 'p-invalid' : ''}
                         />

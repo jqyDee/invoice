@@ -24,7 +24,7 @@ interface StepOverviewProps {
 }
 
 export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, header, footer}) => {
-    const isKG = (invoice.type === InvoiceType.KG);
+    const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
     const { data: patients } = useQuery(getPatientsPatientsGetOptions());
     const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
@@ -41,7 +41,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
         : (availableDefaults || []).filter(d => invoice.default_item_ids?.includes(d.default_item_id));
 
     const isSavedInvoice = 'invoice_id' in invoice;
-    const userItems = (!isKG && !isSavedInvoice)
+    const userItems = (!isKGorGT && !isSavedInvoice)
         ? (invoice.dates || []).flatMap((d: any) => d.items || [])
         : (invoice.user_items || []);
 
@@ -55,7 +55,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
         <div className="flex flex-column gap-2">
             {header}
 
-            {isKG && (
+            {isKGorGT && (
                 <InvoiceCalendar dates={datesAsDates} onChange={() => {}}/>
             )}
 
