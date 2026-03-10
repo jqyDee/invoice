@@ -16,7 +16,7 @@ class SettingsUpdate(SettingsBase):
     def validate_iban(cls, v: str) -> str:
         # Remove spaces and check for German IBAN format (DE + 20 digits)
         v = v.replace(" ", "")
-        if not re.match(r'^DE\d{20}$', v):
+        if not re.match(r'^[A-Z]{2}\d{20}$', v):
             raise ValueError('Ungültiges IBAN-Format (DE + 20 Ziffern erwartet)')
         return v
 
@@ -25,7 +25,7 @@ class SettingsUpdate(SettingsBase):
     def validate_bic(cls, v: str) -> str:
         # BIC is 8 or 11 alphanumeric characters
         v = v.strip().upper()
-        if not re.match(r'^[A-Z0-9]{8}([A-Z0-9]{3})?$', v):
+        if not re.match(r'^[a-zA-Z]{6}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?$', v):
             raise ValueError('Ungültiger BIC (8 oder 11 Zeichen erwartet)')
         return v
 
