@@ -8,23 +8,10 @@ from .utilities.router_include import auto_include_routers
 
 Base.metadata.create_all(bind=engine)
 
-# TODO: change this to be less accessive
-app = FastAPI(
-    servers=[
-        {"url": "http://localhost:8000", "description": "Local development server"},
-    ]
-)
-
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-]
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

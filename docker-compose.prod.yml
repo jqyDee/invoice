@@ -6,11 +6,11 @@ services:
         ENV: production
     container_name: backend
     volumes:
-      # This might need to be changed to a different folder
-      - ./backend/data:/app/data # DB dir
-      - ./backend/cache:/app/cache # PDF Cache dir
+      - ./backend/data:/app/data
+      - ./backend/cache:/app/cache
     ports:
-      - "8000:8000"
+      - "${TAILSCALE_IP}:${BACKEND_PORT}:${BACKEND_PORT}"
+      - "127.0.0.1:${BACKEND_PORT}:${BACKEND_PORT}"
     environment:
       - PYTHONUNBUFFERED=1
 
@@ -22,4 +22,9 @@ services:
     depends_on:
       - backend
     ports:
-      - "3000:80"
+      - "${TAILSCALE_IP}:443:443"
+      - "${TAILSCALE_IP}:80:80"
+      - "127.0.0.1:443:443"
+      - "127.0.0.1:80:80"
+    volumes:
+      - ./certs:/etc/ssl/tailscale:ro
