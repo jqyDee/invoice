@@ -7,8 +7,9 @@ from ..models import InvoiceType
 from ..schemas import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate
 from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceTemplateResponse
 from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic, get_template_items, get_template_diagnoses, get_invoice_template
+from ..utilities.security import get_current_user
 
-router = APIRouter(prefix="/invoices", tags=["invoices"])
+router = APIRouter(prefix="/invoices", tags=["invoices"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[Invoice])

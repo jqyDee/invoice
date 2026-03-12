@@ -46,6 +46,8 @@ uvloop==0.22.1
 watchfiles==1.1.1
 websockets==16.0
 alembic==1.18.4
+python-jose[cryptography]==3.5.0
+bcrypt==5.0.0
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1

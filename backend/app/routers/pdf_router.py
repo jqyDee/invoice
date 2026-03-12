@@ -9,8 +9,9 @@ from ..utilities.database import get_db
 from ..services.pdf_service import check_and_regenerate_invoice_pdf, check_and_regenerate_therapy_pdf, \
     check_and_regenerate_privacy_pdf
 from ..utilities.path_utilitiy import generate_invoice_path, generate_therapy_path, generate_privacy_path
+from ..utilities.security import get_current_user
 
-router = APIRouter(prefix="/pdf", tags=["pdf"])
+router = APIRouter(prefix="/pdf", tags=["pdf"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/invoice/{invoice_id}")

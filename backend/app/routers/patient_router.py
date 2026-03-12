@@ -7,8 +7,9 @@ from ..schemas import Patient, PatientCreate
 from ..services.patient_service import load_patient, perform_create_patient, perform_update_patient, \
     perform_delete_patient
 from ..utilities.database import get_db
+from ..utilities.security import get_current_user
 
-router = APIRouter(prefix="/patients", tags=["patients"])
+router = APIRouter(prefix="/patients", tags=["patients"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[Patient])

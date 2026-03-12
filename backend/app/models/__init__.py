@@ -12,3 +12,4 @@ from .defaultInvoiceItem_model import DefaultInvoiceItemDB
 from .invoiceInvoiceDefaultItem_association import InvoiceInvoiceDefaultItemAssociationDB
 from .therapyClause_model import TherapyClauseDB
 from .privacyClause_model import PrivacyClauseDB
+from .user_model import UserDB
