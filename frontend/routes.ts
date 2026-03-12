@@ -1,5 +1,6 @@
 import {PatientListView} from "./src/components/patient-list-view.tsx";
 import {ROUTES} from "./src/config/routes.ts";
+import {LoginPage} from "./src/pages/login/login-page.tsx";
 import {HomepageView} from "./src/components/homepage-view.tsx";
 import {InvoiceListView} from "./src/components/invoice-list-view.tsx";
 import {InvoiceEditView} from "./src/components/invoice-edit-view.tsx";
@@ -70,4 +71,9 @@ export const PrivacyPreviewRoute = {
 export const SettingsPrivacyClausesRoute = {
     url: ROUTES.SETTINGS_PRIVACY_CLAUSES,
     component: SettingsPrivacyClausesView
+}
+
+export const LoginRoute = {
+    url: ROUTES.LOGIN,
+    component: LoginPage
 }

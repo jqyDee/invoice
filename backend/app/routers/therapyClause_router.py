@@ -9,8 +9,9 @@ from ..services.therapyClause_service import (
     delete_clause,
 )
 from ..utilities.database import get_db
+from ..utilities.security import get_current_user
 
-router = APIRouter(prefix="/therapy-clauses", tags=["therapy-clauses"])
+router = APIRouter(prefix="/therapy-clauses", tags=["therapy-clauses"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[TherapyClause])

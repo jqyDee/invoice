@@ -1,5 +1,6 @@
 export const ROUTES = {
     HOME : '/',
+    LOGIN: '/login',
     PATIENTS : "/patients",
     INVOICES : "/invoices",
     INVOICE_EDIT : "/invoices/create/:id?",

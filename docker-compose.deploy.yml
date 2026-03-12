@@ -6,7 +6,9 @@
 #      (use a GitHub PAT with read:packages scope as the password)
 #   2. Replace OWNER/REPO below with your actual GitHub owner and repo name,
 #      e.g. ghcr.io/mfischbach/invoice-python-backend:latest
-#   3. docker compose -f docker-compose.deploy.yml up -d
+#   3. Create certs/ folder next to this file with server.crt and server.key
+#      (see scripts/renew-cert.ps1 for how to generate them)
+#   4. docker compose -f docker-compose.deploy.yml up -d
 
 services:
   backend:
@@ -16,7 +18,10 @@ services:
       - ./data:/app/data
       - ./cache:/app/cache
     ports:
-      - "8000:8000"
+      - "${TAILSCALE_IP}:${BACKEND_PORT}:${BACKEND_PORT}"
+      - "127.0.0.1:${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file:
+      - .env
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
@@ -27,7 +32,12 @@ services:
     depends_on:
       - backend
     ports:
-      - "3000:80"
+      - "${TAILSCALE_IP}:443:443"
+      - "${TAILSCALE_IP}:80:80"
+      - "127.0.0.1:443:443"
+      - "127.0.0.1:80:80"
+    volumes:
+      - ./certs:/etc/ssl/tailscale:ro
     restart: unless-stopped
 
   watchtower:

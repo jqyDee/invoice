@@ -10,7 +10,6 @@ COPY public ./public
 
 # Install deps and build
 RUN npm ci
-RUN npm run openapi-ts:generate
 RUN npm run build
 
 # Stage 2: Serve with Nginx / production

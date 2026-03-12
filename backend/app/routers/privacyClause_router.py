@@ -9,8 +9,9 @@ from ..services.privacyClause_service import (
     delete_privacy_clause,
 )
 from ..utilities.database import get_db
+from ..utilities.security import get_current_user
 
-router = APIRouter(prefix="/privacy-clauses", tags=["privacy-clauses"])
+router = APIRouter(prefix="/privacy-clauses", tags=["privacy-clauses"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/", response_model=list[PrivacyClause])

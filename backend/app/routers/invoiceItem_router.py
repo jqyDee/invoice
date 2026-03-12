@@ -9,8 +9,9 @@ from ..schemas.defaultInvoiceItem_schema import DefaultInvoiceItemUpdate, Defaul
 from ..services.invoiceItem_service import load_all_default_items, load_default_items, perform_update_default_item, \
     validate_invoice_item
 from ..utilities.database import get_db, add_db
+from ..utilities.security import get_current_user
 
-router = APIRouter(prefix="/invoice_items", tags=["invoices"])
+router = APIRouter(prefix="/invoice_items", tags=["invoices"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/defaults", response_model=list[DefaultInvoiceItem])

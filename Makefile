@@ -1,4 +1,4 @@
-.PHONY: openapi backend frontend build up up-dev up-prod down
+.PHONY: openapi backend frontend build up up-dev up-prod down renew-cert deploy
 
 # Generate OpenAPI JSON
 openapi:
@@ -27,14 +27,19 @@ up-dev: openapi
 	docker compose -f docker-compose.yml up --build
 
 # Production environment (Nginx + backend)
-up-prod: openapi
+up-prod: openapi renew-cert
 	docker compose -f docker-compose.prod.yml up --build -d
 
 # Build everything and start (default)
 up: build
 	docker compose up
 
-deploy:
+# Renew Tailscale TLS cert (macOS only — Windows: scripts/renew-cert.ps1)
+renew-cert:
+	@bash scripts/renew-cert.sh
+
+# Deploy: renew cert then start containers
+deploy: renew-cert
 	docker compose -f docker-compose.deploy.yml up -d
 
 # Stop containers
