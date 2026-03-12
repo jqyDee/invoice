@@ -138,7 +138,7 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
                 <Button
                     type="submit"
                     label="Speichern"
-                    icon="pi pi-check"
+                    icon="pi pi-save"
                     className="w-auto p-button-rounded"
                     loading={isPending}
                 />

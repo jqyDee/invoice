@@ -35,7 +35,7 @@ export const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
                             onClick={onLeave}
                         />
                         <Button
-                            label="Entwurf speichern"
+                            label="Speichern"
                             icon="pi pi-save"
                             onClick={onSaveDraft}
                         />
