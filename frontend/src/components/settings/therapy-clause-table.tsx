@@ -12,11 +12,13 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { TherapyClauseForm } from './therapy-clause-form.tsx';
 import { useGlobalToast } from '../../hooks/use-global-toast.ts';
+import { useIsMobile } from '../../hooks/use-is-mobile.ts';
 
 
 export const TherapyClauseTable: React.FC = () => {
     const queryClient = useQueryClient();
     const { showToast } = useGlobalToast();
+    const isMobile = useIsMobile();
     const [editClause, setEditClause] = useState<TherapyClause | null>(null);
 
     const { data: clauses, isLoading } = useQuery({
@@ -33,18 +35,22 @@ export const TherapyClauseTable: React.FC = () => {
     });
 
     const actionsTemplate = (rowData: TherapyClause) => (
-        <div className="flex gap-2 justify-content-end">
-            <Button
-                icon="pi pi-pencil"
-                className="p-button-rounded"
-                onClick={() => setEditClause(rowData)}
-            />
-            <Button
-                icon="pi pi-trash"
-                className="p-button-danger p-button-rounded"
-                loading={deleteMutation.isPending}
-                onClick={() => deleteMutation.mutate({ path: { clause_id: rowData.clause_id } })}
-            />
+        <div className="flex flex-column md:flex-row gap-2 justify-content-end align-items-end">
+            <div className="flex gap-2">
+                <Button
+                    icon="pi pi-pencil"
+                    className="p-button-rounded"
+                    onClick={() => setEditClause(rowData)}
+                />
+            </div>
+            <div className="flex gap-2">
+                <Button
+                    icon="pi pi-trash"
+                    className="p-button-danger p-button-rounded"
+                    loading={deleteMutation.isPending}
+                    onClick={() => deleteMutation.mutate({ path: { clause_id: rowData.clause_id } })}
+                />
+            </div>
         </div>
     );
 
@@ -64,7 +70,7 @@ export const TherapyClauseTable: React.FC = () => {
             <DataTable
                 value={clauses}
                 paginator
-                rows={20}
+                rows={10}
                 stripedRows
                 showGridlines
                 removableSort
@@ -73,10 +79,10 @@ export const TherapyClauseTable: React.FC = () => {
                 sortField="number"
                 sortOrder={1}
             >
-                <Column field="number" header="Nr." sortable style={{ width: '4rem' }} />
-                <Column field="title" header="Titel" sortable />
+                {!isMobile && <Column field="number" header="Nr." sortable style={{ width: '4rem' }} />}
+                {!isMobile && <Column field="title" header="Titel" sortable />}
                 <Column field="description" header="Beschreibung" />
-                <Column header="" body={actionsTemplate} style={{ width: '7rem' }} />
+                <Column header="" body={actionsTemplate} className="white-space-nowrap" />
             </DataTable>
         </div>
     );

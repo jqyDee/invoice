@@ -140,6 +140,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                                 />
                                 <Button
                                     label={state.dateDialogMode === 'add' ? "Hinzufügen" : "Speichern"}
+                                    icon="pi pi-save"
                                     onClick={actions.confirmDate}
                                     disabled={!state.datePickerValue}
                                 />

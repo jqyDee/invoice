@@ -6,7 +6,7 @@ import {GeneralForm} from "./settings/general-form.tsx";
 export const SettingsGeneralView: React.FC = () => {
     return (
         <div className="flex-column">
-            <Header title="Einstellungen" />
+            <Header title="Allgemein" />
             <GeneralForm />
         </div>
     )

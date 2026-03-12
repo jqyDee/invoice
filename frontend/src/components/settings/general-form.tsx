@@ -194,7 +194,7 @@ export const GeneralForm: React.FC = () => {
             <div className="col-12 flex justify-content-end mt-2">
                 <Button
                     type="submit"
-                    label="Einstellungen Speichern"
+                    label="Speichern"
                     icon="pi pi-save"
                     className="w-auto p-button-rounded"
                     loading={updateMutation.isPending}

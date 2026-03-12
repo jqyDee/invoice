@@ -140,7 +140,7 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                 <Button
                     type="submit"
                     label="Speichern"
-                    icon="pi pi-check"
+                    icon="pi pi-save"
                     className="p-button-rounded w-auto"
                 />
             </div>

@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useIsMobile } from "../../hooks/use-is-mobile.ts";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -26,6 +27,7 @@ interface InvoiceTableProps {
 export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading }) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const isMobile = useIsMobile();
 
     const [paidDialogInvoiceId, setPaidDialogInvoiceId] = useState<number | null>(null);
     const [paidDate, setPaidDate] = useState<Date | null>(null);
@@ -83,6 +85,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                         />
                         <Button
                             label="Speichern"
+                            icon="pi pi-save"
                             disabled={!paidDate}
                             onClick={() => markPaid.mutate({
                                 path: { invoice_id: paidDialogInvoiceId! },
@@ -110,71 +113,82 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 sortOrder={-1}
             >
                 <Column field="invoice_number" header="Rechnungsnummer" sortable />
-                <Column
-                    field="invoice_date"
-                    header="Rechnungsdatum"
-                    sortable
-                    body={(e: Invoice) => toGermanDateString(new Date(e.invoice_date))}
-                />
-                <Column field="type" header="Rechnungstyp" sortable />
-                <Column field="updated_at"
-                        header="Änderungsdatum"
+                {!isMobile && (
+                    <Column
+                        field="invoice_date"
+                        header="Rechnungsdatum"
                         sortable
-                        body={(e: Invoice) => new Date(e.updated_at).toLocaleString('de-DE', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}
-                />
-                <Column
-                    field="status"
-                    header="Status"
-                    sortable
-                    body={(e: Invoice) => (
-                        <Tag
-                            severity={toSeverityStatus(e.status)}
-                            value={toGermanStatus(e.status)}
-                            rounded
-                        />
-                    )}
-                />
+                        body={(e: Invoice) => toGermanDateString(new Date(e.invoice_date))}
+                    />
+                )}
+                {!isMobile && <Column field="type" header="Rechnungstyp" sortable />}
+                {!isMobile && (
+                    <Column field="updated_at"
+                            header="Änderungsdatum"
+                            sortable
+                            body={(e: Invoice) => new Date(e.updated_at).toLocaleString('de-DE', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                    />
+                )}
+                {!isMobile && (
+                    <Column
+                        field="status"
+                        header="Status"
+                        sortable
+                        body={(e: Invoice) => (
+                            <Tag
+                                severity={toSeverityStatus(e.status)}
+                                value={toGermanStatus(e.status)}
+                                rounded
+                            />
+                        )}
+                    />
+                )}
                 <Column
                     header="Aktionen"
                     alignHeader="right"
+                    className="white-space-nowrap"
                     body={(e: Invoice) => (
-                        <div className="flex gap-2 justify-content-end">
-                            <Button
-                                onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, { id: e.invoice_id.toString() }))}
-                                icon="pi pi-file-pdf"
-                                tooltip="PDF anzeigen"
-                                tooltipOptions={{ showDelay: 1000 }}
-                                className="p-button-rounded"
-                            />
-                            <Button
-                                icon="pi pi-info-circle"
-                                className="p-button-rounded"
-                                tooltip="Rechnungs details anzeigen"
-                                tooltipOptions={{ showDelay: 1000 }}
-                                onClick={() => navigate(generatePath(ROUTES.INVOICE, { id: e.invoice_id.toString() }))}
-                            />
-                            <Button
-                                icon="pi pi-send"
-                                className="p-button-rounded"
-                                tooltip="Herausgeben"
-                                tooltipOptions={{ showDelay: 1000 }}
-                                disabled={e.status !== InvoiceStatus.SAVED || markPaymentDue.isPending}
-                                onClick={() => confirm(e)}
-                            />
-                            <Button
-                                icon="pi pi-check-circle"
-                                className="p-button-rounded"
-                                tooltip="Als bezahlt markieren"
-                                tooltipOptions={{ showDelay: 1000 }}
-                                disabled={e.status !== InvoiceStatus.PAYMENT_DUE}
-                                onClick={() => { setPaidDialogInvoiceId(e.invoice_id); setPaidDate(null); }}
-                            />
+                        <div className="flex flex-column md:flex-row gap-2 justify-content-end align-items-end">
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, { id: e.invoice_id.toString() }))}
+                                    icon="pi pi-file-pdf"
+                                    tooltip="PDF anzeigen"
+                                    tooltipOptions={{ showDelay: 1000 }}
+                                    className="p-button-rounded"
+                                />
+                                <Button
+                                    icon="pi pi-info-circle"
+                                    className="p-button-rounded"
+                                    tooltip="Rechnungs details anzeigen"
+                                    tooltipOptions={{ showDelay: 1000 }}
+                                    onClick={() => navigate(generatePath(ROUTES.INVOICE, { id: e.invoice_id.toString() }))}
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    icon="pi pi-send"
+                                    className="p-button-rounded"
+                                    tooltip="Herausgeben"
+                                    tooltipOptions={{ showDelay: 1000 }}
+                                    disabled={e.status !== InvoiceStatus.SAVED || markPaymentDue.isPending}
+                                    onClick={() => confirm(e)}
+                                />
+                                <Button
+                                    icon="pi pi-check-circle"
+                                    className="p-button-rounded"
+                                    tooltip="Als bezahlt markieren"
+                                    tooltipOptions={{ showDelay: 1000 }}
+                                    disabled={e.status !== InvoiceStatus.PAYMENT_DUE}
+                                    onClick={() => { setPaidDialogInvoiceId(e.invoice_id); setPaidDate(null); }}
+                                />
+                            </div>
                         </div>
                     )}
                 />

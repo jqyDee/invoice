@@ -294,13 +294,19 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
             <div className="col-12 flex justify-content-between mt-4 gap-2">
                 <>
                     { patientToEdit &&
-                        <Button type="button" onClick={confirm} icon="pi pi-trash" label="Löschen" className="w-auto p-button-danger p-button-rounded"/>
+                        <Button
+                            type="button"
+                            onClick={confirm}
+                            icon="pi pi-trash"
+                            label="Löschen"
+                            className="w-auto p-button-danger p-button-rounded"
+                        />
                     }
                 </>
                 <Button
                     type="submit"
-                    label="Patient Speichern"
-                    icon="pi pi-check"
+                    label="Speichern"
+                    icon="pi pi-save"
                     className="w-auto p-button-rounded"
                     loading={updateMutation.isPending || createMutation.isPending}
                 />

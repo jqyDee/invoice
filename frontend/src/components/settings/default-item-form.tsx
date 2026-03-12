@@ -213,7 +213,7 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Button
                     type="submit"
                     label="Speichern"
-                    icon="pi pi-check"
+                    icon="pi pi-save"
                     className="w-auto p-button-rounded"
                     loading={createMutation.isPending}
                 />

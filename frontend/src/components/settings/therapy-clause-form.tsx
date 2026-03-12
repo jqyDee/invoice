@@ -119,7 +119,7 @@ export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, 
                 <Button
                     type="submit"
                     label="Speichern"
-                    icon="pi pi-check"
+                    icon="pi pi-save"
                     className="w-auto p-button-rounded"
                     loading={isPending}
                 />
