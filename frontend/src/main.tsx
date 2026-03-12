@@ -14,6 +14,14 @@ client.interceptors.request.use((request) => {
     return new Request(request, { headers })
 })
 
+client.interceptors.response.use((response) => {
+    if (response.status === 401) {
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+    }
+    return response
+})
+
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <App />

@@ -13,7 +13,21 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate()
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'))
+    const [token, setToken] = useState<string | null>(() => {
+        const stored = localStorage.getItem('token')
+        if (!stored) return null
+        try {
+            const payload = JSON.parse(atob(stored.split('.')[1]))
+            if (payload.exp * 1000 < Date.now()) {
+                localStorage.removeItem('token')
+                return null
+            }
+        } catch {
+            localStorage.removeItem('token')
+            return null
+        }
+        return stored
+    })
 
     const login = useCallback(async (username: string, password: string) => {
         const body = new URLSearchParams({ username, password })
