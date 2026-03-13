@@ -39,7 +39,7 @@ DOCUMENT_IN_TEXT_OFFSET = 3
 
 # ACCESS
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Minutes
+ACCESS_TOKEN_EXPIRE_MINUTES = 20  # Minutes
 JWT_ALGORITHM = "HS256"
 
 # These are obviously fake
