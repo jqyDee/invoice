@@ -11,6 +11,7 @@ import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
 import {ROUTES} from "../config/routes.ts";
 import {enforceNonNull} from "../utilities/enforce-non-null.ts";
 import {useGlobalToast} from "../hooks/use-global-toast.ts";
+import {extractApiError} from "../utilities/api-error.ts";
 
 export const InvoiceDetailsView: React.FC = () => {
     const {id} = useParams();
@@ -25,14 +26,19 @@ export const InvoiceDetailsView: React.FC = () => {
     const deleteMutation = useMutation({
         ...deleteInvoiceInvoicesInvoiceIdDeleteMutation(),
         onSuccess: async () => {
-            showToast({ severity: 'success', summary: 'Fertig!', detail: 'Rechnung wurde gelöscht.', life: 3000});
+            showToast({severity: 'success', summary: 'Erfolg', detail: 'Rechnung wurde gelöscht.', life: 3000});
             await queryClient.invalidateQueries({
                 queryKey: getInvoicesInvoicesGetQueryKey()
             })
             navigate(ROUTES.INVOICES);
         },
         onError: (error) => {
-            showToast({ severity: 'error', summary: 'Error!', detail: `Rechnung konnte nicht gelöscht werden. ${error.detail}`, life: 3000});
+            showToast({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Rechnung konnte nicht gelöscht werden. ${extractApiError(error)}`,
+                life: 3000
+            });
         }
     });
 
@@ -65,7 +71,8 @@ export const InvoiceDetailsView: React.FC = () => {
             rejectLabel: "Nein",
             acceptLabel: "Ja",
             accept,
-            reject: () => {}
+            reject: () => {
+            }
 
         })
     }
@@ -92,14 +99,14 @@ export const InvoiceDetailsView: React.FC = () => {
                                 icon="pi pi-pencil"
                                 disabled={canBeEdited}
                                 className="p-button-text p-button-rounded"
-                                onClick={() => navigate(generatePath(ROUTES.INVOICE_EDIT, { id: invoice.invoice_id.toString() }))}
+                                onClick={() => navigate(generatePath(ROUTES.INVOICE_EDIT, {id: invoice.invoice_id.toString()}))}
                             />
                         </div>
                         <Button
                             label="PDF anzeigen"
                             icon="pi pi-file-pdf"
                             className="p-button-rounded"
-                            onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, { id: invoice.invoice_id.toString() }))}
+                            onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, {id: invoice.invoice_id.toString()}))}
                         />
                     </div>
                 }

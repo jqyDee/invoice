@@ -45,7 +45,7 @@ export const useInvoiceItemMutations = (
             } else {
                 items.push(formData);
             }
-            onChange({ user_items: items });
+            onChange({user_items: items});
         } else {
             const dates = [...(invoice.dates || [])];
             const itemData = {
@@ -62,14 +62,20 @@ export const useInvoiceItemMutations = (
                 } else {
                     dates[oldDateIdx].items!.splice(editingItem._originalIndex, 1);
                     const newDateIdx = dates.findIndex(d => d.date === formData.date);
-                    newDateIdx !== -1 ? dates[newDateIdx].items!.push(itemData) : dates.push({ date: formData.date!, items: [itemData] });
+                    newDateIdx !== -1 ? dates[newDateIdx].items!.push(itemData) : dates.push({
+                        date: formData.date!,
+                        items: [itemData]
+                    });
                 }
             } else {
                 const targetIdx = dates.findIndex(d => d.date === formData.date);
-                targetIdx !== -1 ? dates[targetIdx].items!.push(itemData) : dates.push({ date: formData.date!, items: [itemData] });
+                targetIdx !== -1 ? dates[targetIdx].items!.push(itemData) : dates.push({
+                    date: formData.date!,
+                    items: [itemData]
+                });
             }
             dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            onChange({ dates });
+            onChange({dates});
         }
         setVisible(false);
     };
@@ -81,13 +87,12 @@ export const useInvoiceItemMutations = (
             if (idx >= 0) {
                 const items = [...(invoice.user_items || [])];
                 items.splice(idx, 1);
-                onChange({ user_items: items });
+                onChange({user_items: items});
             }
-        }
-        else {
+        } else {
             const dates = [...(invoice.dates || [])];
             dates.find(d => d.date === date)?.items!.splice(index!, 1);
-            onChange({ dates });
+            onChange({dates});
         }
     };
 
@@ -115,9 +120,9 @@ export const useInvoiceItemMutations = (
             const dateStr = toLocalDateString(datePickerValue);
             const dates = [...(invoice.dates || [])];
             if (!dates.find(d => d.date === dateStr)) {
-                dates.push({ date: dateStr, items: [] });
+                dates.push({date: dateStr, items: []});
                 dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                onChange({ dates });
+                onChange({dates});
             }
         } else if (dateDialogMode === 'edit' && editingDate) {
             const newDateStr = toLocalDateString(datePickerValue);
@@ -127,13 +132,16 @@ export const useInvoiceItemMutations = (
                 if (oldIdx !== -1) {
                     const existingIdx = dates.findIndex(d => d.date === newDateStr);
                     if (existingIdx !== -1) {
-                        dates[existingIdx] = { ...dates[existingIdx], items: [...(dates[existingIdx].items || []), ...(dates[oldIdx].items || [])] };
+                        dates[existingIdx] = {
+                            ...dates[existingIdx],
+                            items: [...(dates[existingIdx].items || []), ...(dates[oldIdx].items || [])]
+                        };
                         dates.splice(oldIdx, 1);
                     } else {
-                        dates[oldIdx] = { ...dates[oldIdx], date: newDateStr };
+                        dates[oldIdx] = {...dates[oldIdx], date: newDateStr};
                     }
                     dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                    onChange({ dates });
+                    onChange({dates});
                 }
             }
         }
@@ -141,7 +149,7 @@ export const useInvoiceItemMutations = (
     };
 
     const removeDate = (date: string) => {
-        onChange && onChange({ dates: invoice.dates!.filter((d: any) => d.date !== date) });
+        onChange && onChange({dates: invoice.dates!.filter((d: any) => d.date !== date)});
     };
 
     const moveItemUp = (date: string, index: number) => {
@@ -151,8 +159,8 @@ export const useInvoiceItemMutations = (
         if (dateIdx === -1) return;
         const items = [...dates[dateIdx].items];
         [items[index - 1], items[index]] = [items[index], items[index - 1]];
-        dates[dateIdx] = { ...dates[dateIdx], items };
-        onChange({ dates });
+        dates[dateIdx] = {...dates[dateIdx], items};
+        onChange({dates});
     };
 
     const moveItemDown = (date: string, index: number) => {
@@ -163,13 +171,25 @@ export const useInvoiceItemMutations = (
         const items = [...dates[dateIdx].items];
         if (index >= items.length - 1) return;
         [items[index], items[index + 1]] = [items[index + 1], items[index]];
-        dates[dateIdx] = { ...dates[dateIdx], items };
-        onChange({ dates });
+        dates[dateIdx] = {...dates[dateIdx], items};
+        onChange({dates});
     };
 
     return {
-        state: { editingItem, prefillDate, visible, dateDialogMode, datePickerValue },
-        setters: { setVisible, setDatePickerValue },
-        actions: { openEdit, openAdd, saveItem, removeItem, openAddDate, removeDate, openEditDate, confirmDate, closeDateDialog, moveItemUp, moveItemDown }
+        state: {editingItem, prefillDate, visible, dateDialogMode, datePickerValue},
+        setters: {setVisible, setDatePickerValue},
+        actions: {
+            openEdit,
+            openAdd,
+            saveItem,
+            removeItem,
+            openAddDate,
+            removeDate,
+            openEditDate,
+            confirmDate,
+            closeDateDialog,
+            moveItemUp,
+            moveItemDown
+        }
     };
 };

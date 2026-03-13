@@ -1,29 +1,29 @@
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { InputNumber } from 'primereact/inputnumber';
-import { InputSwitch } from 'primereact/inputswitch';
-import { Button } from 'primereact/button';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {Controller, useForm} from 'react-hook-form';
+import {InputText} from 'primereact/inputtext';
+import {InputTextarea} from 'primereact/inputtextarea';
+import {InputNumber} from 'primereact/inputnumber';
+import {InputSwitch} from 'primereact/inputswitch';
+import {Button} from 'primereact/button';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {
     getPrivacyClausesPrivacyClausesGetQueryKey,
     patchPrivacyClausePrivacyClausesClauseIdPatchMutation,
     postPrivacyClausePrivacyClausesPostMutation,
 } from '../../api/@tanstack/react-query.gen';
-import { type PrivacyClause, type PrivacyClauseCreate } from '../../api';
-import { useGlobalToast } from '../../hooks/use-global-toast.ts';
+import {type PrivacyClause, type PrivacyClauseCreate} from '../../api';
+import {useGlobalToast} from '../../hooks/use-global-toast.ts';
 
 interface PrivacyClauseFormProps {
     existing?: PrivacyClause;
     onSuccess?: () => void;
 }
 
-export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, onSuccess }) => {
+export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({existing, onSuccess}) => {
     const queryClient = useQueryClient();
-    const { showToast } = useGlobalToast();
+    const {showToast} = useGlobalToast();
 
-    const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<PrivacyClauseCreate>({
+    const {control, handleSubmit, reset, watch, formState: {errors}} = useForm<PrivacyClauseCreate>({
         defaultValues: {
             number: existing?.number ?? 1,
             title: existing?.title ?? '',
@@ -35,8 +35,8 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
     const isPreamble = watch('is_preamble');
 
     const invalidate = async () => {
-        await queryClient.invalidateQueries({ queryKey: getPrivacyClausesPrivacyClausesGetQueryKey() });
-        showToast({ severity: 'success', summary: 'Erfolg', detail: 'Klausel gespeichert' });
+        await queryClient.invalidateQueries({queryKey: getPrivacyClausesPrivacyClausesGetQueryKey()});
+        showToast({severity: 'success', summary: 'Erfolg', detail: 'Klausel gespeichert'});
         reset();
         onSuccess?.();
     };
@@ -53,9 +53,9 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
 
     const onSubmit = (data: PrivacyClauseCreate) => {
         if (existing) {
-            updateMutation.mutate({ path: { clause_id: existing.clause_id }, body: data });
+            updateMutation.mutate({path: {clause_id: existing.clause_id}, body: data});
         } else {
-            createMutation.mutate({ body: data });
+            createMutation.mutate({body: data});
         }
     };
 
@@ -68,8 +68,8 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
                 <Controller
                     name="number"
                     control={control}
-                    rules={{ required: 'Nummer ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Nummer ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputNumber
                                 id={field.name}
@@ -89,7 +89,7 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
                 <Controller
                     name="title"
                     control={control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputText
                             id={field.name}
                             {...field}
@@ -105,7 +105,7 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
                 <Controller
                     name="is_preamble"
                     control={control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputSwitch
                             checked={field.value}
                             onChange={(e) => field.onChange(e.value)}
@@ -119,8 +119,8 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({ existing, 
                 <Controller
                     name="description"
                     control={control}
-                    rules={{ required: 'Beschreibung ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Beschreibung ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputTextarea
                                 id={field.name}

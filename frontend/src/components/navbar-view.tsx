@@ -16,8 +16,8 @@ import {useIsMobile} from "../hooks/use-is-mobile.ts";
 export const NavbarView: React.FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
-    const { logout } = useAuth();
-    const end = <Button icon="pi pi-sign-out" label={isMobile ? '' : 'Abmelden'} text onClick={logout} />;
+    const {logout} = useAuth();
+    const end = <Button icon="pi pi-sign-out" label={isMobile ? '' : 'Abmelden'} text onClick={logout}/>;
     return (
         <Menubar model={buildMenu(navigate)} end={end} className="gap-4"/>
     );

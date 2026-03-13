@@ -1,6 +1,6 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ROUTES } from '../config/routes.ts'
+import React, {createContext, useCallback, useContext, useMemo, useState} from 'react'
+import {useNavigate} from 'react-router-dom'
+import {ROUTES} from '../config/routes.ts'
 
 interface AuthContextValue {
     token: string | null
@@ -11,7 +11,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const navigate = useNavigate()
     const [token, setToken] = useState<string | null>(() => {
         const stored = localStorage.getItem('token')
@@ -30,10 +30,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })
 
     const login = useCallback(async (username: string, password: string) => {
-        const body = new URLSearchParams({ username, password })
+        const body = new URLSearchParams({username, password})
         const response = await fetch('/api/auth/token', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: body.toString(),
         })
         if (!response.ok) {

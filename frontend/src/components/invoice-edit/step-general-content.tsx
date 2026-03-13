@@ -14,10 +14,10 @@ interface StepContentProps {
     next: () => void;
 }
 
-export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChange, next }) => {
+export const StepGeneralContent: React.FC<StepContentProps> = ({invoice, onChange, next}) => {
     const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
 
-    const { data: patients } = useQuery(getPatientsPatientsGetOptions());
+    const {data: patients} = useQuery(getPatientsPatientsGetOptions());
     const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
 
     const [patientValue, setPatientValue] = useState<Patient | string | undefined>(selectedPatient);
@@ -41,10 +41,9 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
         setPatientValue(e.value);
 
         if (e.value && typeof e.value === 'object' && 'patient_id' in e.value) {
-            onChange({ patient_id: e.value.patient_id });
-        }
-        else if (!e.value) {
-            onChange({ patient_id: undefined });
+            onChange({patient_id: e.value.patient_id});
+        } else if (!e.value) {
+            onChange({patient_id: undefined});
         }
     };
 
@@ -76,11 +75,11 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({ invoice, onChan
                 />
             </div>
             <div className="col-12 md:col-6 flex flex-column">
-                <Header title="Rechnungstyp" />
+                <Header title="Rechnungstyp"/>
                 <SelectButton
                     value={invoice.type}
                     options={Object.values(InvoiceType)}
-                    onChange={e => onChange({ type: e.value })}
+                    onChange={e => onChange({type: e.value})}
                 />
             </div>
             <div className="col-12 flex flex-column">

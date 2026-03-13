@@ -26,15 +26,15 @@ interface StepOverviewProps {
 export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, header, footer}) => {
     const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
-    const { data: patients } = useQuery(getPatientsPatientsGetOptions());
+    const {data: patients} = useQuery(getPatientsPatientsGetOptions());
     const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
 
     const datesAsDates = useMemo(() =>
-        invoice.dates?.map(d => new Date(d.date)) || [],
-    [invoice.dates]);
+            invoice.dates?.map(d => new Date(d.date)) || [],
+        [invoice.dates]);
 
-    const { data: availableDefaults } = useQuery(
-        getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } })
+    const {data: availableDefaults} = useQuery(
+        getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({query: {invoice_type: invoice.type}})
     );
     const defaultItems = 'invoice_id' in invoice
         ? invoice.default_items
@@ -56,15 +56,17 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
             {header}
 
             {isKGorGT && (
-                <InvoiceCalendar dates={datesAsDates} onChange={() => {}}/>
+                <InvoiceCalendar dates={datesAsDates} onChange={() => {
+                }}/>
             )}
 
             <Header title="Leistungsübersicht"/>
-            <InvoiceItemTable invoice={invoice} onChange={() => {}} readonly={true}/>
+            <InvoiceItemTable invoice={invoice} onChange={() => {
+            }} readonly={true}/>
             <Total total={calculatedTotal}/>
 
             <Header title="Details"/>
-            <InvoiceDetails invoice={invoice} />
+            <InvoiceDetails invoice={invoice}/>
 
             <Header title="Patientendaten"/>
             <InvoicePatientData patient={selectedPatient}/>

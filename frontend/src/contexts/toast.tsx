@@ -1,5 +1,5 @@
 import {createContext} from 'react';
-import {type ToastMessage } from 'primereact/toast';
+import {type ToastMessage} from 'primereact/toast';
 
 interface ToastContextType {
     showToast: (message: ToastMessage | ToastMessage[]) => void;

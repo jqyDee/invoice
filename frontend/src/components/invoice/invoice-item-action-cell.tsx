@@ -19,13 +19,13 @@ interface ActionCellProps {
     onMoveDown?: (date: string, index: number) => void;
 }
 
-export const ActionCell = ({ item, readonly, isKGorGT, onEdit, onDel, onMoveUp, onMoveDown }: ActionCellProps) => {
+export const ActionCell = ({item, readonly, isKGorGT, onEdit, onDel, onMoveUp, onMoveDown}: ActionCellProps) => {
     if (readonly || item.isEmpty || item.isDefault) return null;
     const isWarning = !isKGorGT && (!item.number || !item.date);
 
     return (
         <div className="flex flex-column md:flex-row justify-content-end gap-1">
-            {isWarning && <Tag severity="warning" icon="pi pi-exclamation-circle" rounded />}
+            {isWarning && <Tag severity="warning" icon="pi pi-exclamation-circle" rounded/>}
             <div className="flex">
                 {!isKGorGT && onMoveUp && (
                     <Button

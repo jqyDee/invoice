@@ -1,14 +1,14 @@
-import React, { useState, useMemo } from 'react';
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { useQuery } from '@tanstack/react-query';
+import React, {useState, useMemo} from 'react';
+import {Button} from 'primereact/button';
+import {InputText} from 'primereact/inputtext';
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
+import {useQuery} from '@tanstack/react-query';
 import {
     getTemplateItemsEndpointInvoicesTemplateItemsGetOptions,
 } from '../../api/@tanstack/react-query.gen.ts';
-import { InvoiceType, type TemplateItemResponse } from '../../api';
-import type { TreatmentFormData } from './invoice-treatment-form.tsx';
+import {InvoiceType, type TemplateItemResponse} from '../../api';
+import type {TreatmentFormData} from './invoice-treatment-form.tsx';
 
 interface InvoiceItemTemplatePanelProps {
     patientId: number;
@@ -17,14 +17,14 @@ interface InvoiceItemTemplatePanelProps {
 }
 
 export const InvoiceItemTemplatePanel: React.FC<InvoiceItemTemplatePanelProps> = ({
-    patientId, invoiceType, onSelect,
-}) => {
+                                                                                      patientId, invoiceType, onSelect,
+                                                                                  }) => {
     const isHP = invoiceType === InvoiceType.HP;
     const [expanded, setExpanded] = useState(false);
     const [filter, setFilter] = useState('');
 
-    const { data: allItems = [] } = useQuery(
-        getTemplateItemsEndpointInvoicesTemplateItemsGetOptions({ query: { invoice_type: invoiceType } })
+    const {data: allItems = []} = useQuery(
+        getTemplateItemsEndpointInvoicesTemplateItemsGetOptions({query: {invoice_type: invoiceType}})
     );
 
     const filtered = useMemo(() => {
@@ -83,20 +83,20 @@ export const InvoiceItemTemplatePanel: React.FC<InvoiceItemTemplatePanelProps> =
                         stripedRows
                         size="small"
                         rowClassName={rowClassName}
-                        style={{ cursor: 'pointer' }}
+                        style={{cursor: 'pointer'}}
                         paginator
                         rows={10}
                         rowsPerPageOptions={[10, 25, 50]}
                     >
-                        <Column field="description" header="Beschreibung" style={{ width: isHP ? '50%' : '65%' }} />
-                        {isHP && <Column field="number" header="Ziffer" style={{ width: '15%' }} />}
+                        <Column field="description" header="Beschreibung" style={{width: isHP ? '50%' : '65%'}}/>
+                        {isHP && <Column field="number" header="Ziffer" style={{width: '15%'}}/>}
                         <Column
                             field="amount"
                             header="Betrag"
                             body={(item: TemplateItemResponse) => `${item.amount.toFixed(2)} €`}
-                            style={{ width: '15%' }}
+                            style={{width: '15%'}}
                         />
-                        <Column header="Patient" body={patientNameBody} style={{ width: '20%' }} />
+                        <Column header="Patient" body={patientNameBody} style={{width: '20%'}}/>
                     </DataTable>
                 </div>
             )}

@@ -1,28 +1,28 @@
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { InputNumber } from 'primereact/inputnumber';
-import { Button } from 'primereact/button';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {Controller, useForm} from 'react-hook-form';
+import {InputText} from 'primereact/inputtext';
+import {InputTextarea} from 'primereact/inputtextarea';
+import {InputNumber} from 'primereact/inputnumber';
+import {Button} from 'primereact/button';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {
     getTherapyClausesTherapyClausesGetQueryKey,
     patchTherapyClauseTherapyClausesClauseIdPatchMutation,
     postTherapyClauseTherapyClausesPostMutation,
 } from '../../api/@tanstack/react-query.gen';
-import { type TherapyClause, type TherapyClauseCreate } from '../../api';
-import { useGlobalToast } from '../../hooks/use-global-toast.ts';
+import {type TherapyClause, type TherapyClauseCreate} from '../../api';
+import {useGlobalToast} from '../../hooks/use-global-toast.ts';
 
 interface TherapyClauseFormProps {
     existing?: TherapyClause;
     onSuccess?: () => void;
 }
 
-export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, onSuccess }) => {
+export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({existing, onSuccess}) => {
     const queryClient = useQueryClient();
-    const { showToast } = useGlobalToast();
+    const {showToast} = useGlobalToast();
 
-    const { control, handleSubmit, reset, formState: { errors } } = useForm<TherapyClauseCreate>({
+    const {control, handleSubmit, reset, formState: {errors}} = useForm<TherapyClauseCreate>({
         defaultValues: {
             number: existing?.number ?? 1,
             title: existing?.title ?? '',
@@ -31,8 +31,8 @@ export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, 
     });
 
     const invalidate = async () => {
-        await queryClient.invalidateQueries({ queryKey: getTherapyClausesTherapyClausesGetQueryKey() });
-        showToast({ severity: 'success', summary: 'Erfolg', detail: 'Klausel gespeichert' });
+        await queryClient.invalidateQueries({queryKey: getTherapyClausesTherapyClausesGetQueryKey()});
+        showToast({severity: 'success', summary: 'Erfolg', detail: 'Klausel gespeichert'});
         reset();
         onSuccess?.();
     };
@@ -49,9 +49,9 @@ export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, 
 
     const onSubmit = (data: TherapyClauseCreate) => {
         if (existing) {
-            updateMutation.mutate({ path: { clause_id: existing.clause_id }, body: data });
+            updateMutation.mutate({path: {clause_id: existing.clause_id}, body: data});
         } else {
-            createMutation.mutate({ body: data });
+            createMutation.mutate({body: data});
         }
     };
 
@@ -64,8 +64,8 @@ export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, 
                 <Controller
                     name="number"
                     control={control}
-                    rules={{ required: 'Nummer ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Nummer ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputNumber
                                 id={field.name}
@@ -85,10 +85,10 @@ export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, 
                 <Controller
                     name="title"
                     control={control}
-                    rules={{ required: 'Titel ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Titel ist erforderlich.'}}
+                    render={({field}) => (
                         <>
-                            <InputText id={field.name} {...field} className={errors.title ? 'p-invalid' : ''} />
+                            <InputText id={field.name} {...field} className={errors.title ? 'p-invalid' : ''}/>
                             {errors.title && <small className="p-error">{errors.title.message}</small>}
                         </>
                     )}
@@ -100,8 +100,8 @@ export const TherapyClauseForm: React.FC<TherapyClauseFormProps> = ({ existing, 
                 <Controller
                     name="description"
                     control={control}
-                    rules={{ required: 'Beschreibung ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Beschreibung ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputTextarea
                                 id={field.name}

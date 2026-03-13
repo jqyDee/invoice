@@ -13,22 +13,22 @@ interface InvoiceDefaultItemTableProps {
     onChange: (fields: Partial<InvoiceCreate | InvoiceUpdate>) => void;
 }
 
-export const InvoiceDefaultItemTable: React.FC<InvoiceDefaultItemTableProps> = ({ invoice, onChange }) => {
-    const { data: availableDefaults } = useQuery(getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
-        query: { invoice_type: invoice.type }
+export const InvoiceDefaultItemTable: React.FC<InvoiceDefaultItemTableProps> = ({invoice, onChange}) => {
+    const {data: availableDefaults} = useQuery(getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
+        query: {invoice_type: invoice.type}
     }));
 
     const toggleDefault = (id: number) => {
         const currentIds = invoice.default_item_ids || [];
         const nextIds = currentIds.includes(id) ? currentIds.filter(i => i !== id) : [...currentIds, id];
-        onChange({ default_item_ids: nextIds });
+        onChange({default_item_ids: nextIds});
     };
 
     const fieldsetLegend = (
         <div className="flex align-items-center gap-2">
             <span>Standard-Leistungen</span>
             {invoice.default_item_ids && (
-                <Tag value={invoice.default_item_ids.length} severity="info" rounded />
+                <Tag value={invoice.default_item_ids.length} severity="info" rounded/>
             )}
         </div>
     )

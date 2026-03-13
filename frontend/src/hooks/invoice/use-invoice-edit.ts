@@ -1,6 +1,6 @@
-import React, { useRef, useMemo, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { generatePath, useBlocker, useNavigate, useParams } from "react-router-dom";
+import React, {useRef, useMemo, useEffect} from "react";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {generatePath, useBlocker, useNavigate, useParams} from "react-router-dom";
 import {
     createInvoiceInvoicesPostMutation,
     getInvoicesInvoicesGetQueryKey,
@@ -9,15 +9,16 @@ import {
     getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
     getInvoiceInvoicesInvoiceIdGetQueryKey,
 } from "../../api/@tanstack/react-query.gen.ts";
-import { ROUTES } from "../../config/routes.ts";
-import { toLocalDateString } from "../../utilities/local-date-string.ts";
-import { useGlobalToast } from "../use-global-toast.ts";
-import { type InvoiceCreate, InvoiceType, type InvoiceUpdate } from "../../api";
+import {ROUTES} from "../../config/routes.ts";
+import {toLocalDateString} from "../../utilities/local-date-string.ts";
+import {useGlobalToast} from "../use-global-toast.ts";
+import {extractApiError} from "../../utilities/api-error.ts";
+import {type InvoiceCreate, InvoiceType, type InvoiceUpdate} from "../../api";
 
 export function useInvoiceEdit() {
-    const { id } = useParams();
+    const {id} = useParams();
     const navigate = useNavigate();
-    const { showToast } = useGlobalToast();
+    const {showToast} = useGlobalToast();
     const queryClient = useQueryClient();
 
     const stepperRef = useRef<any>(null);
@@ -36,17 +37,17 @@ export function useInvoiceEdit() {
         diagnosis: "",
     });
 
-    const { data: invoiceToUpdate, isLoading } = useQuery({
+    const {data: invoiceToUpdate, isLoading} = useQuery({
         ...getInvoiceInvoicesInvoiceIdGetOptions({
-            path: { invoice_id: parseInt(id!) },
+            path: {invoice_id: parseInt(id!)},
         }),
         enabled: !!id,
         retry: false,
     });
 
-    const { data: availableDefaults } = useQuery(
+    const {data: availableDefaults} = useQuery(
         getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
-            query: { invoice_type: invoice.type },
+            query: {invoice_type: invoice.type},
         })
     );
 
@@ -69,12 +70,12 @@ export function useInvoiceEdit() {
             const activeGlobalIds = availableDefaults
                 .filter(d => d.is_active_global)
                 .map(d => d.default_item_id);
-            setInvoice(prev => ({ ...prev, default_item_ids: activeGlobalIds }));
+            setInvoice(prev => ({...prev, default_item_ids: activeGlobalIds}));
         }
     }, [id, invoiceToUpdate, availableDefaults]);
 
     const updateInvoice = (fields: Partial<InvoiceCreate | InvoiceUpdate>) => {
-        setInvoice(prev => ({ ...prev, ...fields }));
+        setInvoice(prev => ({...prev, ...fields}));
     };
 
     const isDirty = useMemo(() => {
@@ -84,8 +85,14 @@ export function useInvoiceEdit() {
         return invoice.patient_id !== 0;
     }, [invoice]);
 
-    const goNext = () => { stepperRef.current.nextCallback(); setActiveStep(s => s + 1); };
-    const goPrev = () => { stepperRef.current.prevCallback(); setActiveStep(s => s - 1); };
+    const goNext = () => {
+        stepperRef.current.nextCallback();
+        setActiveStep(s => s + 1);
+    };
+    const goPrev = () => {
+        stepperRef.current.prevCallback();
+        setActiveStep(s => s - 1);
+    };
 
     const handleSuccess = async (isUpdate: boolean) => {
         showToast({
@@ -94,7 +101,7 @@ export function useInvoiceEdit() {
             detail: `Rechnung wurde ${isUpdate ? "aktualisiert" : "gespeichert"}.`,
             life: 3000,
         });
-        await queryClient.invalidateQueries({ queryKey: getInvoicesInvoicesGetQueryKey() });
+        await queryClient.invalidateQueries({queryKey: getInvoicesInvoicesGetQueryKey()});
     };
 
     const createMutation = useMutation({
@@ -111,17 +118,17 @@ export function useInvoiceEdit() {
         let result;
         if (id) {
             result = await updateMutation.mutateAsync({
-                path: { invoice_id: parseInt(id) },
-                body: { ...(invoice as InvoiceUpdate), save_as_draft: options?.asDraft ?? false },
+                path: {invoice_id: parseInt(id)},
+                body: {...(invoice as InvoiceUpdate), save_as_draft: options?.asDraft ?? false},
             });
         } else {
             result = await createMutation.mutateAsync({
-                body: { ...(invoice as InvoiceCreate), save_as_draft: options?.asDraft ?? false },
+                body: {...(invoice as InvoiceCreate), save_as_draft: options?.asDraft ?? false},
             });
         }
         await queryClient.invalidateQueries({
             queryKey: getInvoiceInvoicesInvoiceIdGetQueryKey({
-                path: { invoice_id: result.invoice_id },
+                path: {invoice_id: result.invoice_id},
             }),
         });
         return result.invoice_id;
@@ -131,12 +138,12 @@ export function useInvoiceEdit() {
         try {
             const invoiceId = await doSave();
             skipBlockerRef.current = true;
-            navigate(generatePath(ROUTES.INVOICE, { id: invoiceId.toString() }));
+            navigate(generatePath(ROUTES.INVOICE, {id: invoiceId.toString()}));
         } catch (error) {
             showToast({
                 severity: "error",
                 summary: "Fehler",
-                detail: `Rechnung konnte nicht gespeichert werden. ${JSON.stringify(error)}`,
+                detail: `Rechnung konnte nicht gespeichert werden. ${extractApiError(error)}`
             });
         }
     };
@@ -144,19 +151,19 @@ export function useInvoiceEdit() {
     const handleSaveDraft = async () => {
         skipBlockerRef.current = true;
         try {
-            await doSave({ asDraft: true });
+            await doSave({asDraft: true});
             blocker.proceed?.();
         } catch (error) {
             skipBlockerRef.current = false;
             showToast({
                 severity: "error",
                 summary: "Fehler",
-                detail: `Rechnung konnte nicht gespeichert werden. ${JSON.stringify(error)}`,
+                detail: `Rechnung konnte nicht gespeichert werden. ${extractApiError(error)}`
             });
         }
     };
 
-    const blocker = useBlocker(({ historyAction }) => {
+    const blocker = useBlocker(({historyAction}) => {
         if (skipBlockerRef.current) return false;
         historyActionRef.current = historyAction;
         if (activeStep > 0 && historyAction === "POP") return true;
@@ -172,7 +179,9 @@ export function useInvoiceEdit() {
     }, [blocker.state]);
 
     useEffect(() => {
-        const handler = (e: BeforeUnloadEvent) => { if (isDirty) e.preventDefault(); };
+        const handler = (e: BeforeUnloadEvent) => {
+            if (isDirty) e.preventDefault();
+        };
         window.addEventListener("beforeunload", handler);
         return () => window.removeEventListener("beforeunload", handler);
     }, [isDirty]);

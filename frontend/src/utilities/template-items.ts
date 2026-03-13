@@ -1,4 +1,4 @@
-import { type Invoice, type InvoiceItemCreate, InvoiceType, InvoiceStatus } from '../api';
+import {type Invoice, type InvoiceItemCreate, InvoiceType, InvoiceStatus} from '../api';
 
 export interface TemplateItem {
     description: string;
