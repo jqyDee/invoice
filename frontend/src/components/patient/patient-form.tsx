@@ -37,16 +37,29 @@ export const PatientForm: React.FC<PatientFormProps> = ({onSuccess, patientToEdi
     const watchedLastname = watch('last_name')
 
     React.useEffect(() => {
-        const fName = (watchedFirstname || '').trim();
-        const lName = (watchedLastname || '').trim();
+        // Helper to normalize German characters
+        const normalize = (str: string) => {
+            return str
+                .toLowerCase()
+                .replace(/ä/g, 'a')
+                .replace(/ö/g, 'o')
+                .replace(/ü/g, 'u')
+                .replace(/ß/g, 's')
+                .replace(/[^a-z]/g, '') // Remove anything else (spaces, hyphens)
+                .trim();
+        };
 
+        const fName = normalize(watchedFirstname || '');
+        const lName = normalize(watchedLastname || '');
+
+        // Ensure we have enough characters to avoid empty strings
         const generatedLabel = (
             lName.substring(0, 2) +
             fName.substring(0, 2)
         ).toUpperCase();
 
         setValue('label', generatedLabel, {shouldValidate: true});
-    }, [watchedLastname, watchedFirstname, setValue, patientToEdit])
+    }, [watchedLastname, watchedFirstname, setValue]);
 
     const createMutation = useMutation({
         ...createPatientPatientsPostMutation(),
@@ -309,7 +322,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({onSuccess, patientToEdi
                             render={({field}) => <InputText id={field.name} {...field} />}/>
             </div>
 
-            <div className="col-12 flex justify-content-between mt-4 gap-2">
+            <div className={patientToEdit ? "col-12 flex justify-content-between mt-4 gap-2" : "col-12 flex justify-content-end mt-4 gap-2"}>
                 <>
                     {patientToEdit &&
                         <Button
