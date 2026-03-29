@@ -15,7 +15,7 @@ client.interceptors.request.use((request) => {
 })
 
 client.interceptors.response.use((response) => {
-    if (response.status === 401) {
+    if (response.status === 401 && !response.url.includes('/auth/token')) {
         localStorage.removeItem('token')
         window.location.href = '/login'
     }

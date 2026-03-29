@@ -3,12 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .models import Base
-from .utilities.database import engine, SessionLocal
+from .utilities.database import SessionLocal
 from .utilities.router_include import auto_include_routers
 from .utilities.seed import seed_users
-
-Base.metadata.create_all(bind=engine)
 
 
 @asynccontextmanager
