@@ -2,22 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { useGlobalToast } from "../hooks/use-global-toast.ts";
 import { Button } from "primereact/button";
+import {extractApiError} from "./api-error.ts";
+import {useIsMobile} from "../hooks/use-is-mobile.ts";
 
 interface PdfPreviewViewerProps {
     queryOptions: UseQueryOptions<any, any, any, any>;
     title?: string;
 }
-
-const useIsMobile = () => {
-    const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches);
-    useEffect(() => {
-        const mq = window.matchMedia('(max-width: 768px)');
-        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-        mq.addEventListener('change', handler);
-        return () => mq.removeEventListener('change', handler);
-    }, []);
-    return isMobile;
-};
 
 export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
                                                                       queryOptions,
