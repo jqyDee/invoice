@@ -37,7 +37,7 @@ export const PatientListView: React.FC = () => {
 
     return (
         <div className="flex-column">
-            <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-3 gap-3">
+            <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
                 <Header title="Patienten"/>
 
                 <div className="flex gap-2 w-full md:w-auto">
