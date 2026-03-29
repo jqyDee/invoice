@@ -32,7 +32,7 @@ renew-cert-bash:
 
 # Stop containers
 down:
-	docker compose down
+	docker compose down || docker compose -f docker-compose.prod.yml down
 
 # Generate a new migration
 db-migrate:
