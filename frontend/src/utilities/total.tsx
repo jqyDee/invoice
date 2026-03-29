@@ -4,7 +4,7 @@ interface TotalProps {
     total: number;
 }
 
-export const Total: React.FC<TotalProps> = ({ total }) => {
+export const Total: React.FC<TotalProps> = ({total}) => {
     return (
         <div className="flex justify-content-end mt-2">
             <div className="flex flex-column align-items-end">

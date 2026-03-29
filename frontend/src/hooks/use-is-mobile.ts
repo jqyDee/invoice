@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 
 export const useIsMobile = () => {
     const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches);

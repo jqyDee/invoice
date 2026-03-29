@@ -17,11 +17,11 @@ import {toGermanDefaultPosition} from "../../utilities/default-position.ts";
 export const DefaultItemTable: React.FC = () => {
     const queryClient = useQueryClient();
     const menuItems = useSettingsDefaultsMenu();
-    const { type } = useParams<{ type?: string }>();
+    const {type} = useParams<{ type?: string }>();
 
-    const { data: defaultItems, isLoading } = useQuery({
+    const {data: defaultItems, isLoading} = useQuery({
         ...getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
-            query: { invoice_type: type ? type as InvoiceType : null}
+            query: {invoice_type: type ? type as InvoiceType : null}
         }),
         retry: false,
     });
@@ -31,7 +31,7 @@ export const DefaultItemTable: React.FC = () => {
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
-                    query: { invoice_type: type ? type as InvoiceType : null }
+                    query: {invoice_type: type ? type as InvoiceType : null}
                 }).queryKey
             });
         }
@@ -43,8 +43,8 @@ export const DefaultItemTable: React.FC = () => {
                 checked={rowData.is_active_global}
                 onChange={(e) => {
                     updateMutation.mutate({
-                        path: { item_id: rowData.default_item_id },
-                        body: { is_active_global: e.value }
+                        path: {item_id: rowData.default_item_id},
+                        body: {is_active_global: e.value}
                     });
                 }}
             />
@@ -70,8 +70,10 @@ export const DefaultItemTable: React.FC = () => {
                     <Column field="number" header="Ziffer" sortable/>
                 }
                 <Column field="description" header="Beschreibung" sortable/>
-                <Column field="amount" header="Einzelpreis" sortable body={(i: DefaultInvoiceItem) => <span>{i.amount.toFixed(2)} €</span>}/>
-                <Column header="Einfügeposition" sortable body={(i: DefaultInvoiceItem) => <span>{toGermanDefaultPosition(i.position)}</span>}/>
+                <Column field="amount" header="Einzelpreis" sortable
+                        body={(i: DefaultInvoiceItem) => <span>{i.amount.toFixed(2)} €</span>}/>
+                <Column header="Einfügeposition" sortable
+                        body={(i: DefaultInvoiceItem) => <span>{toGermanDefaultPosition(i.position)}</span>}/>
                 {!type &&
                     <Column field="type" header="Rechnungstyp" sortable/>
                 }

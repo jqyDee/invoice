@@ -1,13 +1,22 @@
+# Deployment compose for the Windows machine.
+# Images are pulled from GHCR and kept up to date automatically by Watchtower.
+#
+# One-time setup on the Windows machine:
+#   1. docker login ghcr.io -u <your-github-username>
+#      (use a GitHub PAT with read:packages scope as the password)
+#   2. Replace OWNER/REPO below with your actual GitHub owner and repo name,
+#      e.g. ghcr.io/mfischbach/invoice-python-backend:latest
+#   3. Create certs/ folder next to this file with server.crt and server.key
+#      (see scripts/renew-cert.ps1 for how to generate them)
+#   4. docker compose -f docker-compose.prod.yml up -d
+
 services:
   backend:
-    build:
-      context: ./backend
-      args:
-        ENV: production
+    image: ghcr.io/jqydee/invoice-backend:latest
     container_name: backend
     volumes:
-      - ./backend/data:/app/data
-      - ./backend/cache:/app/cache
+      - ./data:/app/data
+      - ./cache:/app/cache
     ports:
       - "${TAILSCALE_IP}:${BACKEND_PORT}:${BACKEND_PORT}"
       - "127.0.0.1:${BACKEND_PORT}:${BACKEND_PORT}"
@@ -15,11 +24,10 @@ services:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
+    restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      target: prod
+    image: ghcr.io/jqydee/invoice-frontend:latest
     container_name: frontend
     depends_on:
       - backend
@@ -30,3 +38,14 @@ services:
       - "127.0.0.1:80:80"
     volumes:
       - ./certs:/etc/ssl/tailscale:ro
+    restart: unless-stopped
+
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Check for new images every 5 minutes, remove old images after update.
+    # Adjust --interval (seconds) to your preference.
+    command: --interval 300 --cleanup
+    restart: unless-stopped

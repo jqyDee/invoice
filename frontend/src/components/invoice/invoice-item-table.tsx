@@ -1,16 +1,16 @@
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
-import { Calendar } from 'primereact/calendar';
-import { useQuery } from "@tanstack/react-query";
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
+import {Button} from 'primereact/button';
+import {Dialog} from 'primereact/dialog';
+import {Calendar} from 'primereact/calendar';
+import {useQuery} from "@tanstack/react-query";
 import {InvoiceType, type InvoiceCreate, type InvoiceUpdate, type Invoice, type InvoiceItemCreate} from '../../api';
-import { getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions } from "../../api/@tanstack/react-query.gen.ts";
-import { InvoiceTreatmentForm} from './invoice-treatment-form';
-import { toGermanDateString} from '../../utilities/local-date-string';
+import {getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
+import {InvoiceTreatmentForm} from './invoice-treatment-form';
+import {toGermanDateString} from '../../utilities/local-date-string';
 import {useInvoiceItemDisplayItems} from "../../hooks/invoice/use-invoice-item-display.ts";
 import {useInvoiceItemMutations} from "../../hooks/invoice/use-invoice-item-mutation.ts";
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {ActionCell} from "./invoice-item-action-cell.tsx";
 import {InvoiceItemTemplatePanel} from "./invoice-item-template-panel.tsx";
 import {InvoiceBlockTemplatePicker} from "./invoice-block-template-picker.tsx";
@@ -23,12 +23,15 @@ interface InvoiceItemTableProps {
     patientId?: number;
 }
 
-export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onChange, readonly = false, patientId }) => {
+export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onChange, readonly = false, patientId}) => {
     const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
-    const { data: allDefaults } = useQuery({ ...getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({ query: { invoice_type: invoice.type } }), enabled: readonly });
+    const {data: allDefaults} = useQuery({
+        ...getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({query: {invoice_type: invoice.type}}),
+        enabled: readonly
+    });
     const displayItems = useInvoiceItemDisplayItems(invoice, allDefaults, readonly, isKGorGT);
-    const { state, setters, actions } = useInvoiceItemMutations(invoice, onChange);
+    const {state, setters, actions} = useInvoiceItemMutations(invoice, onChange);
 
     const [templateInitialData, setTemplateInitialData] = useState<Partial<TreatmentFormData> | null>(null);
     const [formKey, setFormKey] = useState(0);
@@ -80,8 +83,8 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         const dates = [...(invoice.dates || [])] as any[];
                         const idx = dates.findIndex(d => d.date === blockPickerDate);
                         if (idx !== -1) {
-                            dates[idx] = { ...dates[idx], items };
-                            onChange?.({ dates });
+                            dates[idx] = {...dates[idx], items};
+                            onChange?.({dates});
                         }
                         setBlockPickerDate(null);
                     }}
@@ -92,7 +95,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     <Dialog
                         header={state.editingItem ? "Behandlung bearbeiten" : "Neue Behandlung"}
                         visible={state.visible}
-                        style={{ maxWidth: '80vw' }}
+                        style={{maxWidth: '80vw'}}
                         onHide={() => {
                             setters.setVisible(false);
                             setTemplateInitialData(null);
@@ -103,14 +106,17 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                                 patientId={patientId}
                                 invoiceType={invoice.type!}
                                 onSelect={(item) => {
-                                    setTemplateInitialData(state.prefillDate ? { ...item, date: state.prefillDate } : item);
+                                    setTemplateInitialData(state.prefillDate ? {
+                                        ...item,
+                                        date: state.prefillDate
+                                    } : item);
                                     setFormKey(k => k + 1);
                                 }}
                             />
                         )}
                         <InvoiceTreatmentForm
                             key={formKey}
-                            initialData={templateInitialData || state.editingItem || (state.prefillDate ? { date: state.prefillDate } : null)}
+                            initialData={templateInitialData || state.editingItem || (state.prefillDate ? {date: state.prefillDate} : null)}
                             type={invoice.type!}
                             onSave={actions.saveItem}
                             onCancel={() => {
@@ -123,7 +129,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         header={state.dateDialogMode === 'add' ? "Neues Behandlungsdatum" : "Datum ändern"}
                         visible={state.dateDialogMode !== null}
                         onHide={actions.closeDateDialog}
-                        style={{ maxWidth: '90vw', minWidth: '30vw' }}
+                        style={{maxWidth: '90vw', minWidth: '30vw'}}
                     >
                         <div className="flex flex-column gap-3">
                             <Calendar
@@ -170,7 +176,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         field="number"
                         header="Ziffer"
                         body={(d) => d.isEmpty ? '' : d.number}
-                        style={{ width: '10%' }}
+                        style={{width: '10%'}}
                     />
                     <Column
                         field="description"
@@ -178,7 +184,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         body={(d) => d.isEmpty
                             ? <span className="text-color-secondary italic">Keine Leistungen hinterlegt</span>
                             : d.description}
-                        style={{ width: '70%' }}
+                        style={{width: '70%'}}
                     />
                     <Column
                         field="amount"
@@ -187,7 +193,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                         body={(d) =>
                             <span className="align-items-end">{d.isEmpty ? '' : `${d.amount.toFixed(2)} €`}</span>
                         }
-                        style={{ width: '10%' }}
+                        style={{width: '10%'}}
                     />
                     {!readonly &&
                         <Column
@@ -204,7 +210,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                                     onMoveDown={actions.moveItemDown}
                                 />
                             }
-                            style={{ width: '10%' }}
+                            style={{width: '10%'}}
                         />
                     }
                 </DataTable>
@@ -213,7 +219,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     value={displayItems}
                     onRowReorder={!readonly && onChange
                         ? (e) =>
-                            onChange({ user_items: e.value as InvoiceItemCreate[] })
+                            onChange({user_items: e.value as InvoiceItemCreate[]})
                         : undefined
                     }
                     className="custom-no-buttons"
@@ -221,17 +227,17 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                     stripedRows
                 >
                     {!readonly &&
-                        <Column rowReorder style={{ width: '3rem' }} />
+                        <Column rowReorder style={{width: '3rem'}}/>
                     }
                     <Column
                         field="description"
                         header="Beschreibung"
-                        style={{ width: readonly ? '75%' : '62%' }}
+                        style={{width: readonly ? '75%' : '62%'}}
                     />
                     <Column
                         field="amount"
                         header="Betrag"
-                        body={(d) => `${d.amount.toFixed(2)} €`} style={{ width: '15%' }}
+                        body={(d) => `${d.amount.toFixed(2)} €`} style={{width: '15%'}}
                     />
                     {!readonly &&
                         <Column body={(item) =>
@@ -243,7 +249,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({ invoice, onC
                                 onDel={actions.removeItem}
                             />
                         }
-                                style={{ width: '20%' }}
+                                style={{width: '20%'}}
                         />
                     }
                 </DataTable>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
-import { InputNumber } from "primereact/inputnumber";
-import { InputSwitch } from "primereact/inputswitch";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {Controller, useForm} from 'react-hook-form';
+import {InputText} from 'primereact/inputtext';
+import {Dropdown} from 'primereact/dropdown';
+import {Button} from 'primereact/button';
+import {InputNumber} from "primereact/inputnumber";
+import {InputSwitch} from "primereact/inputswitch";
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {
     createDefaultInvoiceItemInvoiceItemsDefaultsPostMutation, getDefaultInvoiceItemsInvoiceItemsDefaultsGetQueryKey
 } from '../../api/@tanstack/react-query.gen';
@@ -14,18 +14,18 @@ import {
     DefaultInvoiceItemPosition,
     type DefaultInvoiceItemCreate
 } from '../../api';
-import { useGlobalToast } from "../../hooks/use-global-toast.ts";
+import {useGlobalToast} from "../../hooks/use-global-toast.ts";
 import {toGermanDefaultPosition} from "../../utilities/default-position.ts";
 
 interface DefaultItemFormProps {
     onSuccess?: () => void;
 }
 
-export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) => {
+export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({onSuccess}) => {
     const queryClient = useQueryClient();
-    const { showToast } = useGlobalToast();
+    const {showToast} = useGlobalToast();
 
-    const { control, handleSubmit, reset, formState: { errors }, watch, trigger } = useForm<DefaultInvoiceItemCreate>({
+    const {control, handleSubmit, reset, formState: {errors}, watch, trigger} = useForm<DefaultInvoiceItemCreate>({
         defaultValues: {
             description: '',
             amount: 0,
@@ -53,8 +53,8 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
     });
 
     const handleSuccess = async (message: string) => {
-        await queryClient.invalidateQueries({ queryKey: getDefaultInvoiceItemsInvoiceItemsDefaultsGetQueryKey() });
-        showToast({ severity: 'success', summary: 'Erfolg', detail: message });
+        await queryClient.invalidateQueries({queryKey: getDefaultInvoiceItemsInvoiceItemsDefaultsGetQueryKey()});
+        showToast({severity: 'success', summary: 'Erfolg', detail: message});
         reset();
         onSuccess?.();
     };
@@ -76,8 +76,8 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Controller
                     name="type"
                     control={control}
-                    rules={{ required: 'Typ ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Typ ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <Dropdown
                                 id={field.name}
@@ -95,10 +95,10 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Controller
                     name="description"
                     control={control}
-                    rules={{ required: 'Beschreibung ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Beschreibung ist erforderlich.'}}
+                    render={({field}) => (
                         <>
-                            <InputText id={field.name} {...field} className={errors.description ? 'p-invalid' : ''} />
+                            <InputText id={field.name} {...field} className={errors.description ? 'p-invalid' : ''}/>
                             {getFormErrorMessage('description')}
                         </>
                     )}
@@ -110,8 +110,8 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Controller
                     name="amount"
                     control={control}
-                    rules={{ required: 'Betrag ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Betrag ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputNumber
                                 id={field.name}
@@ -132,8 +132,8 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Controller
                     name="position"
                     control={control}
-                    rules={{ required: 'Position ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Position ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <Dropdown
                                 id={field.name}
@@ -154,8 +154,8 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Controller
                     name="is_active_global"
                     control={control}
-                    render={({ field }) => (
-                        <InputSwitch id={field.name} checked={field.value} onChange={(e) => field.onChange(e.value)} />
+                    render={({field}) => (
+                        <InputSwitch id={field.name} checked={field.value} onChange={(e) => field.onChange(e.value)}/>
                     )}
                 />
             </div>
@@ -169,7 +169,7 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                 <Controller
                     name="quantity"
                     control={control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <>
                             <InputNumber
                                 id={field.name}
@@ -194,7 +194,7 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({ onSuccess }) =
                     rules={{
                         required: selectedType === InvoiceType.HP ? 'Ziffer ist für HP erforderlich.' : false
                     }}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <>
                             <InputText
                                 id={field.name}

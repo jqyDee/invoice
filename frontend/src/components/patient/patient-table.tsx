@@ -1,11 +1,11 @@
 import React from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from "primereact/button";
-import type { Patient } from "../../api";
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
+import {Button} from "primereact/button";
+import type {Patient} from "../../api";
 import {generatePath, useNavigate} from "react-router-dom";
 import {ROUTES} from "../../config/routes.ts";
-import { useIsMobile } from "../../hooks/use-is-mobile.ts";
+import {useIsMobile} from "../../hooks/use-is-mobile.ts";
 
 interface PatientTableProps {
     patients: Patient[] | undefined;
@@ -14,7 +14,7 @@ interface PatientTableProps {
     onEdit: (patient: Patient) => void;
 }
 
-export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview = false, isLoading, onEdit }) => {
+export const PatientTable: React.FC<PatientTableProps> = ({patients, isPreview = false, isLoading, onEdit}) => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
 
@@ -33,10 +33,10 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
             size="small"
             loading={isLoading}
         >
-            {!isMobile && <Column field="label" header="Kürzel" />}
-            <Column field="first_name" header="Vorname" sortable />
-            <Column field="last_name" header="Nachname" sortable />
-            {!isMobile && <Column field="city" header="Ort" />}
+            {!isMobile && <Column field="label" header="Kürzel"/>}
+            <Column field="first_name" header="Vorname" sortable/>
+            <Column field="last_name" header="Nachname" sortable/>
+            {!isMobile && <Column field="city" header="Ort"/>}
             {!isMobile && (
                 <Column
                     field="created_at"
@@ -62,15 +62,15 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
                                     icon="pi pi-file-pdf"
                                     className="p-button-rounded"
                                     tooltip="Therapie-Vereinbarung"
-                                    tooltipOptions={{ showDelay: 1000 }}
-                                    onClick={() => navigate(generatePath(ROUTES.THERAPY_PREVIEW, { id: e.patient_id.toString() }))}
+                                    tooltipOptions={{showDelay: 1000}}
+                                    onClick={() => navigate(generatePath(ROUTES.THERAPY_PREVIEW, {id: e.patient_id.toString()}))}
                                 />
                                 <Button
                                     icon="pi pi-shield"
                                     className="p-button-rounded"
                                     tooltip="Datenschutzerklärung"
-                                    tooltipOptions={{ showDelay: 1000 }}
-                                    onClick={() => navigate(generatePath(ROUTES.PRIVACY_PREVIEW, { id: e.patient_id.toString() }))}
+                                    tooltipOptions={{showDelay: 1000}}
+                                    onClick={() => navigate(generatePath(ROUTES.PRIVACY_PREVIEW, {id: e.patient_id.toString()}))}
                                 />
                             </div>
                             <div className="flex gap-2">
@@ -78,7 +78,7 @@ export const PatientTable: React.FC<PatientTableProps> = ({ patients, isPreview 
                                     onClick={() => onEdit(e)}
                                     icon="pi pi-pencil"
                                     tooltip="Bearbeiten"
-                                    tooltipOptions={{ showDelay: 1000 }}
+                                    tooltipOptions={{showDelay: 1000}}
                                     className="p-button-rounded"
                                 />
                             </div>

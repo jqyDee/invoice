@@ -1,8 +1,8 @@
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { InputText } from 'primereact/inputtext';
-import { InputNumber } from 'primereact/inputnumber';
-import { Button } from 'primereact/button';
+import {Controller, useForm} from 'react-hook-form';
+import {InputText} from 'primereact/inputtext';
+import {InputNumber} from 'primereact/inputnumber';
+import {Button} from 'primereact/button';
 import {type InvoiceItemCreate, InvoiceType} from '../../api';
 import {InputTextarea} from "primereact/inputtextarea";
 
@@ -17,10 +17,10 @@ interface TreatmentFormProps {
     onCancel: () => void;
 }
 
-export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData, onSave, type, onCancel }) => {
+export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({initialData, onSave, type, onCancel}) => {
     const isKGorGT = type === InvoiceType.KG || type === InvoiceType.GT;
 
-    const { control, handleSubmit, formState: { errors } } = useForm<TreatmentFormData>({
+    const {control, handleSubmit, formState: {errors}} = useForm<TreatmentFormData>({
         defaultValues: initialData || {
             description: '',
             amount: 0,
@@ -40,8 +40,8 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                 <Controller
                     name="description"
                     control={control}
-                    rules={{ required: 'Bezeichnung ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Bezeichnung ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputTextarea
                                 id={field.name}
@@ -64,9 +64,9 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                     control={control}
                     rules={{
                         required: 'Betrag ist erforderlich.',
-                        min: { value: 0.01, message: 'Betrag muss größer als 0 sein.' }
+                        min: {value: 0.01, message: 'Betrag muss größer als 0 sein.'}
                     }}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <>
                             <InputNumber
                                 id={field.name}
@@ -90,8 +90,8 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                         <Controller
                             name="number"
                             control={control}
-                            rules={{ required: 'Ziffer ist erforderlich.' }}
-                            render={({ field }) => (
+                            rules={{required: 'Ziffer ist erforderlich.'}}
+                            render={({field}) => (
                                 <>
                                     <InputText
                                         id={field.name}
@@ -111,8 +111,8 @@ export const InvoiceTreatmentForm: React.FC<TreatmentFormProps> = ({ initialData
                         <Controller
                             name="date"
                             control={control}
-                            rules={{ required: 'Datum ist erforderlich.' }}
-                            render={({ field }) => (
+                            rules={{required: 'Datum ist erforderlich.'}}
+                            render={({field}) => (
                                 <>
                                     <InputText
                                         id={field.name}

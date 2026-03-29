@@ -1,11 +1,11 @@
 import React, {useState} from "react";
-import { useIsMobile } from "../../hooks/use-is-mobile.ts";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
-import { Tag } from "primereact/tag";
-import { Dialog } from "primereact/dialog";
-import { Calendar } from "primereact/calendar";
+import {useIsMobile} from "../../hooks/use-is-mobile.ts";
+import {DataTable} from "primereact/datatable";
+import {Column} from "primereact/column";
+import {Button} from "primereact/button";
+import {Tag} from "primereact/tag";
+import {Dialog} from "primereact/dialog";
+import {Calendar} from "primereact/calendar";
 import {type Invoice, InvoiceStatus} from "../../api";
 import {generatePath, useNavigate} from "react-router-dom";
 import {ROUTES} from "../../config/routes.ts";
@@ -24,7 +24,7 @@ interface InvoiceTableProps {
     isLoading: boolean;
 }
 
-export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading }) => {
+export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading}) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const isMobile = useIsMobile();
@@ -34,7 +34,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
 
     const markPaymentDue = useMutation({
         ...setPaymentDueMutation(),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: getInvoicesInvoicesGetQueryKey() }),
+        onSuccess: () => queryClient.invalidateQueries({queryKey: getInvoicesInvoicesGetQueryKey()}),
     });
 
     const markPaid = useMutation({
@@ -42,7 +42,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
         onSuccess: async () => {
             setPaidDialogInvoiceId(null);
             setPaidDate(null);
-            await queryClient.invalidateQueries({ queryKey: getInvoicesInvoicesGetQueryKey() });
+            await queryClient.invalidateQueries({queryKey: getInvoicesInvoicesGetQueryKey()});
         },
     });
 
@@ -60,23 +60,24 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
             rejectLabel: "Nein",
             acceptLabel: "Ja",
             accept: () => {
-                markPaymentDue.mutate({ path: { invoice_id: invoice.invoice_id } })
+                markPaymentDue.mutate({path: {invoice_id: invoice.invoice_id}})
             },
-            reject: () => {}
+            reject: () => {
+            }
         })
     }
 
     return (
         <>
-            <ConfirmDialog />
+            <ConfirmDialog/>
             <Dialog
                 header="Zahlungsdatum"
                 visible={paidDialogInvoiceId !== null}
                 onHide={() => setPaidDialogInvoiceId(null)}
-                style={{ minWidth: '30vw' }}
+                style={{minWidth: '30vw'}}
             >
                 <div className="flex flex-column gap-3">
-                    <Calendar value={paidDate} onChange={(e) => setPaidDate(e.value as Date)} inline />
+                    <Calendar value={paidDate} onChange={(e) => setPaidDate(e.value as Date)} inline/>
                     <div className="flex justify-content-end gap-2">
                         <Button
                             label="Abbrechen"
@@ -88,8 +89,8 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                             icon="pi pi-save"
                             disabled={!paidDate}
                             onClick={() => markPaid.mutate({
-                                path: { invoice_id: paidDialogInvoiceId! },
-                                body: { paid_at: toLocalDateString(paidDate!) }
+                                path: {invoice_id: paidDialogInvoiceId!},
+                                body: {paid_at: toLocalDateString(paidDate!)}
                             })}
                         />
                     </div>
@@ -112,7 +113,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                 sortField="updated_at"
                 sortOrder={-1}
             >
-                <Column field="invoice_number" header="Rechnungsnummer" sortable />
+                <Column field="invoice_number" header="Rechnungsnummer" sortable/>
                 {!isMobile && (
                     <Column
                         field="invoice_date"
@@ -121,7 +122,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                         body={(e: Invoice) => toGermanDateString(new Date(e.invoice_date))}
                     />
                 )}
-                {!isMobile && <Column field="type" header="Rechnungstyp" sortable />}
+                {!isMobile && <Column field="type" header="Rechnungstyp" sortable/>}
                 {!isMobile && (
                     <Column field="updated_at"
                             header="Änderungsdatum"
@@ -157,18 +158,18 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                         <div className="flex flex-column md:flex-row gap-2 justify-content-end align-items-end">
                             <div className="flex gap-2">
                                 <Button
-                                    onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, { id: e.invoice_id.toString() }))}
+                                    onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, {id: e.invoice_id.toString()}))}
                                     icon="pi pi-file-pdf"
                                     tooltip="PDF anzeigen"
-                                    tooltipOptions={{ showDelay: 1000 }}
+                                    tooltipOptions={{showDelay: 1000}}
                                     className="p-button-rounded"
                                 />
                                 <Button
                                     icon="pi pi-info-circle"
                                     className="p-button-rounded"
                                     tooltip="Rechnungs details anzeigen"
-                                    tooltipOptions={{ showDelay: 1000 }}
-                                    onClick={() => navigate(generatePath(ROUTES.INVOICE, { id: e.invoice_id.toString() }))}
+                                    tooltipOptions={{showDelay: 1000}}
+                                    onClick={() => navigate(generatePath(ROUTES.INVOICE, {id: e.invoice_id.toString()}))}
                                 />
                             </div>
                             <div className="flex gap-2">
@@ -176,7 +177,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                                     icon="pi pi-send"
                                     className="p-button-rounded"
                                     tooltip="Herausgeben"
-                                    tooltipOptions={{ showDelay: 1000 }}
+                                    tooltipOptions={{showDelay: 1000}}
                                     disabled={e.status !== InvoiceStatus.SAVED || markPaymentDue.isPending}
                                     onClick={() => confirm(e)}
                                 />
@@ -184,9 +185,12 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, isLoading 
                                     icon="pi pi-check-circle"
                                     className="p-button-rounded"
                                     tooltip="Als bezahlt markieren"
-                                    tooltipOptions={{ showDelay: 1000 }}
+                                    tooltipOptions={{showDelay: 1000}}
                                     disabled={e.status !== InvoiceStatus.PAYMENT_DUE}
-                                    onClick={() => { setPaidDialogInvoiceId(e.invoice_id); setPaidDate(null); }}
+                                    onClick={() => {
+                                        setPaidDialogInvoiceId(e.invoice_id);
+                                        setPaidDate(null);
+                                    }}
                                 />
                             </div>
                         </div>

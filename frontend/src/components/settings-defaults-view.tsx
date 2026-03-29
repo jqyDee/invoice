@@ -16,7 +16,7 @@ export const SettingsDefaultsView: React.FC = () => {
     return (
         <div className="flex-column">
             <div className="flex flex-column md:flex-row justify-content-between md:align-items-center gap-3 mb-3">
-                <Header title="Voreinstellungen" />
+                <Header title="Voreinstellungen"/>
 
                 <div className="flex gap-2 w-full md:w-auto">
                     <Button
@@ -31,13 +31,13 @@ export const SettingsDefaultsView: React.FC = () => {
             <Dialog
                 header="Voreinstellung erstellen"
                 visible={visible}
-                style={{ maxWidth: '80vw' }}
+                style={{maxWidth: '80vw'}}
                 onHide={() => setVisible(false)}
             >
-                <DefaultItemForm onSuccess={() => setVisible(false)} />
+                <DefaultItemForm onSuccess={() => setVisible(false)}/>
             </Dialog>
 
-            <DefaultItemTable />
+            <DefaultItemTable/>
         </div>
     )
 }

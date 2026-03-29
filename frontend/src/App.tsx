@@ -29,33 +29,39 @@ const client = new QueryClient({
 
 const router = createBrowserRouter([
     {
-        element: <AuthProvider><Outlet /></AuthProvider>,
+        element: <AuthProvider><Outlet/></AuthProvider>,
         children: [
-            { path: LoginRoute.url, Component: LoginRoute.component },
+            {path: LoginRoute.url, Component: LoginRoute.component},
             {
-                element: <ProtectedRoute />,
+                element: <ProtectedRoute/>,
                 children: [
                     {
-                        element: <MainLayout />,
+                        element: <MainLayout/>,
                         children: [
                             {
-                                element: <CardLayout />,
+                                element: <CardLayout/>,
                                 children: [
-                                    { path: HomeRoute.url, Component: HomeRoute.component },
-                                    { path: PatientsRoute.url, Component: PatientsRoute.component },
-                                    { path: InvoicesRoute.url, Component: InvoicesRoute.component },
-                                    { path: InvoiceCreateRoute.url, Component: InvoiceCreateRoute.component },
-                                    { path: InvoiceRoute.url, Component: InvoiceRoute.component },
-                                    { path: SettingsGeneralRoute.url, Component: SettingsGeneralRoute.component },
-                                    { path: SettingsDefaultsRoute.url, Component: SettingsDefaultsRoute.component },
-                                    { path: SettingsTherapyClausesRoute.url, Component: SettingsTherapyClausesRoute.component },
-                                    { path: SettingsPrivacyClausesRoute.url, Component: SettingsPrivacyClausesRoute.component },
+                                    {path: HomeRoute.url, Component: HomeRoute.component},
+                                    {path: PatientsRoute.url, Component: PatientsRoute.component},
+                                    {path: InvoicesRoute.url, Component: InvoicesRoute.component},
+                                    {path: InvoiceCreateRoute.url, Component: InvoiceCreateRoute.component},
+                                    {path: InvoiceRoute.url, Component: InvoiceRoute.component},
+                                    {path: SettingsGeneralRoute.url, Component: SettingsGeneralRoute.component},
+                                    {path: SettingsDefaultsRoute.url, Component: SettingsDefaultsRoute.component},
+                                    {
+                                        path: SettingsTherapyClausesRoute.url,
+                                        Component: SettingsTherapyClausesRoute.component
+                                    },
+                                    {
+                                        path: SettingsPrivacyClausesRoute.url,
+                                        Component: SettingsPrivacyClausesRoute.component
+                                    },
                                 ],
                             },
                             // Preview pages — no Card, but still inside MainLayout
-                            { path: InvoicePreviewRoute.url, Component: InvoicePreviewRoute.component },
-                            { path: TherapyPreviewRoute.url, Component: TherapyPreviewRoute.component },
-                            { path: PrivacyPreviewRoute.url, Component: PrivacyPreviewRoute.component },
+                            {path: InvoicePreviewRoute.url, Component: InvoicePreviewRoute.component},
+                            {path: TherapyPreviewRoute.url, Component: TherapyPreviewRoute.component},
+                            {path: PrivacyPreviewRoute.url, Component: PrivacyPreviewRoute.component},
                         ],
                     },
                 ],
@@ -68,7 +74,7 @@ const App: React.FC = () => {
     return (
         <QueryClientProvider client={client}>
             <ToastProvider>
-                <RouterProvider router={router} />
+                <RouterProvider router={router}/>
             </ToastProvider>
         </QueryClientProvider>
     )

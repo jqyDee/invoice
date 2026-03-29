@@ -1,13 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { useQuery } from '@tanstack/react-query';
+import React, {useState, useMemo} from 'react';
+import {Button} from 'primereact/button';
+import {InputText} from 'primereact/inputtext';
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
+import {useQuery} from '@tanstack/react-query';
 import {
     getTemplateDiagnosesEndpointInvoicesTemplateDiagnosesGetOptions,
 } from '../../api/@tanstack/react-query.gen.ts';
-import { type DiagnosisTemplateResponse } from '../../api';
+import {type DiagnosisTemplateResponse} from '../../api';
 
 interface InvoiceDiagnosisTemplatePanelProps {
     patientId: number;
@@ -15,12 +15,12 @@ interface InvoiceDiagnosisTemplatePanelProps {
 }
 
 export const InvoiceDiagnosisTemplatePanel: React.FC<InvoiceDiagnosisTemplatePanelProps> = ({
-    patientId, onSelect,
-}) => {
+                                                                                                patientId, onSelect,
+                                                                                            }) => {
     const [expanded, setExpanded] = useState(false);
     const [filter, setFilter] = useState('');
 
-    const { data: allItems = [] } = useQuery(
+    const {data: allItems = []} = useQuery(
         getTemplateDiagnosesEndpointInvoicesTemplateDiagnosesGetOptions()
     );
 
@@ -74,14 +74,14 @@ export const InvoiceDiagnosisTemplatePanel: React.FC<InvoiceDiagnosisTemplatePan
                         stripedRows
                         size="small"
                         rowClassName={rowClassName}
-                        style={{ cursor: 'pointer' }}
+                        style={{cursor: 'pointer'}}
                         paginator
                         rows={10}
                         rowsPerPageOptions={[10, 25, 50]}
                     >
-                        <Column field="diagnosis" header="Diagnose" style={{ width: '60%' }} />
-                        <Column header="Patient" body={patientNameBody} style={{ width: '25%' }} />
-                        <Column field="invoice_date" header="Datum" style={{ width: '15%' }} />
+                        <Column field="diagnosis" header="Diagnose" style={{width: '60%'}}/>
+                        <Column header="Patient" body={patientNameBody} style={{width: '25%'}}/>
+                        <Column field="invoice_date" header="Datum" style={{width: '15%'}}/>
                     </DataTable>
                 </div>
             )}

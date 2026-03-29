@@ -13,7 +13,7 @@ interface StepDetailsProps {
     next: () => void;
 }
 
-export const StepDetailsContent: React.FC<StepDetailsProps> = ({ invoice, onChange, prev, next }) => {
+export const StepDetailsContent: React.FC<StepDetailsProps> = ({invoice, onChange, prev, next}) => {
     return (
         <>
             <div className="flex flex-column">
@@ -22,23 +22,23 @@ export const StepDetailsContent: React.FC<StepDetailsProps> = ({ invoice, onChan
                     <InputText
                         id="invoiceDate"
                         value={invoice.invoice_date}
-                        onChange={(e) => onChange({ invoice_date: e.target.value })}
+                        onChange={(e) => onChange({invoice_date: e.target.value})}
                         type="date"
                         className="w-12"
                     />
                 </div>
-                { (invoice.type === InvoiceType.HP) &&
+                {(invoice.type === InvoiceType.HP) &&
                     <div>
                         <Header title="Diagnose"/>
                         <InvoiceDiagnosisTemplatePanel
                             patientId={invoice.patient_id!}
-                            onSelect={(d) => onChange({ diagnosis: d })}
+                            onSelect={(d) => onChange({diagnosis: d})}
                         />
                         <InputTextarea
                             id="invoiceDate"
                             value={invoice.diagnosis || ""}
                             autoResize
-                            onChange={(e) => onChange({ diagnosis: e.target.value })}
+                            onChange={(e) => onChange({diagnosis: e.target.value})}
                             className="w-12"
                         />
                     </div>

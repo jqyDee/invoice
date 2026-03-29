@@ -25,14 +25,23 @@ interface InvoiceTemplateInvoicePickerProps {
 }
 
 export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePickerProps> = ({
-    visible, onHide, invoiceType, patientId, onSelect,
-}) => {
+                                                                                              visible,
+                                                                                              onHide,
+                                                                                              invoiceType,
+                                                                                              patientId,
+                                                                                              onSelect,
+                                                                                          }) => {
     const isKGorGT = invoiceType === InvoiceType.KG || invoiceType === InvoiceType.GT;
 
     const [filter, setFilter] = useState('');
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>({});
 
-    const { data: allInvoices = [] } = useQuery(getInvoicesInvoicesGetOptions({ query: { invoice_type: invoiceType, show_drafts: false } }));
+    const {data: allInvoices = []} = useQuery(getInvoicesInvoicesGetOptions({
+        query: {
+            invoice_type: invoiceType,
+            show_drafts: false
+        }
+    }));
 
     const filteredInvoices = useMemo(() => {
         const lower = filter.toLowerCase();
@@ -62,9 +71,9 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
         if (isKGorGT) {
             return (
                 <DataTable value={inv.user_items} size="small" className="p-2">
-                    <Column field="description" header="Beschreibung" style={{ width: '70%' }} />
-                    <Column header="Betrag" body={(i) => `${i.amount.toFixed(2)} €`} style={{ width: '15%' }} />
-                    <Column header="Anzahl" field="quantity" style={{ width: '15%' }} />
+                    <Column field="description" header="Beschreibung" style={{width: '70%'}}/>
+                    <Column header="Betrag" body={(i) => `${i.amount.toFixed(2)} €`} style={{width: '15%'}}/>
+                    <Column header="Anzahl" field="quantity" style={{width: '15%'}}/>
                 </DataTable>
             );
         } else {
@@ -72,12 +81,14 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
                 <div className="p-2 flex flex-column gap-2">
                     {inv.dates.map(d => (
                         <div key={d.date_id ?? d.date}>
-                            <div className="font-semibold mb-1">{toGermanDateString(new Date(d.date + 'T00:00:00'))}</div>
+                            <div
+                                className="font-semibold mb-1">{toGermanDateString(new Date(d.date + 'T00:00:00'))}</div>
                             <DataTable value={d.items ?? []} size="small">
-                                <Column field="number" header="Ziffer" style={{ width: '15%' }} />
-                                <Column field="description" header="Beschreibung" style={{ width: '60%' }} />
-                                <Column header="Betrag" body={(i) => `${i.amount.toFixed(2)} €`} style={{ width: '15%' }} />
-                                <Column header="Anzahl" field="quantity" style={{ width: '10%' }} />
+                                <Column field="number" header="Ziffer" style={{width: '15%'}}/>
+                                <Column field="description" header="Beschreibung" style={{width: '60%'}}/>
+                                <Column header="Betrag" body={(i) => `${i.amount.toFixed(2)} €`}
+                                        style={{width: '15%'}}/>
+                                <Column header="Anzahl" field="quantity" style={{width: '10%'}}/>
                             </DataTable>
                         </div>
                     ))}
@@ -87,8 +98,8 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
     };
 
     const handleSelectInvoice = async (invoice: Invoice) => {
-        const { data: template } = await getInvoiceTemplateEndpointInvoicesInvoiceIdTemplateGet({
-            path: { invoice_id: invoice.invoice_id },
+        const {data: template} = await getInvoiceTemplateEndpointInvoicesInvoiceIdTemplateGet({
+            path: {invoice_id: invoice.invoice_id},
             throwOnError: true,
         })
 
@@ -114,7 +125,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
             header="Vorlage laden"
             visible={visible}
             onHide={handleHide}
-            style={{ width: '60vw', maxWidth: '900px' }}
+            style={{width: '60vw', maxWidth: '900px'}}
         >
             <div className="flex flex-column gap-3">
                 <InputText
@@ -132,7 +143,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
                     stripedRows
                     size="small"
                     rowClassName={rowClassName}
-                    style={{ cursor: 'pointer' }}
+                    style={{cursor: 'pointer'}}
                     expandedRows={expandedRows}
                     onRowToggle={(e) => setExpandedRows(e.data as DataTableExpandedRows)}
                     rowExpansionTemplate={rowExpansionTemplate}
@@ -140,10 +151,10 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
                     rows={20}
                     rowsPerPageOptions={[10, 20, 50]}
                 >
-                    <Column expander style={{ width: '3rem' }} />
-                    <Column field="invoice_number" header="Rechnungsnr." style={{ width: '20%' }} />
-                    <Column header="Patient" body={patientTemplate} style={{ width: '40%' }} />
-                    <Column header="Datum" body={dateTemplate} style={{ width: '20%' }} />
+                    <Column expander style={{width: '3rem'}}/>
+                    <Column field="invoice_number" header="Rechnungsnr." style={{width: '20%'}}/>
+                    <Column header="Patient" body={patientTemplate} style={{width: '40%'}}/>
+                    <Column header="Datum" body={dateTemplate} style={{width: '20%'}}/>
                     <Column
                         header="Positionen"
                         body={(inv: Invoice) => {
@@ -151,7 +162,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
                                 ? inv.user_items.length
                                 : inv.dates.reduce((s, d) => s + (d.items?.length ?? 0), 0);
                         }}
-                        style={{ width: '20%' }}
+                        style={{width: '20%'}}
                     />
                 </DataTable>
             </div>

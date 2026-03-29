@@ -11,9 +11,10 @@ import {
     getPatientsPatientsGetOptions,
     updatePatientPatientsPatientIdPutMutation,
 } from '../../api/@tanstack/react-query.gen.ts';
-import {Gender, type HttpValidationError, type Patient, type PatientCreate} from '../../api';
+import {Gender, type Patient, type PatientCreate} from '../../api';
 import {confirmDialog, ConfirmDialog} from "primereact/confirmdialog";
 import {useGlobalToast} from "../../hooks/use-global-toast.ts";
+import {extractApiError} from "../../utilities/api-error.ts";
 import {toGermanGender} from "../../utilities/gender.ts";
 
 interface PatientFormProps {
@@ -21,10 +22,10 @@ interface PatientFormProps {
     patientToEdit?: Patient | null;
 }
 
-export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEdit }) => {
+export const PatientForm: React.FC<PatientFormProps> = ({onSuccess, patientToEdit}) => {
     const queryClient = useQueryClient();
 
-    const { control, handleSubmit, reset, formState: {errors}, watch, setValue } = useForm<PatientCreate>({
+    const {control, handleSubmit, reset, formState: {errors}, watch, setValue} = useForm<PatientCreate>({
         defaultValues: patientToEdit || {
             label: '', first_name: '', last_name: '', gender: Gender.MALE, street: '',
             street_number: '', postal_code: '', city: '', birthday: '',
@@ -36,16 +37,29 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
     const watchedLastname = watch('last_name')
 
     React.useEffect(() => {
-        const fName = (watchedFirstname || '').trim();
-        const lName = (watchedLastname || '').trim();
+        // Helper to normalize German characters
+        const normalize = (str: string) => {
+            return str
+                .toLowerCase()
+                .replace(/ä/g, 'a')
+                .replace(/ö/g, 'o')
+                .replace(/ü/g, 'u')
+                .replace(/ß/g, 's')
+                .replace(/[^a-z]/g, '') // Remove anything else (spaces, hyphens)
+                .trim();
+        };
 
+        const fName = normalize(watchedFirstname || '');
+        const lName = normalize(watchedLastname || '');
+
+        // Ensure we have enough characters to avoid empty strings
         const generatedLabel = (
             lName.substring(0, 2) +
-                fName.substring(0, 2)
+            fName.substring(0, 2)
         ).toUpperCase();
 
         setValue('label', generatedLabel, {shouldValidate: true});
-    }, [watchedLastname, watchedFirstname, setValue, patientToEdit])
+    }, [watchedLastname, watchedFirstname, setValue]);
 
     const createMutation = useMutation({
         ...createPatientPatientsPostMutation(),
@@ -66,15 +80,25 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
     });
 
     const handleSuccess = async (isDelete?: boolean) => {
-        await queryClient.invalidateQueries({ queryKey: getPatientsPatientsGetOptions().queryKey });
+        await queryClient.invalidateQueries({queryKey: getPatientsPatientsGetOptions().queryKey});
         reset();
-        showToast({ severity: 'success', summary: 'Erfolg', detail: `Patientendaten ${isDelete ? "gelöscht" : "gespeichert"}.`, life: 3000 });
+        showToast({
+            severity: 'success',
+            summary: 'Erfolg',
+            detail: `Patientendaten ${isDelete ? "gelöscht" : "gespeichert"}.`,
+            life: 3000
+        });
         onSuccess?.();
     };
 
-    const handleError = (error: HttpValidationError) => {
+    const handleError = (error: unknown) => {
         reset();
-        showToast({ severity: 'error', summary: 'Error', detail: `Patientendaten konnten nicht gespeichert werden. ${JSON.stringify(error.detail)}`, life: 3000 });
+        showToast({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Patientendaten konnten nicht gespeichert werden. ${extractApiError(error)}`,
+            life: 3000
+        });
     }
 
     const deletePatient = async (id: number) => {
@@ -85,9 +109,9 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
 
     const onSubmit = (data: PatientCreate) => {
         if (patientToEdit) {
-            updateMutation.mutate({path: { patient_id: patientToEdit.patient_id}, body: data});
+            updateMutation.mutate({path: {patient_id: patientToEdit.patient_id}, body: data});
         } else {
-            createMutation.mutate({ body: data});
+            createMutation.mutate({body: data});
         }
     };
 
@@ -115,14 +139,15 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
             rejectLabel: "Nein",
             acceptLabel: "Ja",
             accept,
-            reject: () => {}
+            reject: () => {
+            }
 
         })
     }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="grid p-fluid mt-2">
-            <ConfirmDialog />
+            <ConfirmDialog/>
             <div className="col-12 field">
                 <label htmlFor="label" className="font-bold">Kürzel (abgeleitet aus Vor- und Nachname)</label>
                 <Controller
@@ -135,7 +160,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                             message: 'Nur Großbuchstaben (A-Z) erlaubt. 4 Buchstaben!'
                         }
                     }}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <>
                             <InputText
                                 id={field.name}
@@ -157,32 +182,34 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
 
             <div className="col-12 md:col-6 field">
                 <label htmlFor="first_name" className="font-bold">Vorname</label>
-                <Controller name="first_name" control={control} rules={{ required: 'Vorname ist erforderlich.' }}
-                    render={({ field }) => (
-                        <>
-                            <InputText id={field.name} {...field} className={errors.first_name ? 'p-invalid' : ''} />
-                            {getFormErrorMessage('first_name')}
-                        </>
-                    )}
+                <Controller name="first_name" control={control} rules={{required: 'Vorname ist erforderlich.'}}
+                            render={({field}) => (
+                                <>
+                                    <InputText id={field.name} {...field}
+                                               className={errors.first_name ? 'p-invalid' : ''}/>
+                                    {getFormErrorMessage('first_name')}
+                                </>
+                            )}
                 />
             </div>
 
             <div className="col-12 md:col-6 field">
                 <label htmlFor="last_name" className="font-bold">Nachname</label>
-                <Controller name="last_name" control={control} rules={{ required: 'Nachname ist erforderlich.' }}
-                    render={({ field }) => (
-                        <>
-                            <InputText id={field.name} {...field} className={errors.last_name ? 'p-invalid' : ''} />
-                            {getFormErrorMessage('last_name')}
-                        </>
-                    )}
+                <Controller name="last_name" control={control} rules={{required: 'Nachname ist erforderlich.'}}
+                            render={({field}) => (
+                                <>
+                                    <InputText id={field.name} {...field}
+                                               className={errors.last_name ? 'p-invalid' : ''}/>
+                                    {getFormErrorMessage('last_name')}
+                                </>
+                            )}
                 />
             </div>
 
             <div className="col-12 md:col-6 field">
                 <label htmlFor="gender" className="font-bold">Geschlecht</label>
                 <Controller name="gender" control={control}
-                            render={({ field }) =>
+                            render={({field}) =>
                                 <Dropdown
                                     id={field.name}
                                     {...field}
@@ -200,8 +227,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                 <Controller
                     name="birthday"
                     control={control}
-                    rules={{ required: 'Geburtsdatum ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Geburtsdatum ist erforderlich.'}}
+                    render={({field}) => (
                         <>
                             <InputText
                                 id={field.name}
@@ -218,49 +245,51 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
             {/* Address with validation messages */}
             <div className="col-12 md:col-9 field">
                 <label htmlFor="street" className="font-bold">Straße</label>
-                <Controller name="street" control={control} rules={{ required: 'Straße ist erforderlich.' }}
-                    render={({ field }) => (
-                        <>
-                            <InputText id={field.name} {...field} className={errors.street ? 'p-invalid' : ''} />
-                            {getFormErrorMessage('street')}
-                        </>
-                    )}
+                <Controller name="street" control={control} rules={{required: 'Straße ist erforderlich.'}}
+                            render={({field}) => (
+                                <>
+                                    <InputText id={field.name} {...field} className={errors.street ? 'p-invalid' : ''}/>
+                                    {getFormErrorMessage('street')}
+                                </>
+                            )}
                 />
             </div>
 
             <div className="col-12 md:col-3 field">
                 <label htmlFor="street_number" className="font-bold">Nr.</label>
-                <Controller name="street_number" control={control} rules={{ required: 'Nr. ist erforderlich.' }}
-                    render={({ field }) => (
-                        <>
-                            <InputText id={field.name} {...field} className={errors.street_number ? 'p-invalid' : ''} />
-                            {getFormErrorMessage('street_number')}
-                        </>
-                    )}
+                <Controller name="street_number" control={control} rules={{required: 'Nr. ist erforderlich.'}}
+                            render={({field}) => (
+                                <>
+                                    <InputText id={field.name} {...field}
+                                               className={errors.street_number ? 'p-invalid' : ''}/>
+                                    {getFormErrorMessage('street_number')}
+                                </>
+                            )}
                 />
             </div>
 
             <div className="col-12 md:col-4 field">
                 <label htmlFor="postal_code" className="font-bold">PLZ</label>
-                <Controller name="postal_code" control={control} rules={{ required: 'PLZ ist erforderlich.' }}
-                    render={({ field }) => (
-                        <>
-                            <InputText id={field.name} {...field} className={errors.postal_code ? 'p-invalid' : ''} />
-                            {getFormErrorMessage('postal_code')}
-                        </>
-                    )}
+                <Controller name="postal_code" control={control} rules={{required: 'PLZ ist erforderlich.'}}
+                            render={({field}) => (
+                                <>
+                                    <InputText id={field.name} {...field}
+                                               className={errors.postal_code ? 'p-invalid' : ''}/>
+                                    {getFormErrorMessage('postal_code')}
+                                </>
+                            )}
                 />
             </div>
 
             <div className="col-12 md:col-8 field">
                 <label htmlFor="city" className="font-bold">Stadt</label>
-                <Controller name="city" control={control} rules={{ required: 'Stadt ist erforderlich.' }}
-                    render={({ field }) => (
-                        <>
-                            <InputText id={field.name} {...field} className={errors.city ? 'p-invalid' : ''} />
-                            {getFormErrorMessage('city')}
-                        </>
-                    )}
+                <Controller name="city" control={control} rules={{required: 'Stadt ist erforderlich.'}}
+                            render={({field}) => (
+                                <>
+                                    <InputText id={field.name} {...field} className={errors.city ? 'p-invalid' : ''}/>
+                                    {getFormErrorMessage('city')}
+                                </>
+                            )}
                 />
             </div>
 
@@ -269,7 +298,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
                 <Controller
                     name="kilometers_to_travel"
                     control={control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputNumber
                             id={field.name}
                             value={field.value}
@@ -283,17 +312,19 @@ export const PatientForm: React.FC<PatientFormProps> = ({ onSuccess, patientToEd
 
             <div className="col-12 md:col-6 field">
                 <label htmlFor="email" className="font-bold">Email</label>
-                <Controller name="email" control={control} render={({ field }) => <InputText id={field.name} {...field} />} />
+                <Controller name="email" control={control}
+                            render={({field}) => <InputText id={field.name} {...field} />}/>
             </div>
 
             <div className="col-12 md:col-6 field">
                 <label htmlFor="telephone" className="font-bold">Telefon</label>
-                <Controller name="telephone" control={control} render={({ field }) => <InputText id={field.name} {...field} />} />
+                <Controller name="telephone" control={control}
+                            render={({field}) => <InputText id={field.name} {...field} />}/>
             </div>
 
-            <div className="col-12 flex justify-content-between mt-4 gap-2">
+            <div className={patientToEdit ? "col-12 flex justify-content-between mt-4 gap-2" : "col-12 flex justify-content-end mt-4 gap-2"}>
                 <>
-                    { patientToEdit &&
+                    {patientToEdit &&
                         <Button
                             type="button"
                             onClick={confirm}

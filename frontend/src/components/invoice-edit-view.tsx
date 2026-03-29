@@ -1,14 +1,14 @@
 import React from "react";
-import { Stepper } from "primereact/stepper";
-import { StepperPanel } from "primereact/stepperpanel";
-import { Button } from "primereact/button";
-import { StepGeneralContent } from "./invoice-edit/step-general-content.tsx";
-import { StepItemsContent } from "./invoice-edit/step-items-content.tsx";
-import { StepOverviewContent } from "./invoice-edit/step-overview-content.tsx";
-import { StepDetailsContent } from "./invoice-edit/step-details-content.tsx";
-import { UnsavedChangesDialog } from "./invoice-edit/unsaved-changes-dialog.tsx";
-import { Header } from "../utilities/header.tsx";
-import { useInvoiceEdit } from "../hooks/invoice/use-invoice-edit.ts";
+import {Stepper} from "primereact/stepper";
+import {StepperPanel} from "primereact/stepperpanel";
+import {Button} from "primereact/button";
+import {StepGeneralContent} from "./invoice-edit/step-general-content.tsx";
+import {StepItemsContent} from "./invoice-edit/step-items-content.tsx";
+import {StepOverviewContent} from "./invoice-edit/step-overview-content.tsx";
+import {StepDetailsContent} from "./invoice-edit/step-details-content.tsx";
+import {UnsavedChangesDialog} from "./invoice-edit/unsaved-changes-dialog.tsx";
+import {Header} from "../utilities/header.tsx";
+import {useInvoiceEdit} from "../hooks/invoice/use-invoice-edit.ts";
 
 
 export const InvoiceEditView: React.FC = () => {
@@ -30,7 +30,7 @@ export const InvoiceEditView: React.FC = () => {
 
     return (
         <div className="card">
-            <Header title={`Rechnung ${id ? "aktualisieren" : "erstellen"}`} />
+            <Header title={`Rechnung ${id ? "aktualisieren" : "erstellen"}`}/>
             <Stepper ref={stepperRef} linear={!id} headerPosition="bottom" className="mt-4">
                 <StepperPanel header="Basisdaten">
                     <StepGeneralContent
@@ -60,7 +60,7 @@ export const InvoiceEditView: React.FC = () => {
 
                 <StepperPanel header="Überblick">
                     <StepOverviewContent
-                        header={<Header title="Zusammenfassung Ihrer Eingaben" />}
+                        header={<Header title="Zusammenfassung Ihrer Eingaben"/>}
                         invoice={invoice}
                         footer={
                             <div className="flex justify-content-between mt-2">

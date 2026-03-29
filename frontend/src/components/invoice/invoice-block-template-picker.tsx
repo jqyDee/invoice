@@ -1,12 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import { Dialog } from 'primereact/dialog';
-import { DataTable, type DataTableExpandedRows } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { useQuery } from '@tanstack/react-query';
-import { getInvoicesInvoicesGetOptions } from '../../api/@tanstack/react-query.gen.ts';
-import { InvoiceType, type InvoiceItemCreate } from '../../api';
-import { toGermanDateString } from '../../utilities/local-date-string.ts';
+import React, {useState, useMemo} from 'react';
+import {Dialog} from 'primereact/dialog';
+import {DataTable, type DataTableExpandedRows} from 'primereact/datatable';
+import {Column} from 'primereact/column';
+import {InputText} from 'primereact/inputtext';
+import {useQuery} from '@tanstack/react-query';
+import {getInvoicesInvoicesGetOptions} from '../../api/@tanstack/react-query.gen.ts';
+import {InvoiceType, type InvoiceItemCreate} from '../../api';
+import {toGermanDateString} from '../../utilities/local-date-string.ts';
 
 interface BlockEntry {
     key: string;
@@ -26,13 +26,16 @@ interface InvoiceBlockTemplatePickerProps {
 }
 
 export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProps> = ({
-    visible, onHide, patientId, onSelect,
-}) => {
+                                                                                          visible,
+                                                                                          onHide,
+                                                                                          patientId,
+                                                                                          onSelect,
+                                                                                      }) => {
     const [filter, setFilter] = useState('');
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>({});
 
-    const { data: allInvoices = [] } = useQuery(
-        getInvoicesInvoicesGetOptions({ query: { invoice_type: InvoiceType.HP, show_drafts: false } })
+    const {data: allInvoices = []} = useQuery(
+        getInvoicesInvoicesGetOptions({query: {invoice_type: InvoiceType.HP, show_drafts: false}})
     );
 
     const blocks = useMemo<BlockEntry[]>(() => {
@@ -89,10 +92,10 @@ export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProp
 
     const rowExpansionTemplate = (block: BlockEntry) => (
         <DataTable value={block.items} size="small" className="p-2">
-            <Column field="number" header="Ziffer" style={{ width: '15%' }} />
-            <Column field="description" header="Beschreibung" style={{ width: '60%' }} />
-            <Column header="Betrag" body={(i) => `${i.amount.toFixed(2)} €`} style={{ width: '15%' }} />
-            <Column header="Anzahl" field="quantity" style={{ width: '10%' }} />
+            <Column field="number" header="Ziffer" style={{width: '15%'}}/>
+            <Column field="description" header="Beschreibung" style={{width: '60%'}}/>
+            <Column header="Betrag" body={(i) => `${i.amount.toFixed(2)} €`} style={{width: '15%'}}/>
+            <Column header="Anzahl" field="quantity" style={{width: '10%'}}/>
         </DataTable>
     );
 
@@ -109,7 +112,7 @@ export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProp
             header="Block laden"
             visible={visible}
             onHide={handleHide}
-            style={{ width: '70vw', maxWidth: '1000px' }}
+            style={{width: '70vw', maxWidth: '1000px'}}
         >
             <div className="flex flex-column gap-3">
                 <InputText
@@ -127,7 +130,7 @@ export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProp
                     stripedRows
                     size="small"
                     rowClassName={rowClassName}
-                    style={{ cursor: 'pointer' }}
+                    style={{cursor: 'pointer'}}
                     expandedRows={expandedRows}
                     onRowToggle={(e) => setExpandedRows(e.data as DataTableExpandedRows)}
                     rowExpansionTemplate={rowExpansionTemplate}
@@ -135,18 +138,18 @@ export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProp
                     rows={20}
                     rowsPerPageOptions={[10, 20, 50]}
                 >
-                    <Column expander style={{ width: '3rem' }} />
-                    <Column field="patientName" header="Patient" style={{ width: '25%' }} />
-                    <Column field="invoiceNumber" header="Rechnungsnr." style={{ width: '25%' }} />
+                    <Column expander style={{width: '3rem'}}/>
+                    <Column field="patientName" header="Patient" style={{width: '25%'}}/>
+                    <Column field="invoiceNumber" header="Rechnungsnr." style={{width: '25%'}}/>
                     <Column
                         header="Behandlungsdatum"
                         body={(b: BlockEntry) => toGermanDateString(new Date(b.blockDate + 'T00:00:00'))}
-                        style={{ width: '25%' }}
+                        style={{width: '25%'}}
                     />
                     <Column
                         header="Anzahl Positionen"
                         body={(b: BlockEntry) => b.items.length}
-                        style={{ width: '25%' }}
+                        style={{width: '25%'}}
                     />
                 </DataTable>
             </div>

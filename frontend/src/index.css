@@ -1,1 +1,9 @@
 @import "primeicons/primeicons.css";
+
+@media (max-width: 768px) {
+    .p-toast {
+        width: calc(100vw - 2rem) !important;
+        left: 1rem !important;
+        right: 1rem !important;
+    }
+}

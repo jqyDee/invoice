@@ -1,26 +1,27 @@
-import React, { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { Button } from 'primereact/button';
-import { InputNumber } from "primereact/inputnumber";
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import React, {useEffect} from 'react';
+import {Controller, useForm} from 'react-hook-form';
+import {Button} from 'primereact/button';
+import {InputNumber} from "primereact/inputnumber";
+import {useMutation, useQueryClient, useQuery} from '@tanstack/react-query';
 import {
     getSettingsSettingsGetOptions,
     updateSettingsSettingsPatchMutation
 } from '../../api/@tanstack/react-query.gen';
-import { type SettingsUpdate } from '../../api';
+import {type SettingsUpdate} from '../../api';
 import {InputMask} from "primereact/inputmask";
 import {useGlobalToast} from "../../hooks/use-global-toast.ts";
+import {extractApiError} from "../../utilities/api-error.ts";
 
 export const GeneralForm: React.FC = () => {
     const queryClient = useQueryClient();
-    const { showToast } = useGlobalToast();
+    const {showToast} = useGlobalToast();
 
-    const { data: settings, isLoading } = useQuery({
+    const {data: settings, isLoading} = useQuery({
         ...getSettingsSettingsGetOptions(),
         retry: false,
     });
 
-    const { control, handleSubmit, reset, formState: { errors } } = useForm<SettingsUpdate>({
+    const {control, handleSubmit, reset, formState: {errors}} = useForm<SettingsUpdate>({
         defaultValues: {
             iban: '',
             bic: '',
@@ -48,18 +49,23 @@ export const GeneralForm: React.FC = () => {
     const updateMutation = useMutation({
         ...updateSettingsSettingsPatchMutation(),
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: getSettingsSettingsGetOptions().queryKey });
-            showToast({ severity: 'success', summary: 'Erfolg', detail: 'Einstellungen gespeichert.', life: 3000 });
+            await queryClient.invalidateQueries({queryKey: getSettingsSettingsGetOptions().queryKey});
+            showToast({severity: 'success', summary: 'Erfolg', detail: 'Einstellungen gespeichert.', life: 3000});
         },
         onError: (error) => {
-            showToast({ severity: 'error', summary: 'Fehler', detail: `Einstellungen konnte nicht gespeichert werden. ${JSON.stringify(error.detail)}`, life: 3000 });
+            showToast({
+                severity: 'error',
+                summary: 'Fehler',
+                detail: `Einstellungen konnte nicht gespeichert werden. ${extractApiError(error)}`,
+                life: 3000
+            });
         }
     });
 
     const onSubmit = (data: SettingsUpdate) => {
         data.iban = data.iban.toUpperCase();
         console.log(data)
-        updateMutation.mutate({ body: data });
+        updateMutation.mutate({body: data});
     };
 
     if (isLoading) return <div>Laden...</div>;
@@ -79,7 +85,7 @@ export const GeneralForm: React.FC = () => {
                             message: 'Format: DE99 9999 9999 9999 9999 99!'
                         },
                     }}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputMask
                             id={field.name}
                             value={field.value}
@@ -87,7 +93,7 @@ export const GeneralForm: React.FC = () => {
                             placeholder="DE00 0000 0000 0000 0000 00"
                             unmask={true}
                             className={errors.iban ? 'p-invalid' : ''}
-                            style={{ textTransform: 'uppercase' }}
+                            style={{textTransform: 'uppercase'}}
                             onChange={(e) => {
                                 const cleanedValue = e.value
                                     ? e.value.replace(/[^a-zA-Z0-9]/g, '')
@@ -114,14 +120,14 @@ export const GeneralForm: React.FC = () => {
                             message: 'Format: 8 oder 11 Zeichen (z.B. AAAAAA11 oder AAAAAA11XXX)'
                         },
                     }}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputMask
                             id={field.name}
                             value={field.value}
                             mask="aaaaaa**?***"
                             placeholder="XXXXXXXX"
                             unmask={true}
-                            style={{ textTransform: 'uppercase' }}
+                            style={{textTransform: 'uppercase'}}
                             className={errors.bic ? 'p-invalid' : ''}
                             onChange={(e) => {
                                 const cleanValue = e.value ? e.value.replace(/[^a-zA-Z0-9]/g, '') : '';
@@ -139,8 +145,8 @@ export const GeneralForm: React.FC = () => {
                 <Controller
                     name="tax_id"
                     control={control}
-                    rules={{ required: 'Steuer-ID ist erforderlich.' }}
-                    render={({ field }) => (
+                    rules={{required: 'Steuer-ID ist erforderlich.'}}
+                    render={({field}) => (
                         <InputMask
                             id={field.name}
                             value={field.value}
@@ -160,7 +166,7 @@ export const GeneralForm: React.FC = () => {
                 <Controller
                     name="price_from"
                     control={control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputNumber
                             id={field.name}
                             value={field.value}
@@ -178,7 +184,7 @@ export const GeneralForm: React.FC = () => {
                 <Controller
                     name="price_to"
                     control={control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <InputNumber
                             id={field.name}
                             value={field.value}

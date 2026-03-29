@@ -4,7 +4,7 @@ interface HeaderProps {
     title: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ title }) => {
+export const Header: React.FC<HeaderProps> = ({title}) => {
     return (
         <h1 className="mb-3">{title}</h1>
     )

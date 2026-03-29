@@ -20,14 +20,14 @@ const useIsMobile = () => {
 };
 
 export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
-    queryOptions,
-    title = "PDF Preview"
-}) => {
-    const { showToast } = useGlobalToast();
+                                                                      queryOptions,
+                                                                      title = "PDF Preview"
+                                                                  }) => {
+    const {showToast} = useGlobalToast();
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const isMobile = useIsMobile();
 
-    const { data: pdfData, error, isLoading } = useQuery({
+    const {data: pdfData, error, isLoading} = useQuery({
         ...queryOptions,
         staleTime: 0,             // Always consider the data stale instantly
         gcTime: 0,                // Garbage collect immediately (React Query v5)
@@ -41,7 +41,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
             showToast({
                 severity: 'error',
                 summary: 'Fehler',
-                detail: `PDF konnte nicht geladen werden. ${error.detail || error.message}`,
+                detail: `PDF konnte nicht geladen werden. ${extractApiError(error)}`,
                 life: 5000
             });
         }
@@ -61,7 +61,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
     if (isLoading) {
         return (
             <div className="flex align-items-center justify-content-center flex-grow-1 h-screen">
-                <i className="pi pi-spin pi-spinner" style={{ fontSize: '2rem' }}></i>
+                <i className="pi pi-spin pi-spinner" style={{fontSize: '2rem'}}></i>
             </div>
         );
     }
@@ -85,7 +85,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
     }
 
     return (
-        <div className="flex flex-column" style={{ height: 'calc(100vh - 70px)' }}>
+        <div className="flex flex-column" style={{height: 'calc(100vh - 70px)'}}>
             {pdfUrl && (
                 <iframe
                     src={pdfUrl}
