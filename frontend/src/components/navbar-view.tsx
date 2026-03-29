@@ -17,8 +17,14 @@ export const NavbarView: React.FC = () => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
     const {logout} = useAuth();
+
+    const start = (
+        <img src="/logo.png" alt="Logo" style={{height: '2rem'}}/>
+    );
+
     const end = <Button icon="pi pi-sign-out" label={isMobile ? '' : 'Abmelden'} text onClick={logout}/>;
+
     return (
-        <Menubar model={buildMenu(navigate)} end={end} className="gap-4"/>
+        <Menubar model={buildMenu(navigate)} start={start} end={end} className="gap-4"/>
     );
 }
