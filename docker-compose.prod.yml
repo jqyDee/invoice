@@ -13,7 +13,7 @@
 services:
   backend:
     image: ghcr.io/jqydee/invoice-backend:latest
-    container_name: backend
+    container_name: backend-prod
     volumes:
       - ./data:/app/data
       - ./cache:/app/cache
@@ -28,7 +28,7 @@ services:
 
   frontend:
     image: ghcr.io/jqydee/invoice-frontend:latest
-    container_name: frontend
+    container_name: frontend-prod
     depends_on:
       - backend
     ports:
