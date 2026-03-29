@@ -3,7 +3,7 @@ services:
     build:
       context: ./backend
       args:
-        ENV: development
+        ENV: dev
     container_name: backend
     volumes:
       - ./backend/app:/app/app
