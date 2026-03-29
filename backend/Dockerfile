@@ -12,6 +12,8 @@ COPY assets ./assets
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic -c app/alembic.ini upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# If ENV=dev, --reload is added automatically.
+ARG ENV=prod
+ENV ENV=${ENV}
 
-
+CMD ["sh", "-c", "alembic -c app/alembic.ini upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 ${ENV:+--reload --log-level debug}"]

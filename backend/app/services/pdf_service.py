@@ -37,10 +37,6 @@ def _regenerate_invoice_pdf(
         settings: SettingsDB,
         db: Session
 ):
-    print(invoice.type)
-
-    print(InvoiceType.__members__)
-
     if not isinstance(invoice.type, InvoiceType):
         raise HTTPException(status_code=404, detail="Invoice type not found")
 
