@@ -1,12 +1,23 @@
-import React, {useEffect, useState} from "react";
-import {useQuery, type UseQueryOptions} from "@tanstack/react-query";
-import {useGlobalToast} from "../hooks/use-global-toast.ts";
-import {extractApiError} from "./api-error.ts";
+import React, { useEffect, useState } from "react";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
+import { useGlobalToast } from "../hooks/use-global-toast.ts";
+import { Button } from "primereact/button";
 
 interface PdfPreviewViewerProps {
     queryOptions: UseQueryOptions<any, any, any, any>;
     title?: string;
 }
+
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches);
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 768px)');
+        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
+    }, []);
+    return isMobile;
+};
 
 export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
                                                                       queryOptions,
@@ -14,6 +25,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
                                                                   }) => {
     const {showToast} = useGlobalToast();
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const isMobile = useIsMobile();
 
     const {data: pdfData, error, isLoading} = useQuery({
         ...queryOptions,
@@ -56,6 +68,20 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
 
     if (error) {
         return <div className="p-4 text-red-500">PDF konnte nicht geladen werden.</div>;
+    }
+
+    if (isMobile) {
+        return (
+            <div className="flex flex-column align-items-center justify-content-center gap-3" style={{ height: 'calc(100vh - 70px)' }}>
+                <i className="pi pi-file-pdf" style={{ fontSize: '4rem', color: 'var(--primary-color)' }} />
+                <p className="m-0 text-600">PDF-Vorschau ist auf Mobilgeräten nicht verfügbar.</p>
+                {pdfUrl && (
+                    <a href={pdfUrl} target="_blank" rel="noreferrer" download>
+                        <Button label="PDF öffnen" icon="pi pi-download" />
+                    </a>
+                )}
+            </div>
+        );
     }
 
     return (

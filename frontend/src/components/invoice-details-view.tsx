@@ -103,7 +103,7 @@ export const InvoiceDetailsView: React.FC = () => {
                             />
                         </div>
                         <Button
-                            label="PDF anzeigen"
+                            label="PDF"
                             icon="pi pi-file-pdf"
                             className="p-button-rounded"
                             onClick={() => navigate(generatePath(ROUTES.INVOICE_PREVIEW, {id: invoice.invoice_id.toString()}))}
