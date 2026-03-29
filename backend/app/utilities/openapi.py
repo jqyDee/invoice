@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-sys.path.append(str(BASE_DIR))
+sys.path.insert(0, str(BASE_DIR))
 
 from app.utilities import OPENAPI_JSON_FRONTEND_PATH
 from app.main import app
