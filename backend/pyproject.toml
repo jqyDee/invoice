@@ -23,7 +23,7 @@ dependencies = [
     # Security & Authentication
     "bcrypt==5.0.0",
     "python-jose==3.5.0",
-    "cryptography==46.0.5",
+    "cryptography==46.0.6",
 
     # Utilities
     "fpdf2==2.8.5",
