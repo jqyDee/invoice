@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/jqyDee/invoice/compare/v0.1.2...v0.1.3) (2026-03-30)
+
+
+### Bug Fixes
+
+* build and push pipeline not rebuilding the containers ([953dac1](https://github.com/jqyDee/invoice/commit/953dac1df7cdda82ad4775324400a61cfc4ec364))
+
 ## [0.1.2](https://github.com/jqyDee/invoice/compare/v0.1.1...v0.1.2) (2026-03-30)
 
 
