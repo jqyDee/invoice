@@ -35,8 +35,10 @@ export const buildMenu = (navigate: (path: string) => void): MenuItem[] => [
                 command: () => navigate(ROUTES.SETTINGS_PRIVACY_CLAUSES)
             },
             {
-                label: `Version: ${version}`,
+                label: `Version: v${version}`,
                 icon: 'pi pi-info-circle',
+                url: "https://github.com/jqyDee/invoice/releases/",
+                target: "_blank"
             },
         ]
     },
