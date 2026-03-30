@@ -16,4 +16,4 @@ EXPOSE 8000
 ARG ENV=prod
 ENV ENV=${ENV}
 
-CMD ["sh", "-c", "alembic -c app/alembic.ini upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 ${ENV:+--reload --log-level debug}"]
+CMD ["sh", "-c", "alembic -c app/alembic.ini upgrade head && if [ \"$ENV\" = \"dev\" ]; then uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug; else uvicorn app.main:app --host 0.0.0.0 --port 8000; fi"]
