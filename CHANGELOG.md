@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/jqyDee/invoice/compare/v0.1.3...v0.1.4) (2026-03-30)
+
+
+### Bug Fixes
+
+* pipeline ([3538550](https://github.com/jqyDee/invoice/commit/3538550b7be45d146c9a64d6b5510e76b2d3ee0b))
+
 ## [0.1.3](https://github.com/jqyDee/invoice/compare/v0.1.2...v0.1.3) (2026-03-30)
 
 
