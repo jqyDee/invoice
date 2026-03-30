@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.6](https://github.com/jqyDee/invoice/compare/v0.1.5...v0.1.6) (2026-03-30)
+
+
+### Bug Fixes
+
+* revert release please footer ([c633e7b](https://github.com/jqyDee/invoice/commit/c633e7bfa882074f0b8ad32fdeb294f51985cec6))
+* why is this not working? ([5da8844](https://github.com/jqyDee/invoice/commit/5da8844bf183b7789fd7729742b2fb45ea36d3da))
+
+## [0.1.5](https://github.com/jqyDee/invoice/compare/v0.1.4...v0.1.5) (2026-03-30)
+
+
+### Bug Fixes
+
+* release please footer ([bdc6aa6](https://github.com/jqyDee/invoice/commit/bdc6aa676f458c7417c481a48ea0e34366daf9b6))
+
+## [0.1.4](https://github.com/jqyDee/invoice/compare/v0.1.3...v0.1.4) (2026-03-30)
+
+
+### Bug Fixes
+
+* pipeline ([3538550](https://github.com/jqyDee/invoice/commit/3538550b7be45d146c9a64d6b5510e76b2d3ee0b))
+
 ## [0.1.3](https://github.com/jqyDee/invoice/compare/v0.1.2...v0.1.3) (2026-03-30)
 
 
