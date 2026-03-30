@@ -21,12 +21,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- NEW: Detect Changes ---
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          # Get the second to last tag (the one before the one just pushed)
+          PREV_TAG=$(git tag --sort=-creatordate | sed -n '2p')
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
       - name: Check for modified files
         uses: dorny/paths-filter@v3
         id: changes
         with:
-          base: ${{ github.event.before }}
+          base: ${{ steps.previoustag.outputs.tag }}
+          ref: ${{ github.ref_name }}
           filters: |
             backend:
               - 'backend/**'
