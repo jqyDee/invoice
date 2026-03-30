@@ -5,7 +5,14 @@
       "extra-files": [
         "backend/pyproject.toml",
         "frontend/package.json"
-      ]
+      ],
+      "changelog-sections": [
+        { "type": "feat", "section": "Features", "hidden": false },
+        { "type": "fix", "section": "Bug Fixes", "hidden": false },
+        { "type": "chore", "section": "Miscellaneous", "hidden": false }
+      ],
+      "append-summary": true,
+      "footer": "\n---\n### 🐳 Docker Images\nImages for this release are available at:\n* [Backend Image](https://github.com/jqydee/invoice/pkgs/container/invoice-backend)\n* [Frontend Image](https://github.com/jqydee/invoice/pkgs/container/invoice-frontend)"
     }
   }
 }
