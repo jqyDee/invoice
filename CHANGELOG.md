@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/jqyDee/invoice/compare/v0.1.6...v0.2.0) (2026-03-30)
+
+
+### Features
+
+* added sentry error reporting ([15fb61a](https://github.com/jqyDee/invoice/commit/15fb61abfcc465dad3aa4e6bfe22ebba2deae011))
+
 ## [0.1.6](https://github.com/jqyDee/invoice/compare/v0.1.5...v0.1.6) (2026-03-30)
 
 
