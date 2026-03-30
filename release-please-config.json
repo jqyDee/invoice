@@ -1,0 +1,11 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "extra-files": [
+        "backend/pyproject.toml",
+        "frontend/package.json"
+      ]
+    }
+  }
+}

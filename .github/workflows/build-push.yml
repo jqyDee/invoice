@@ -2,7 +2,8 @@ name: Build & Push Docker Images
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
   REGISTRY: ghcr.io
@@ -17,9 +18,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # The frontend Dockerfile needs openapi.json at build time.
-      # Generate it from the live FastAPI app before building the image.
+      # --- NEW: Detect Changes ---
+      - name: Check for modified files
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -49,24 +61,61 @@ jobs:
       - name: Lowercase repository name
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
+      - name: Extract Docker metadata for Backend
+        if: steps.changes.outputs.backend == 'true'
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.REPO }}-backend
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+
       - name: Build and push backend
+        if: steps.changes.outputs.backend == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./backend
           build-args: ENV=prod
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPO }}-backend:latest
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,scope=backend,mode=max
 
+      - name: Retag existing backend image
+        if: steps.changes.outputs.backend == 'false'
+        run: |
+          VERSION=${GITHUB_REF_NAME#v} # Strips the 'v' from 'v1.2.0'
+          docker buildx imagetools create ${{ env.REGISTRY }}/${{ env.REPO }}-backend:latest \
+            --tag ${{ env.REGISTRY }}/${{ env.REPO }}-backend:$VERSION
+
+      - name: Extract Docker metadata for Frontend
+        if: steps.changes.outputs.frontend == 'true'
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.REPO }}-frontend
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+
       - name: Build and push frontend
+        if: steps.changes.outputs.frontend == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           target: prod
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPO }}-frontend:latest
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,scope=frontend,mode=max
+      - name: Retag existing frontend image
+        if: steps.changes.outputs.frontend == 'false'
+        run: |
+          VERSION=${GITHUB_REF_NAME#v} # Strips the 'v' from 'v1.2.0'
+          docker buildx imagetools create ${{ env.REGISTRY }}/${{ env.REPO }}-frontend:latest \
+            --tag ${{ env.REGISTRY }}/${{ env.REPO }}-frontend:$VERSION
