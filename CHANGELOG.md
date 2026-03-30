@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/jqyDee/invoice/compare/v0.1.4...v0.1.5) (2026-03-30)
+
+
+### Bug Fixes
+
+* release please footer ([bdc6aa6](https://github.com/jqyDee/invoice/commit/bdc6aa676f458c7417c481a48ea0e34366daf9b6))
+
 ## [0.1.4](https://github.com/jqyDee/invoice/compare/v0.1.3...v0.1.4) (2026-03-30)
 
 
