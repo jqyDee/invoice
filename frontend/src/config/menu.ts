@@ -2,6 +2,8 @@ import {ROUTES} from "./routes.ts";
 import type {MenuItem} from "primereact/menuitem";
 import {generatePath} from "react-router-dom";
 
+const version = import.meta.env.PACKAGE_VERSION;
+
 export const buildMenu = (navigate: (path: string) => void): MenuItem[] => [
     {
         label: 'Startseite', icon: 'pi pi-home', command: () => navigate(ROUTES.HOME)
@@ -31,6 +33,10 @@ export const buildMenu = (navigate: (path: string) => void): MenuItem[] => [
                 label: 'Datenschutz-Klauseln',
                 icon: 'pi pi-shield',
                 command: () => navigate(ROUTES.SETTINGS_PRIVACY_CLAUSES)
+            },
+            {
+                label: `Version: ${version}`,
+                icon: 'pi pi-info-circle',
             },
         ]
     },
