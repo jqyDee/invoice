@@ -1,8 +1,20 @@
-import {StrictMode} from 'react'
-import {createRoot} from 'react-dom/client'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import * as Sentry from "@sentry/react";
 import './index.css'
 import App from './App.tsx'
-import {client} from './api/client.gen'
+import { client } from './api/client.gen'
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
 
 client.setConfig({baseUrl: '/api'})
 
@@ -19,11 +31,24 @@ client.interceptors.response.use((response) => {
         localStorage.removeItem('token')
         window.location.href = '/login'
     }
+
+    if (response.status >= 500) {
+        Sentry.captureException(new Error(`API Error ${response.status}: ${response.url}`));
+    }
+
     return response
 })
 
-createRoot(document.getElementById('root')!).render(
+const root = createRoot(document.getElementById('root')!, {
+    onUncaughtError: Sentry.reactErrorHandler(),
+    onCaughtError: Sentry.reactErrorHandler(),
+    onRecoverableError: Sentry.reactErrorHandler(),
+});
+
+root.render(
     <StrictMode>
-        <App/>
+        <Sentry.ErrorBoundary fallback={<div>Something went wrong. The team has been notified.</div>}>
+            <App/>
+        </Sentry.ErrorBoundary>
     </StrictMode>,
 )

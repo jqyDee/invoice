@@ -39,12 +39,8 @@ DOCUMENT_IN_TEXT_OFFSET = 3
 
 # ACCESS
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
-ACCESS_TOKEN_EXPIRE_MINUTES = 20  # Minutes
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRY", 20))
 JWT_ALGORITHM = "HS256"
 
-# These are obviously fake
-BANK_SETTINGS = {
-    "iban": "DE12 3456 7890 1234 56",
-    "bic": "AABBCC",
-    "steuer_id": "123/456/789"
-}
+# SENTRY
+SENTRY_DSN = os.getenv("PYTHON_SENTRY_DSN")

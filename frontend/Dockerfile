@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+ARG VITE_SENTRY_DSN
+ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+
 # Copy frontend source
 COPY openapi.json routes.ts index.html package.json package-lock.json vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json openapi-ts.config.ts ./
 COPY src ./src
