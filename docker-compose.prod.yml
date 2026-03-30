@@ -45,7 +45,6 @@ services:
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # Check for new images every 5 minutes, remove old images after update.
-    # Adjust --interval (seconds) to your preference.
-    command: --interval 300 --cleanup
     restart: unless-stopped
+    env_file:
+      - .env
