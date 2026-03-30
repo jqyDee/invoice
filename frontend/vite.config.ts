@@ -1,5 +1,6 @@
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react'
+import pkg from './package.json'
 
 export default defineConfig({
     plugins: [
@@ -12,5 +13,8 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api/, ''),
             },
         },
+    },
+    define: {
+        'import.meta.env.PACKAGE_VERSION': JSON.stringify(pkg.version),
     },
 })

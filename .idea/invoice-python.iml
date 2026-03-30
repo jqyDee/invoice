@@ -9,6 +9,8 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/temp" />
       <excludeFolder url="file://$MODULE_DIR$/backend/venv" />
       <excludeFolder url="file://$MODULE_DIR$/certs" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/build" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/invoice_backend.egg-info" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (invoice-python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

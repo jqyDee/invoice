@@ -2,6 +2,9 @@
 
 # Backend
 .venv/
+backend/build/
+backend/uninstall.txt
+backend/*.egg-info/
 backend/venv/
 backend/.venv/
 backend/cache/
