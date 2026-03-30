@@ -17,3 +17,16 @@ jobs:
         id: release
         with:
           token: ${{ secrets.PAT }}
+
+      - name: Append Docker Footer
+        if: ${{ steps.release.outputs.pr }}
+        run: |
+          gh pr edit ${{ steps.release.outputs.pr_number }} --body "$(gh pr view ${{ steps.release.outputs.pr_number }} --json body -q .body)
+
+          ---
+          ### 🐳 Docker Images
+          Images for this release are available at:
+          * [Backend Image](https://github.com/jqydee/invoice/pkgs/container/invoice-backend)
+          * [Frontend Image](https://github.com/jqydee/invoice/pkgs/container/invoice-frontend)"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
