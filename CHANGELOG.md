@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.1](https://github.com/jqyDee/invoice/compare/v0.3.0...v0.3.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* sentry removed ([#42](https://github.com/jqyDee/invoice/issues/42)) ([c1c55b4](https://github.com/jqyDee/invoice/commit/c1c55b4e295017642d3fdca74b47ee7a33e85d12))
+
+## [0.3.0](https://github.com/jqyDee/invoice/compare/v0.2.1...v0.3.0) (2026-03-31)
+
+
+### Features
+
+* added tax reporting. removed sentry ([749415e](https://github.com/jqyDee/invoice/commit/749415e3590ff0360d2a4ed49728f95e8936f7c4))
+
 ## [0.2.1](https://github.com/jqyDee/invoice/compare/v0.2.0...v0.2.1) (2026-03-30)
 
 
