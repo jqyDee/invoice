@@ -11,5 +11,6 @@ export const ROUTES = {
     THERAPY_PREVIEW: "/therapy/:id/pdf",
     SETTINGS_THERAPY_CLAUSES: "/settings/therapy-clauses",
     PRIVACY_PREVIEW: "/privacy/:id/pdf",
-    SETTINGS_PRIVACY_CLAUSES: "/settings/privacy-clauses"
+    SETTINGS_PRIVACY_CLAUSES: "/settings/privacy-clauses",
+    TAX_REPORT: "/steuer"
 } as const;

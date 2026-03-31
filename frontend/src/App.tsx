@@ -11,7 +11,7 @@ import {
     InvoicesRoute,
     LoginRoute,
     PatientsRoute, PrivacyPreviewRoute, SettingsDefaultsRoute, SettingsGeneralRoute, SettingsPrivacyClausesRoute,
-    SettingsTherapyClausesRoute, TherapyPreviewRoute
+    SettingsTherapyClausesRoute, TherapyPreviewRoute, TaxReportRoute
 } from "../routes.ts";
 import {MainLayout} from "./components/layouts/main-layout.tsx";
 import {CardLayout} from "./components/layouts/card-layout.tsx";
@@ -56,6 +56,7 @@ const router = createBrowserRouter([
                                         path: SettingsPrivacyClausesRoute.url,
                                         Component: SettingsPrivacyClausesRoute.component
                                     },
+                                    {path: TaxReportRoute.url, Component: TaxReportRoute.component},
                                 ],
                             },
                             // Preview pages — no Card, but still inside MainLayout
