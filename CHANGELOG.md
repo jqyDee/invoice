@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/jqyDee/invoice/compare/v0.3.2...v0.3.3) (2026-03-31)
+
+
+### Bug Fixes
+
+* remove sentry ([#46](https://github.com/jqyDee/invoice/issues/46)) ([8949320](https://github.com/jqyDee/invoice/commit/8949320a79ea42c656f8799c76d7a827b1c326d3))
+
 ## [0.3.2](https://github.com/jqyDee/invoice/compare/v0.3.1...v0.3.2) (2026-03-31)
 
 
