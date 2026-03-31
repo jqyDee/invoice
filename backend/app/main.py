@@ -5,14 +5,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .utilities.sentry import init_sentry
 from .utilities.database import SessionLocal
 from .utilities.router_include import auto_include_routers
 from .utilities.seed import seed_users
 
 logger = logging.getLogger("uvicorn.error")
 
-init_sentry()
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -29,7 +27,7 @@ try:
 except metadata.PackageNotFoundError:
     __version__ = "Not found"
 
-logger.info("Invoice backend version: %s", __version__)
+logger.info("Backend version: %s", __version__)
 
 app = FastAPI(
     lifespan=lifespan,

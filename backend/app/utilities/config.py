@@ -41,6 +41,3 @@ DOCUMENT_IN_TEXT_OFFSET = 3
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRY", 20))
 JWT_ALGORITHM = "HS256"
-
-# SENTRY
-SENTRY_DSN = os.getenv("PYTHON_SENTRY_DSN")
