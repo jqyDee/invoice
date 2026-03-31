@@ -72,7 +72,7 @@ class InvoiceDB(Base):
         return prepend + self.user_items + append
 
     @hybrid_property
-    def total(self):
+    def total(self) -> float:
         """Python-level calculation for objects already loaded in memory."""
         date_count = len(self.dates) if self.dates else 1
 
@@ -125,7 +125,7 @@ class InvoiceDB(Base):
         return func.round(func.coalesce(default_sum, 0) + func.coalesce(user_sum, 0), 2)
 
     @hybrid_property
-    def total_travel_distance(self):
+    def total_travel_distance(self) -> float:
         """Python-level: Uses the snapshotted km or falls back to current patient data."""
         km_per_trip = self.kilometers_at_billing if self.kilometers_at_billing is not None else (
             self.patient.kilometers_to_travel if self.patient else 0

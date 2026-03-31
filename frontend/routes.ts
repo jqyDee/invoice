@@ -12,6 +12,7 @@ import {TherapyPreviewView} from "./src/components/therapy-preview-view.tsx";
 import {SettingsTherapyClausesView} from "./src/components/settings-therapy-clauses-view.tsx";
 import {PrivacyPreviewView} from "./src/components/privacy-preview-view.tsx";
 import {SettingsPrivacyClausesView} from "./src/components/settings-privacy-clauses-view.tsx";
+import {TaxReportView} from "./src/components/tax-report-view.tsx";
 
 export const HomeRoute = {
     url: ROUTES.HOME,
@@ -71,6 +72,11 @@ export const PrivacyPreviewRoute = {
 export const SettingsPrivacyClausesRoute = {
     url: ROUTES.SETTINGS_PRIVACY_CLAUSES,
     component: SettingsPrivacyClausesView
+}
+
+export const TaxReportRoute = {
+    url: ROUTES.TAX_REPORT,
+    component: TaxReportView
 }
 
 export const LoginRoute = {

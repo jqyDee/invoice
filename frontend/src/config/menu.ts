@@ -15,6 +15,9 @@ export const buildMenu = (navigate: (path: string) => void): MenuItem[] => [
         label: 'Rechnungen', icon: 'pi pi-receipt', command: () => navigate(ROUTES.INVOICES)
     },
     {
+        label: 'Steuer', icon: 'pi pi-calculator', command: () => navigate(ROUTES.TAX_REPORT)
+    },
+    {
         label: 'Einstellungen', icon: 'pi pi-cog', items: [
             {
                 label: 'Allgemein', icon: 'pi pi-id-card', command: () => navigate(ROUTES.SETTINGS_GENERAL)

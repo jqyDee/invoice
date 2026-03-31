@@ -1,0 +1,30 @@
+from __future__ import annotations
+
+from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel
+
+from app.models import InvoiceType
+
+
+class TaxReportItem(BaseModel):
+    description: str
+    amount: float
+    quantity: int
+    subtotal: float  # computed: amount * quantity
+
+
+class TaxReportRow(BaseModel):
+    invoice_id: int
+    invoice_number: Optional[str]
+    invoice_type: InvoiceType
+    invoice_date: date
+    paid_date: date
+    kilometers_at_billing: Optional[float]
+    number_of_treatment_dates: int
+    total_kilometers_travelled: float
+    invoice_total: float
+
+    class Config:
+        from_attributes = True
