@@ -18,6 +18,7 @@ interface InvoicesListProps {
 }
 
 const currentYear = new Date().getFullYear();
+const lastYear = currentYear - 1;
 const yearOptions = Array.from({length: currentYear - 2019}, (_, i) => currentYear - i).map(y => ({label: String(y), value: y}));
 const monthOptions = [
     {label: 'Januar', value: 1}, {label: 'Februar', value: 2}, {label: 'März', value: 3},
@@ -32,11 +33,13 @@ export const InvoiceListView: React.FC<InvoicesListProps> = ({onlyDrafts}) => {
     const [debouncedSearch, setDebouncedSearch] = React.useState("");
     const [showDrafts, setShowDrafts] = React.useState(true);
     const [showFilters, setShowFilters] = React.useState(false);
-    const [selectedYears, setSelectedYears] = React.useState<number[]>([currentYear]);
+    const [selectedYears, setSelectedYears] = React.useState<number[]>([currentYear, lastYear]);
     const [selectedMonths, setSelectedMonths] = React.useState<number[]>([]);
     const [selectedTypes, setSelectedTypes] = React.useState<InvoiceType[]>([]);
     const [page, setPage] = React.useState(1);
     const [pageSize, setPageSize] = React.useState(20);
+    const [sortField, setSortField] = React.useState("updated_at");
+    const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc");
 
     const navigate = useNavigate();
 
@@ -58,6 +61,8 @@ export const InvoiceListView: React.FC<InvoicesListProps> = ({onlyDrafts}) => {
                 months: selectedMonths.length ? selectedMonths : undefined,
                 page,
                 size: pageSize,
+                sort_field: sortField,
+                sort_order: sortOrder,
             }
         })
     });
@@ -144,6 +149,9 @@ export const InvoiceListView: React.FC<InvoicesListProps> = ({onlyDrafts}) => {
                 page={page}
                 pageSize={pageSize}
                 onPageChange={(p, s) => { setPage(p); setPageSize(s); }}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={(f, o) => { setSortField(f); setSortOrder(o); resetPage(); }}
             />
         </div>
     );

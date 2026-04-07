@@ -16,9 +16,12 @@ interface PatientTableProps {
     page?: number;
     pageSize?: number;
     onPageChange?: (page: number, pageSize: number) => void;
+    sortField?: string;
+    sortOrder?: "asc" | "desc";
+    onSort?: (field: string, order: "asc" | "desc") => void;
 }
 
-export const PatientTable: React.FC<PatientTableProps> = ({patients, isPreview = false, isLoading, onEdit, totalRecords = 0, page = 1, pageSize = 20, onPageChange}) => {
+export const PatientTable: React.FC<PatientTableProps> = ({patients, isPreview = false, isLoading, onEdit, totalRecords = 0, page = 1, pageSize = 20, onPageChange, sortField, sortOrder, onSort}) => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
 
@@ -31,6 +34,9 @@ export const PatientTable: React.FC<PatientTableProps> = ({patients, isPreview =
             first={(page - 1) * pageSize}
             totalRecords={onPageChange ? totalRecords : undefined}
             onPage={onPageChange ? (e) => onPageChange(Math.floor(e.first / e.rows) + 1, e.rows) : undefined}
+            sortField={sortField}
+            sortOrder={sortOrder === "desc" ? -1 : 1}
+            onSort={onSort ? (e) => onSort(e.sortField, e.sortOrder === -1 ? "desc" : "asc") : undefined}
             rowsPerPageOptions={[10, 20, 50, 100]}
             key="patient_id"
             emptyMessage="Keine Patienten gefunden."

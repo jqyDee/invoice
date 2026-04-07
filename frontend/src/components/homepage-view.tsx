@@ -7,10 +7,12 @@ import {Header} from "../utilities/header.tsx";
 export const HomepageView: React.FC = () => {
     const [page, setPage] = React.useState(1);
     const [pageSize, setPageSize] = React.useState(20);
+    const [sortField, setSortField] = React.useState("updated_at");
+    const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc");
 
     const {data, isLoading: openInvoicesLoading} = useQuery({
         ...getInvoicesInvoicesGetOptions({
-            query: {only_open: true, page, size: pageSize}
+            query: {only_open: true, page, size: pageSize, sort_field: sortField, sort_order: sortOrder}
         })
     });
 
@@ -24,6 +26,9 @@ export const HomepageView: React.FC = () => {
                 page={page}
                 pageSize={pageSize}
                 onPageChange={(p, s) => { setPage(p); setPageSize(s); }}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={(f, o) => { setSortField(f); setSortOrder(o); setPage(1); }}
             />
         </div>
     );
