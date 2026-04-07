@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.7](https://github.com/jqyDee/invoice/compare/v0.3.6...v0.3.7) (2026-04-07)
+
+
+### Miscellaneous
+
+* **deps-dev:** bump vite from 7.3.1 to 7.3.2 in /frontend ([e88d5cb](https://github.com/jqyDee/invoice/commit/e88d5cbad2e773b397a2b7f1058518398a77520d))
+* **deps-dev:** bump vite from 7.3.1 to 7.3.2 in /frontend ([1d13c69](https://github.com/jqyDee/invoice/commit/1d13c697e560c5bce0dfe0a50e773446b494fdd7))
+* **deps:** bump defu from 6.1.4 to 6.1.6 in /frontend ([6508759](https://github.com/jqyDee/invoice/commit/6508759f41988d7759cbcc67d15efda82765d080))
+* **deps:** bump defu from 6.1.4 to 6.1.6 in /frontend ([766c225](https://github.com/jqyDee/invoice/commit/766c2258275506f13814e12e1557857d065f6a94))
+* **deps:** bump lodash from 4.17.23 to 4.18.1 in /frontend ([6cb1b7d](https://github.com/jqyDee/invoice/commit/6cb1b7d77f8482f7bfdcd7f2aa5862474f1053c9))
+
 ## [0.3.6](https://github.com/jqyDee/invoice/compare/v0.3.5...v0.3.6) (2026-04-07)
 
 
