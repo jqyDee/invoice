@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/jqyDee/invoice/compare/v0.3.3...v0.3.4) (2026-04-07)
+
+
+### Bug Fixes
+
+* tailscale certificate serving ([387f671](https://github.com/jqyDee/invoice/commit/387f671d7ee39a86f044e6266be0caba6f78f690))
+
 ## [0.3.3](https://github.com/jqyDee/invoice/compare/v0.3.2...v0.3.3) (2026-03-31)
 
 
