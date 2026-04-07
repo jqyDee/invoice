@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/jqyDee/invoice/compare/v0.3.4...v0.3.5) (2026-04-07)
+
+
+### Bug Fixes
+
+* paging ([a306d76](https://github.com/jqyDee/invoice/commit/a306d76ef2ff7250dc7ac9423e7a14ed63642f6e))
+
 ## [0.3.4](https://github.com/jqyDee/invoice/compare/v0.3.3...v0.3.4) (2026-04-07)
 
 
