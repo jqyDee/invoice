@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.6](https://github.com/jqyDee/invoice/compare/v0.3.5...v0.3.6) (2026-04-07)
+
+
+### Bug Fixes
+
+* sorting, cleanup ([5ca92e8](https://github.com/jqyDee/invoice/commit/5ca92e8bac608fab72468fbbd472cc44316ba106))
+
 ## [0.3.5](https://github.com/jqyDee/invoice/compare/v0.3.4...v0.3.5) (2026-04-07)
 
 
