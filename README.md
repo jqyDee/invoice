@@ -1,5 +1,6 @@
 # Invoice Management System
 
+
 A full-stack, containerized web application designed for managing patients, generating invoices, and handling treatment records. It is specifically tailored for healthcare and therapy practices (e.g., Heilpraktiker, Physiotherapy), featuring customizable invoice templates, default billing items, automated PDF generation, and tax reporting.
 
 ## 🚀 Features
