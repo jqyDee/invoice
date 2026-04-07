@@ -24,10 +24,12 @@ export const PatientListView: React.FC = () => {
 
     const [page, setPage] = React.useState(1);
     const [pageSize, setPageSize] = React.useState(20);
+    const [sortField, setSortField] = React.useState("last_name");
+    const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 
     const {data, isLoading, isError} = useQuery({
         ...getPatientsPatientsGetOptions({
-            query: {search: debouncedSearch || undefined, page, size: pageSize}
+            query: {search: debouncedSearch || undefined, page, size: pageSize, sort_field: sortField, sort_order: sortOrder}
         }),
     });
 
@@ -82,6 +84,9 @@ export const PatientListView: React.FC = () => {
                 page={page}
                 pageSize={pageSize}
                 onPageChange={(p, s) => { setPage(p); setPageSize(s); }}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={(f, o) => { setSortField(f); setSortOrder(o); setPage(1); }}
             />
         </div>
     );

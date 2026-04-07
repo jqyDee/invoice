@@ -20,6 +20,9 @@ from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResp
 from ..utilities.database import add_db
 
 
+ALLOWED_INVOICE_SORT = {"invoice_number", "invoice_date", "updated_at", "type", "status", "created_at"}
+
+
 def load_invoices(
         show_drafts: bool,
         only_drafts: bool,
@@ -31,6 +34,8 @@ def load_invoices(
         months: Optional[list[int]] = None,
         page: int = 1,
         size: int = 9999,
+        sort_field: str = "updated_at",
+        sort_order: str = "desc",
 ) -> tuple[list[InvoiceDB], int]:
     base_statement = select(InvoiceDB)
 
@@ -55,6 +60,10 @@ def load_invoices(
         base_statement = base_statement.where(InvoiceDB.invoice_number.ilike(f"%{search}%"))
 
     total = db.scalar(select(func.count()).select_from(base_statement.subquery()))
+
+    if sort_field in ALLOWED_INVOICE_SORT:
+        col = getattr(InvoiceDB, sort_field)
+        base_statement = base_statement.order_by(col.desc() if sort_order == "desc" else col.asc())
 
     full_statement = base_statement.options(
         joinedload(InvoiceDB.user_items),

@@ -90,9 +90,7 @@ The production setup uses `docker-compose.prod.yml` to run optimized builds pull
    ```
 
 4. **SSL / HTTPS Certificates (Recommended):**
-   The project includes scripts for managing SSL certificates (`scripts/renew-cert.sh` for Linux/macOS and `scripts/renew-cert.ps1` for Windows). 
-   * Ensure your Nginx configuration (`frontend/nginx/default.conf`) is set up to handle port 443 and points to your generated certificates.
-   * Run the renewal script periodically (e.g., via a cron job) to keep certificates up to date.
+   * This is done through tailscale serve
 
 ---
 

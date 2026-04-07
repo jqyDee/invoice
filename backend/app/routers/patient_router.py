@@ -12,11 +12,16 @@ from ..utilities.security import get_current_user
 router = APIRouter(prefix="/patients", tags=["patients"], dependencies=[Depends(get_current_user)])
 
 
+ALLOWED_PATIENT_SORT = {"first_name", "last_name", "created_at", "label"}
+
+
 @router.get("/", response_model=PaginatedPatients)
 def get_patients(
         search: Optional[str] = Query(None),
         page: int = Query(1, ge=1),
         size: int = Query(20, ge=1, le=9999),
+        sort_field: str = Query("last_name"),
+        sort_order: str = Query("asc"),
         db: Session = Depends(get_db)
 ):
     statement = select(PatientDB)
@@ -28,6 +33,10 @@ def get_patients(
             (PatientDB.first_name + " " + PatientDB.last_name).ilike(f"%{search}%")
         )
         statement = statement.where(search_filter)
+
+    if sort_field in ALLOWED_PATIENT_SORT:
+        col = getattr(PatientDB, sort_field)
+        statement = statement.order_by(col.desc() if sort_order == "desc" else col.asc())
 
     total = db.scalar(select(func.count()).select_from(statement.subquery()))
     items = list(db.scalars(statement.offset((page - 1) * size).limit(size)).all())

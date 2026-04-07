@@ -23,9 +23,11 @@ def get_invoices(
         months: Optional[list[int]] = Query(None),
         page: int = Query(1, ge=1),
         size: int = Query(20, ge=1, le=9999),
+        sort_field: str = Query("updated_at"),
+        sort_order: str = Query("desc"),
         db: Session = Depends(get_db)
 ):
-    items, total = load_invoices(show_drafts, only_drafts, only_open, search, db, invoice_types, years, months, page, size)
+    items, total = load_invoices(show_drafts, only_drafts, only_open, search, db, invoice_types, years, months, page, size, sort_field, sort_order)
     return PaginatedInvoices(items=[Invoice.model_validate(i) for i in items], total=total)
 
 
