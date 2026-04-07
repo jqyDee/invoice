@@ -12,17 +12,26 @@ interface PatientTableProps {
     isPreview?: boolean;
     isLoading: boolean;
     onEdit: (patient: Patient) => void;
+    totalRecords?: number;
+    page?: number;
+    pageSize?: number;
+    onPageChange?: (page: number, pageSize: number) => void;
 }
 
-export const PatientTable: React.FC<PatientTableProps> = ({patients, isPreview = false, isLoading, onEdit}) => {
+export const PatientTable: React.FC<PatientTableProps> = ({patients, isPreview = false, isLoading, onEdit, totalRecords = 0, page = 1, pageSize = 20, onPageChange}) => {
     const navigate = useNavigate();
     const isMobile = useIsMobile();
 
     return (
         <DataTable
             value={patients}
+            lazy={!!onPageChange}
             paginator
-            rows={10}
+            rows={pageSize}
+            first={(page - 1) * pageSize}
+            totalRecords={onPageChange ? totalRecords : undefined}
+            onPage={onPageChange ? (e) => onPageChange(Math.floor(e.first / e.rows) + 1, e.rows) : undefined}
+            rowsPerPageOptions={[10, 20, 50, 100]}
             key="patient_id"
             emptyMessage="Keine Patienten gefunden."
             className="mt-2"

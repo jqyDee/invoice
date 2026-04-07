@@ -34,12 +34,14 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({invoice, onChange, p
     const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
     const [templatePickerVisible, setTemplatePickerVisible] = useState(false);
 
-    const {data: allInvoices = []} = useQuery(getInvoicesInvoicesGetOptions({
+    const {data: invoicesData} = useQuery(getInvoicesInvoicesGetOptions({
         query: {
-            invoice_type: invoice.type,
-            show_drafts: false
+            invoice_types: invoice.type ? [invoice.type] : undefined,
+            show_drafts: false,
+            size: 9999,
         }
     }));
+    const allInvoices = invoicesData?.items ?? [];
 
     const handleLoadLastKG = () => {
         const items = getLastKGInvoiceItems(allInvoices, invoice.patient_id!, invoice.type!);

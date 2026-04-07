@@ -22,9 +22,12 @@ export const PatientListView: React.FC = () => {
         return () => clearTimeout(handler);
     }, [search]);
 
-    const {data: patients, isLoading, isError} = useQuery({
+    const [page, setPage] = React.useState(1);
+    const [pageSize, setPageSize] = React.useState(20);
+
+    const {data, isLoading, isError} = useQuery({
         ...getPatientsPatientsGetOptions({
-            query: {search: debouncedSearch || undefined}
+            query: {search: debouncedSearch || undefined, page, size: pageSize}
         }),
     });
 
@@ -71,7 +74,15 @@ export const PatientListView: React.FC = () => {
                 <PatientForm patientToEdit={selectedPatient} onSuccess={() => setVisible(false)}/>
             </Dialog>
 
-            <PatientTable patients={patients} isLoading={isLoading} onEdit={openEdit}/>
+            <PatientTable
+                patients={data?.items}
+                isLoading={isLoading}
+                onEdit={openEdit}
+                totalRecords={data?.total ?? 0}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={(p, s) => { setPage(p); setPageSize(s); }}
+            />
         </div>
     );
 };

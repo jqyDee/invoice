@@ -5,16 +5,26 @@ import {InvoiceTable} from './invoice/invoice-table.tsx';
 import {Header} from "../utilities/header.tsx";
 
 export const HomepageView: React.FC = () => {
-    const {data: openInvoices, isLoading: openInvoicesLoading} = useQuery({
+    const [page, setPage] = React.useState(1);
+    const [pageSize, setPageSize] = React.useState(20);
+
+    const {data, isLoading: openInvoicesLoading} = useQuery({
         ...getInvoicesInvoicesGetOptions({
-            query: {only_open: true}
+            query: {only_open: true, page, size: pageSize}
         })
     });
 
     return (
         <div className="flex flex-column gap-2">
             <Header title="Offene Rechnungen"/>
-            <InvoiceTable invoices={openInvoices} isLoading={openInvoicesLoading}/>
+            <InvoiceTable
+                invoices={data?.items}
+                isLoading={openInvoicesLoading}
+                totalRecords={data?.total ?? 0}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={(p, s) => { setPage(p); setPageSize(s); }}
+            />
         </div>
     );
 };

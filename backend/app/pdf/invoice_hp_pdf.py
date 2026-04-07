@@ -205,7 +205,10 @@ class InvoiceHp(InvoicePdf):
                 for data_row in self.total_table:
                     row = table.row()
                     for datum in data_row:
+                        if datum != '€':
+                            self.set_font("Roboto", style="B", size=TREATMENT_FONT_SIZE)
                         row.cell(datum)
+                        self.set_font("Roboto", style="", size=TREATMENT_FONT_SIZE)
 
         if dummy.page_break_triggered:
             self.add_page()
@@ -239,7 +242,10 @@ class InvoiceHp(InvoicePdf):
             for data_row in self.total_table:
                 row = table.row()
                 for datum in data_row:
+                    if datum != '€':
+                        self.set_font("Roboto", style="B", size=TREATMENT_FONT_SIZE)
                     row.cell(datum)
+                    self.set_font("Roboto", style="", size=TREATMENT_FONT_SIZE)
 
         with self.offset_rendering() as dummy:
             dummy.write(

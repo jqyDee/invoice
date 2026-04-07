@@ -69,6 +69,11 @@ class Invoice(InvoiceBase):
         from_attributes = True
 
 
+class PaginatedInvoices(BaseModel):
+    items: list[Invoice]
+    total: int
+
+
 class InvoiceMarkPaidRequest(BaseModel):
     paid_at: date
 

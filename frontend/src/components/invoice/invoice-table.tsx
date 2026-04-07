@@ -22,9 +22,13 @@ import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
 interface InvoiceTableProps {
     invoices: Invoice[] | undefined;
     isLoading: boolean;
+    totalRecords: number;
+    page: number;
+    pageSize: number;
+    onPageChange: (page: number, pageSize: number) => void;
 }
 
-export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading}) => {
+export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading, totalRecords, page, pageSize, onPageChange}) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const isMobile = useIsMobile();
@@ -99,19 +103,21 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading})
 
             <DataTable
                 value={invoices}
+                lazy
                 paginator
-                rows={10}
+                rows={pageSize}
+                first={(page - 1) * pageSize}
+                totalRecords={totalRecords}
+                onPage={(e) => onPageChange(Math.floor(e.first / e.rows) + 1, e.rows)}
+                rowsPerPageOptions={[10, 20, 50, 100]}
                 key="invoice_id"
                 breakpoint="960px"
                 emptyMessage="Keine Rechnungen gefunden"
                 className="mt-2"
                 stripedRows
                 size="small"
-                removableSort
                 showGridlines
                 loading={isLoading}
-                sortField="updated_at"
-                sortOrder={-1}
             >
                 <Column field="invoice_number" header="Rechnungsnummer" sortable/>
                 {!isMobile && (

@@ -30,3 +30,8 @@ class Patient(PatientBase):
 
     class Config:
         from_attributes = True
+
+
+class PaginatedPatients(BaseModel):
+    items: list[Patient]
+    total: int

@@ -34,9 +34,10 @@ export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProp
     const [filter, setFilter] = useState('');
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>({});
 
-    const {data: allInvoices = []} = useQuery(
-        getInvoicesInvoicesGetOptions({query: {invoice_type: InvoiceType.HP, show_drafts: false}})
+    const {data: invoicesData} = useQuery(
+        getInvoicesInvoicesGetOptions({query: {invoice_types: [InvoiceType.HP], show_drafts: false, size: 9999}})
     );
+    const allInvoices = invoicesData?.items ?? [];
 
     const blocks = useMemo<BlockEntry[]>(() => {
         const result: BlockEntry[] = [];
