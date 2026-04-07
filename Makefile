@@ -1,4 +1,4 @@
-.PHONY: openapi backend frontend build up up-dev up-prod down renew-cert-bash db-migrate db-upgrade db-downgrade db-current
+.PHONY: openapi backend frontend build up up-dev up-prod down db-migrate db-upgrade db-downgrade db-current
 
 # Development environment (live reload & Vite dev)
 up-dev: openapi
@@ -23,12 +23,8 @@ frontend: openapi
 	@echo "Frontend Built!"
 
 # Production environment
-up-prod: renew-cert-bash
+up-prod:
 	docker compose -f docker-compose.prod.yml up -d
-
-# Renew Tailscale TLS cert (macOS only — Windows: scripts/renew-cert.ps1)
-renew-cert-bash:
-	@bash scripts/renew-cert.sh
 
 # Stop containers
 down:
