@@ -26,8 +26,8 @@ interface StepOverviewProps {
 export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, header, footer}) => {
     const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
-    const {data: patients} = useQuery(getPatientsPatientsGetOptions());
-    const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
+    const {data: patients} = useQuery(getPatientsPatientsGetOptions({query: {size: 9999}}));
+    const selectedPatient = patients?.items.find(p => p.patient_id === invoice.patient_id);
 
     const datesAsDates = useMemo(() =>
             invoice.dates?.map(d => new Date(d.date)) || [],

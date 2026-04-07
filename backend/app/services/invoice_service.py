@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone, timedelta
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 
@@ -26,33 +26,45 @@ def load_invoices(
         only_open: bool,
         search: Optional[str],
         db: Session,
-        invoice_type: Optional[InvoiceType] = None,
-) -> list[InvoiceDB]:
-    statement = select(InvoiceDB).options(
+        invoice_types: Optional[list[InvoiceType]] = None,
+        years: Optional[list[int]] = None,
+        months: Optional[list[int]] = None,
+        page: int = 1,
+        size: int = 9999,
+) -> tuple[list[InvoiceDB], int]:
+    base_statement = select(InvoiceDB)
+
+    if only_open:
+        base_statement = base_statement.where(InvoiceDB.status.in_([InvoiceStatus.SAVED, InvoiceStatus.PAYMENT_DUE]))
+    elif only_drafts:
+        base_statement = base_statement.where(InvoiceDB.status.is_(InvoiceStatus.DRAFT))
+    elif not show_drafts:
+        base_statement = base_statement.where(InvoiceDB.status.is_not(InvoiceStatus.DRAFT))
+
+    if years:
+        base_statement = base_statement.where(
+            func.strftime('%Y', InvoiceDB.invoice_date).in_([str(y) for y in years])
+        )
+    if months:
+        base_statement = base_statement.where(
+            func.strftime('%m', InvoiceDB.invoice_date).in_([f'{m:02d}' for m in months])
+        )
+    if invoice_types:
+        base_statement = base_statement.where(InvoiceDB.type.in_(invoice_types))
+    if search:
+        base_statement = base_statement.where(InvoiceDB.invoice_number.ilike(f"%{search}%"))
+
+    total = db.scalar(select(func.count()).select_from(base_statement.subquery()))
+
+    full_statement = base_statement.options(
         joinedload(InvoiceDB.user_items),
         joinedload(InvoiceDB.dates),
         joinedload(InvoiceDB.patient),
         joinedload(InvoiceDB.default_items).joinedload(InvoiceInvoiceDefaultItemAssociationDB.default_item),
-    )
+    ).offset((page - 1) * size).limit(size)
 
-    if only_open:
-        statement = statement.where(InvoiceDB.status.in_([InvoiceStatus.SAVED, InvoiceStatus.PAYMENT_DUE]))
-        return list(db.scalars(statement).unique().all())
-
-    if only_drafts:
-        statement = statement.where(InvoiceDB.status.is_(InvoiceStatus.DRAFT))
-    elif not show_drafts:
-        statement = statement.where(InvoiceDB.status.is_not(InvoiceStatus.DRAFT))
-
-    if invoice_type:
-        statement = statement.where(InvoiceDB.type == invoice_type)
-
-    if search:
-        statement = statement.where(
-            InvoiceDB.invoice_number.ilike(f"%{search}%")
-        )
-
-    return list(db.scalars(statement).unique().all())
+    items = list(db.scalars(full_statement).unique().all())
+    return items, total
 
 
 def load_invoice(
@@ -372,8 +384,8 @@ def get_template_items(
         db: Session
 ) -> list[TemplateItemResponse]:
     """Return deduplicated template items across all non-draft invoices of the given type."""
-    invoices = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
-                             search=None, db=db, invoice_type=invoice_type)
+    invoices, _ = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
+                                search=None, db=db, invoice_types=[invoice_type] if invoice_type else None)
     invoices.sort(key=lambda inv: inv.invoice_date, reverse=True)
 
     seen: set[tuple] = set()
@@ -407,8 +419,8 @@ def get_template_diagnoses(
         db: Session
 ) -> list[DiagnosisTemplateResponse]:
     """Return deduplicated diagnoses from all non-draft HP invoices, newest first."""
-    invoices = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
-                             search=None, db=db, invoice_type=InvoiceType.HP)
+    invoices, _ = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
+                                search=None, db=db, invoice_types=[InvoiceType.HP])
     invoices.sort(key=lambda inv: inv.invoice_date, reverse=True)
     seen: set[str] = set()
     result: list[DiagnosisTemplateResponse] = []

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..utilities.database import get_db, add_db
 from ..models import InvoiceType
-from ..schemas import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate
+from ..schemas import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate, PaginatedInvoices
 from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceTemplateResponse
 from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic, get_template_items, get_template_diagnoses, get_invoice_template
 from ..utilities.security import get_current_user
@@ -12,16 +12,21 @@ from ..utilities.security import get_current_user
 router = APIRouter(prefix="/invoices", tags=["invoices"], dependencies=[Depends(get_current_user)])
 
 
-@router.get("/", response_model=list[Invoice])
+@router.get("/", response_model=PaginatedInvoices)
 def get_invoices(
         show_drafts: Optional[bool] = Query(True),
         only_drafts: Optional[bool] = Query(False),
         only_open: Optional[bool] = Query(False),
         search: Optional[str] = Query(None),
-        invoice_type: Optional[InvoiceType] = Query(None),
+        invoice_types: Optional[list[InvoiceType]] = Query(None),
+        years: Optional[list[int]] = Query(None),
+        months: Optional[list[int]] = Query(None),
+        page: int = Query(1, ge=1),
+        size: int = Query(20, ge=1, le=9999),
         db: Session = Depends(get_db)
 ):
-    return load_invoices(show_drafts, only_drafts, only_open, search, db, invoice_type)
+    items, total = load_invoices(show_drafts, only_drafts, only_open, search, db, invoice_types, years, months, page, size)
+    return PaginatedInvoices(items=[Invoice.model_validate(i) for i in items], total=total)
 
 
 @router.post("/", response_model=Invoice)

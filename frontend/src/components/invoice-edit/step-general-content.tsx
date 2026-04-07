@@ -17,8 +17,8 @@ interface StepContentProps {
 export const StepGeneralContent: React.FC<StepContentProps> = ({invoice, onChange, next}) => {
     const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
 
-    const {data: patients} = useQuery(getPatientsPatientsGetOptions());
-    const selectedPatient = patients?.find(p => p.patient_id === invoice.patient_id);
+    const {data: patients} = useQuery(getPatientsPatientsGetOptions({query: {size: 9999}}));
+    const selectedPatient = patients?.items.find(p => p.patient_id === invoice.patient_id);
 
     const [patientValue, setPatientValue] = useState<Patient | string | undefined>(selectedPatient);
     useEffect(() => {
@@ -27,7 +27,7 @@ export const StepGeneralContent: React.FC<StepContentProps> = ({invoice, onChang
 
     const searchPatients = (event: AutoCompleteCompleteEvent) => {
         const query = event.query.toLowerCase();
-        const _filtered = (patients || []).filter((p) => {
+        const _filtered = (patients?.items || []).filter((p) => {
             return (
                 p.first_name.toLowerCase().includes(query) ||
                 p.last_name.toLowerCase().includes(query) ||

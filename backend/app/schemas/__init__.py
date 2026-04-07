@@ -1,6 +1,6 @@
-from .patient_schema import Patient, PatientCreate
+from .patient_schema import Patient, PatientCreate, PaginatedPatients
 from .invoiceItem_schema import InvoiceItem, InvoiceItemCreate, InvoiceItemUpdate
-from .invoice_schema import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate
+from .invoice_schema import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate, PaginatedInvoices
 from .settings_schema import Settings, SettingsUpdate
 from .invoiceDate_schema import InvoiceDate, InvoiceDateCreate, InvoiceDateUpdate
 from .defaultInvoiceItem_schema import DefaultInvoiceItem

@@ -36,12 +36,14 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
     const [filter, setFilter] = useState('');
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>({});
 
-    const {data: allInvoices = []} = useQuery(getInvoicesInvoicesGetOptions({
+    const {data: invoicesData} = useQuery(getInvoicesInvoicesGetOptions({
         query: {
-            invoice_type: invoiceType,
-            show_drafts: false
+            invoice_types: [invoiceType],
+            show_drafts: false,
+            size: 9999,
         }
     }));
+    const allInvoices = invoicesData?.items ?? [];
 
     const filteredInvoices = useMemo(() => {
         const lower = filter.toLowerCase();

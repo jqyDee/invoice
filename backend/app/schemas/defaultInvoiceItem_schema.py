@@ -14,6 +14,9 @@ class DefaultInvoiceItemBase(BaseModel):
     position: DefaultInvoiceItemPosition
     is_active_global: bool
 
+    class Config:
+        from_attributes = True
+
 
 class DefaultInvoiceItem(DefaultInvoiceItemBase):
     default_item_id: int
