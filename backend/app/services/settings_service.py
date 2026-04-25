@@ -7,13 +7,12 @@ from app.models import SettingsDB
 from app.schemas import SettingsUpdate
 
 
-def load_settings(db: Session) -> SettingsDB:
+def load_settings(db: Session) -> Optional[SettingsDB]:
     settings: Optional[SettingsDB] = db.scalars(select(SettingsDB)).first()
-
     return settings
 
 
-def perform_update_settings(db_settings: SettingsDB, settings_update: SettingsUpdate, db: Session):
+def perform_update_settings(db_settings: SettingsDB, settings_update: SettingsUpdate, db: Session) -> SettingsDB:
     if db_settings is None:
         db_settings = SettingsDB(**settings_update.model_dump())
         db.add(db_settings)
@@ -21,3 +20,4 @@ def perform_update_settings(db_settings: SettingsDB, settings_update: SettingsUp
         update_data = settings_update.model_dump()
         for key, value in update_data.items():
             setattr(db_settings, key, value)
+    return db_settings
