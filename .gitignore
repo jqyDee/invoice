@@ -11,6 +11,8 @@ backend/cache/
 backend/temp/
 backend/data/
 backend/.env
+backend/.coverage
+backend/coverage.xml
 .env
 
 # Python cache

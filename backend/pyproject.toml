@@ -29,6 +29,24 @@ dependencies = [
 dev = [
     "watchfiles==1.1.1",
     "fastapi-cli==0.0.21",
+    "pytest",
+    "pytest-cov",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = [
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=xml:temp/coverage.xml",
+    "-v",
+]
+
+[tool.coverage.run]
+omit = [
+    "addons/*",
 ]
 
 [tool.setuptools.packages.find]
