@@ -85,7 +85,7 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({invoice, onChange, p
 
     const calculatedTotal = useInvoiceTotal(
         [...userItems, ...selectedDefaults],
-        enforceNonNull(invoice.dates).map(d => new Date(d.date)),
+        enforceNonNull(invoice.dates).map(d => new Date(d.date + 'T00:00:00')),
         enforceNonNull(invoice.type)
     );
 
@@ -99,7 +99,7 @@ export const StepItemsContent: React.FC<StepItemsProps> = ({invoice, onChange, p
             {/* Standalone Calendar for KG Dates */}
             {isKGorGT && (
                 <InvoiceCalendar
-                    dates={invoice.dates?.map(d => new Date(d.date)) || []}
+                    dates={invoice.dates?.map(d => new Date(d.date + 'T00:00:00')).filter(d => !isNaN(d.getTime())) || []}
                     onChange={(e) =>
                         onChange({dates: (e.value as Date[]).map(d => ({date: toLocalDateString(d)}))})
                     }

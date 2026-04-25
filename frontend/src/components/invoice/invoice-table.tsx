@@ -18,6 +18,8 @@ import {
 } from "../../api/@tanstack/react-query.gen.ts";
 import {toGermanDateString, toLocalDateString} from "../../utilities/local-date-string.ts";
 import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
+import {InputText} from "primereact/inputtext";
+import {useGlobalToast} from "../../hooks/use-global-toast.ts";
 
 interface InvoiceTableProps {
     invoices: Invoice[] | undefined;
@@ -37,7 +39,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading, 
     const isMobile = useIsMobile();
 
     const [paidDialogInvoiceId, setPaidDialogInvoiceId] = useState<number | null>(null);
-    const [paidDate, setPaidDate] = useState<Date | null>(null);
+    const [paidDate, setPaidDate] = useState<string | null>(null);
+
+    const {showToast} = useGlobalToast();
 
     const markPaymentDue = useMutation({
         ...setPaymentDueMutation(),
@@ -84,7 +88,19 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading, 
                 style={{minWidth: '30vw'}}
             >
                 <div className="flex flex-column gap-3">
-                    <Calendar value={paidDate} onChange={(e) => setPaidDate(e.value as Date)} inline/>
+                    <Calendar
+                        value={paidDate ? new Date(paidDate + 'T00:00:00') : new Date()}
+                        onChange={(e) => setPaidDate(toLocalDateString(e.value as Date))}
+                        inline
+                        className="w-full"
+                    />
+                    <InputText
+                        value={paidDate || ''}
+                        onChange={(e) => setPaidDate(e.target.value)}
+                        type="date"
+                        className="w-full"
+                    />
+
                     <div className="flex justify-content-end gap-2">
                         <Button
                             label="Abbrechen"
@@ -95,10 +111,22 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({invoices, isLoading, 
                             label="Speichern"
                             icon="pi pi-save"
                             disabled={!paidDate}
-                            onClick={() => markPaid.mutate({
-                                path: {invoice_id: paidDialogInvoiceId!},
-                                body: {paid_at: toLocalDateString(paidDate!)}
-                            })}
+                            onClick={() => {
+                                if (!paidDate) {
+                                    showToast({
+                                        severity: 'error',
+                                        summary: 'Fehler',
+                                        detail: 'Etwas hat nicht geklappt. Bitte versuche es erneut!',
+                                        life: 3000
+                                    });
+                                    return;
+                                }
+
+                                markPaid.mutate({
+                                    path: {invoice_id: paidDialogInvoiceId!},
+                                    body: {paid_at: paidDate}
+                                })}
+                            }
                         />
                     </div>
                 </div>

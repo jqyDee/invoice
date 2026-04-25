@@ -2,12 +2,11 @@ import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 import {Button} from 'primereact/button';
 import {Dialog} from 'primereact/dialog';
-import {Calendar} from 'primereact/calendar';
 import {useQuery} from "@tanstack/react-query";
 import {InvoiceType, type InvoiceCreate, type InvoiceUpdate, type Invoice, type InvoiceItemCreate} from '../../api';
 import {getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
 import {InvoiceTreatmentForm} from './invoice-treatment-form';
-import {toGermanDateString} from '../../utilities/local-date-string';
+import {toGermanDateString, toLocalDateString} from '../../utilities/local-date-string';
 import {useInvoiceItemDisplayItems} from "../../hooks/invoice/use-invoice-item-display.ts";
 import {useInvoiceItemMutations} from "../../hooks/invoice/use-invoice-item-mutation.ts";
 import React, {useState} from "react";
@@ -15,6 +14,8 @@ import {ActionCell} from "./invoice-item-action-cell.tsx";
 import {InvoiceItemTemplatePanel} from "./invoice-item-template-panel.tsx";
 import {InvoiceBlockTemplatePicker} from "./invoice-block-template-picker.tsx";
 import type {TreatmentFormData} from "./invoice-treatment-form.tsx";
+import {InputText} from "primereact/inputtext";
+import {Calendar} from "primereact/calendar";
 
 interface InvoiceItemTableProps {
     invoice: Invoice | InvoiceCreate | InvoiceUpdate;
@@ -40,7 +41,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onCh
     const headerTemplate = (data: any) => (
         <div className="flex flex-column md:flex-row md:align-items-center md:justify-content-between py-2 gap-3">
             <div className="flex align-items-center gap-2 text-lg font-bold">
-                <i className="pi pi-calendar text-primary"></i><span>{toGermanDateString(new Date(data.date ?? ''))}</span>
+                <i className="pi pi-calendar text-primary"></i><span>{toGermanDateString(new Date((data.date ?? '') + 'T00:00:00'))}</span>
             </div>
             {!readonly && (
                 <div className="flex flex-wrap gap-2">
@@ -129,15 +130,22 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onCh
                         header={state.dateDialogMode === 'add' ? "Neues Behandlungsdatum" : "Datum ändern"}
                         visible={state.dateDialogMode !== null}
                         onHide={actions.closeDateDialog}
-                        style={{maxWidth: '90vw', minWidth: '30vw'}}
+                        style={{minWidth: '30vw'}}
                     >
                         <div className="flex flex-column gap-3">
                             <Calendar
-                                value={state.datePickerValue}
-                                onChange={(e) => setters.setDatePickerValue(e.value as Date)}
+                                value={state.dateValue ? new Date(state.dateValue + 'T00:00:00') : new Date()}
+                                onChange={(e) => setters.setDateValue(toLocalDateString(e.value as Date))}
                                 inline
                                 className="w-full"
                             />
+                            <InputText
+                                value={state.dateValue || ''}
+                                onChange={(e) => setters.setDateValue(e.target.value)}
+                                type="date"
+                                className="w-full"
+                            />
+
                             <div className="flex justify-content-end gap-2">
                                 <Button
                                     label="Abbrechen"
@@ -148,7 +156,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onCh
                                     label={state.dateDialogMode === 'add' ? "Hinzufügen" : "Speichern"}
                                     icon="pi pi-save"
                                     onClick={actions.confirmDate}
-                                    disabled={!state.datePickerValue}
+                                    disabled={!state.dateValue}
                                 />
                             </div>
                         </div>

@@ -35,7 +35,7 @@ export const StepDetailsContent: React.FC<StepDetailsProps> = ({invoice, onChang
                             onSelect={(d) => onChange({diagnosis: d})}
                         />
                         <InputTextarea
-                            id="invoiceDate"
+                            id="invoiceDiagnosis"
                             value={invoice.diagnosis || ""}
                             autoResize
                             onChange={(e) => onChange({diagnosis: e.target.value})}

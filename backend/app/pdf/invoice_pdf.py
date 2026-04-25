@@ -36,7 +36,11 @@ class InvoicePdf(FPDF):
         self.tax_id = settings.tax_id
         self.iban = settings.iban
         self.bic = settings.bic
-        self.hide_physio = True if invoice.type in [InvoiceType.HP, InvoiceType.GT] else False
+        self.additional_subheading = None
+        if invoice.type == InvoiceType.KG:
+            self.additional_subheading = "Physiotherapeutin"
+        elif invoice.type == InvoiceType.GT:
+            self.additional_subheading = "Gestalttherapeutin"
 
     def header(self):
         """New PDF header section"""
@@ -61,12 +65,11 @@ class InvoicePdf(FPDF):
         self.cell(25)
         self.set_font("Roboto", "B", 12)
         self.set_text_color(150)
-        self.cell(0, text=f"Heilpraktikerin{' &' if not self.hide_physio else ''}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        self.cell(0, text=f"Heilpraktikerin", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.cell(25)
         # hide Physiotherapy on HP Invoices
-        if self.hide_physio:
-            self.set_text_color(255)
-        self.cell(0, text="Physiotherapeutin")
+        if self.additional_subheading:
+            self.cell(0, text=self.additional_subheading)
         self.ln(23)
 
     # Page footer
