@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -9,7 +11,7 @@ from ..utilities.security import get_current_user
 
 router = APIRouter(prefix="/settings", tags=["settings"], dependencies=[Depends(get_current_user)])
 
-@router.get("/", response_model=Settings)
+@router.get("/", response_model=Optional[Settings])
 def get_settings(
         db: Session = Depends(get_db)
 ):
@@ -21,8 +23,8 @@ def update_settings(
         db: Session = Depends(get_db)
 ):
     db_settings = load_settings(db)
+    db_settings = perform_update_settings(db_settings, settings_update, db)
 
-    perform_update_settings(db_settings, settings_update, db)
     db.commit()
     db.refresh(db_settings)
     return db_settings
