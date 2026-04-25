@@ -23,8 +23,8 @@ def update_settings(
         db: Session = Depends(get_db)
 ):
     db_settings = load_settings(db)
+    db_settings = perform_update_settings(db_settings, settings_update, db)
 
-    perform_update_settings(db_settings, settings_update, db)
     db.commit()
     db.refresh(db_settings)
     return db_settings
