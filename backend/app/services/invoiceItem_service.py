@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..models import DefaultInvoiceItemDB, InvoiceType
 from ..schemas import InvoiceItemCreate, InvoiceItemUpdate
-from ..schemas.defaultInvoiceItem_schema import DefaultInvoiceItemUpdate, DefaultInvoiceItemCreate
+from ..schemas.defaultInvoiceItem_schema import DefaultInvoiceItemCreate
 
 
 def load_all_default_items(
@@ -35,16 +35,13 @@ def load_default_item(
     return db_item
 
 
-def perform_update_default_item(
+def perform_set_active_state_default_item(
         item_id: int,
-        update_data: DefaultInvoiceItemUpdate,
+        item_active: bool,
         db: Session
 ) -> DefaultInvoiceItemDB:
     db_item = load_default_item(item_id, db)
-    data = update_data.model_dump(exclude_unset=True)
-
-    for key, value in data.items():
-        setattr(db_item, key, value)
+    db_item.is_active_global = item_active
 
     db.commit()
     db.refresh(db_item)

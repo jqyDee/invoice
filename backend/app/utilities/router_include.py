@@ -17,5 +17,3 @@ def auto_include_routers(fastapi_app: FastAPI):
 
         if hasattr(module, "router") and isinstance(module.router, APIRouter):
             fastapi_app.include_router(module.router)
-
-
