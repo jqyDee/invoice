@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/jqyDee/invoice/compare/v0.3.8...v0.4.0) (2026-04-25)
+
+
+### Features
+
+* Some, a lot of stuff lol ([#66](https://github.com/jqyDee/invoice/issues/66)) ([691183f](https://github.com/jqyDee/invoice/commit/691183f3d82ec3fc4020d8d150d1e7450e1f14f2))
+
 ## [0.3.8](https://github.com/jqyDee/invoice/compare/v0.3.7...v0.3.8) (2026-04-25)
 
 
