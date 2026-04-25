@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.8](https://github.com/jqyDee/invoice/compare/v0.3.7...v0.3.8) (2026-04-25)
+
+
+### Bug Fixes
+
+* pdf gen, date picker added text input ([2050dd4](https://github.com/jqyDee/invoice/commit/2050dd407a0aa3423f83d17a47ebfa9728ba8247))
+
 ## [0.3.7](https://github.com/jqyDee/invoice/compare/v0.3.6...v0.3.7) (2026-04-07)
 
 
