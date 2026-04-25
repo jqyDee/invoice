@@ -12,7 +12,6 @@ backend/temp/
 backend/data/
 backend/.env
 .env
-**/certs/
 
 # Python cache
 __pycache__/

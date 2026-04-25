@@ -30,7 +30,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
     const selectedPatient = patients?.items.find(p => p.patient_id === invoice.patient_id);
 
     const datesAsDates = useMemo(() =>
-            invoice.dates?.map(d => new Date(d.date)) || [],
+            (invoice.dates?.map(d => new Date(d.date + 'T00:00:00')).filter(d => !isNaN(d.getTime())) || []),
         [invoice.dates]);
 
     const {data: availableDefaults} = useQuery(

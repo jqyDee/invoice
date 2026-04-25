@@ -21,7 +21,7 @@ export const useInvoiceItemMutations = (
 
     // Unified date dialog state
     const [dateDialogMode, setDateDialogMode] = useState<'add' | 'edit' | null>(null);
-    const [datePickerValue, setDatePickerValue] = useState<Date | null>(null);
+    const [dateValue, setDateValue] = useState<string>('');
     const [editingDate, setEditingDate] = useState<string | null>(null);
 
     const openEdit = (item: any) => {
@@ -97,27 +97,26 @@ export const useInvoiceItemMutations = (
     };
 
     const openAddDate = () => {
-        setDatePickerValue(null);
+        setDateValue(toLocalDateString(new Date()));
         setDateDialogMode('add');
     };
 
     const openEditDate = (date: string) => {
         setEditingDate(date);
-        const parsed = new Date(date + 'T00:00:00');
-        setDatePickerValue(parsed.getFullYear() < 1000 ? new Date() : parsed);
+        setDateValue(date);
         setDateDialogMode('edit');
     };
 
     const closeDateDialog = () => {
         setDateDialogMode(null);
-        setDatePickerValue(null);
+        setDateValue('');
         setEditingDate(null);
     };
 
     const confirmDate = () => {
-        if (!datePickerValue || !onChange) return;
+        if (!dateValue || !onChange) return;
         if (dateDialogMode === 'add') {
-            const dateStr = toLocalDateString(datePickerValue);
+            const dateStr = dateValue;
             const dates = [...(invoice.dates || [])];
             if (!dates.find(d => d.date === dateStr)) {
                 dates.push({date: dateStr, items: []});
@@ -125,7 +124,7 @@ export const useInvoiceItemMutations = (
                 onChange({dates});
             }
         } else if (dateDialogMode === 'edit' && editingDate) {
-            const newDateStr = toLocalDateString(datePickerValue);
+            const newDateStr = dateValue;
             if (newDateStr !== editingDate) {
                 const dates = [...(invoice.dates || [])] as any[];
                 const oldIdx = dates.findIndex(d => d.date === editingDate);
@@ -176,8 +175,8 @@ export const useInvoiceItemMutations = (
     };
 
     return {
-        state: {editingItem, prefillDate, visible, dateDialogMode, datePickerValue},
-        setters: {setVisible, setDatePickerValue},
+        state: {editingItem, prefillDate, visible, dateDialogMode, dateValue},
+        setters: {setVisible, setDateValue},
         actions: {
             openEdit,
             openAdd,
