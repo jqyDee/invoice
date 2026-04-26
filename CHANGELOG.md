@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/jqyDee/invoice/compare/v0.4.0...v0.4.1) (2026-04-26)
+
+
+### Bug Fixes
+
+* fix ([ad42b8a](https://github.com/jqyDee/invoice/commit/ad42b8a80adacf03e557bbe92468c915b758cbef))
+
 ## [0.4.0](https://github.com/jqyDee/invoice/compare/v0.3.8...v0.4.0) (2026-04-25)
 
 
