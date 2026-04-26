@@ -2,7 +2,7 @@ import React from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
     getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions,
-    updateDefaultInvoiceItemInvoiceItemsDefaultsItemIdPatchMutation,
+    setActiveStateDefaultInvoiceItemInvoiceItemsDefaultsItemIdPatchMutation,
 } from "../../api/@tanstack/react-query.gen.ts";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
@@ -27,7 +27,7 @@ export const DefaultItemTable: React.FC = () => {
     });
 
     const updateMutation = useMutation({
-        ...updateDefaultInvoiceItemInvoiceItemsDefaultsItemIdPatchMutation(),
+        ...setActiveStateDefaultInvoiceItemInvoiceItemsDefaultsItemIdPatchMutation(),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions({
@@ -44,7 +44,7 @@ export const DefaultItemTable: React.FC = () => {
                 onChange={(e) => {
                     updateMutation.mutate({
                         path: {item_id: rowData.default_item_id},
-                        body: {is_active_global: e.value}
+                        query: {item_active: e.value}
                     });
                 }}
             />
