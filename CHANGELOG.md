@@ -1,5 +1,65 @@
 # Changelog
 
+## [0.4.0](https://github.com/jqyDee/invoice/compare/v0.3.8...v0.4.0) (2026-04-25)
+
+
+### Features
+
+* Some, a lot of stuff lol ([#66](https://github.com/jqyDee/invoice/issues/66)) ([691183f](https://github.com/jqyDee/invoice/commit/691183f3d82ec3fc4020d8d150d1e7450e1f14f2))
+
+## [0.3.8](https://github.com/jqyDee/invoice/compare/v0.3.7...v0.3.8) (2026-04-25)
+
+
+### Bug Fixes
+
+* pdf gen, date picker added text input ([2050dd4](https://github.com/jqyDee/invoice/commit/2050dd407a0aa3423f83d17a47ebfa9728ba8247))
+
+## [0.3.7](https://github.com/jqyDee/invoice/compare/v0.3.6...v0.3.7) (2026-04-07)
+
+
+### Miscellaneous
+
+* **deps-dev:** bump vite from 7.3.1 to 7.3.2 in /frontend ([e88d5cb](https://github.com/jqyDee/invoice/commit/e88d5cbad2e773b397a2b7f1058518398a77520d))
+* **deps-dev:** bump vite from 7.3.1 to 7.3.2 in /frontend ([1d13c69](https://github.com/jqyDee/invoice/commit/1d13c697e560c5bce0dfe0a50e773446b494fdd7))
+* **deps:** bump defu from 6.1.4 to 6.1.6 in /frontend ([6508759](https://github.com/jqyDee/invoice/commit/6508759f41988d7759cbcc67d15efda82765d080))
+* **deps:** bump defu from 6.1.4 to 6.1.6 in /frontend ([766c225](https://github.com/jqyDee/invoice/commit/766c2258275506f13814e12e1557857d065f6a94))
+* **deps:** bump lodash from 4.17.23 to 4.18.1 in /frontend ([6cb1b7d](https://github.com/jqyDee/invoice/commit/6cb1b7d77f8482f7bfdcd7f2aa5862474f1053c9))
+
+## [0.3.6](https://github.com/jqyDee/invoice/compare/v0.3.5...v0.3.6) (2026-04-07)
+
+
+### Bug Fixes
+
+* sorting, cleanup ([5ca92e8](https://github.com/jqyDee/invoice/commit/5ca92e8bac608fab72468fbbd472cc44316ba106))
+
+## [0.3.5](https://github.com/jqyDee/invoice/compare/v0.3.4...v0.3.5) (2026-04-07)
+
+
+### Bug Fixes
+
+* paging ([a306d76](https://github.com/jqyDee/invoice/commit/a306d76ef2ff7250dc7ac9423e7a14ed63642f6e))
+
+## [0.3.4](https://github.com/jqyDee/invoice/compare/v0.3.3...v0.3.4) (2026-04-07)
+
+
+### Bug Fixes
+
+* tailscale certificate serving ([387f671](https://github.com/jqyDee/invoice/commit/387f671d7ee39a86f044e6266be0caba6f78f690))
+
+## [0.3.3](https://github.com/jqyDee/invoice/compare/v0.3.2...v0.3.3) (2026-03-31)
+
+
+### Bug Fixes
+
+* remove sentry ([#46](https://github.com/jqyDee/invoice/issues/46)) ([8949320](https://github.com/jqyDee/invoice/commit/8949320a79ea42c656f8799c76d7a827b1c326d3))
+
+## [0.3.2](https://github.com/jqyDee/invoice/compare/v0.3.1...v0.3.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* remove sentry ([#44](https://github.com/jqyDee/invoice/issues/44)) ([16c4154](https://github.com/jqyDee/invoice/commit/16c415445205f58e4ffc5283a14a01e217a960a0))
+
 ## [0.3.1](https://github.com/jqyDee/invoice/compare/v0.3.0...v0.3.1) (2026-03-31)
 
 
