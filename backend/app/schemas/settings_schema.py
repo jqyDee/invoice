@@ -1,5 +1,5 @@
 import re
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class SettingsBase(BaseModel):
@@ -42,5 +42,4 @@ class SettingsUpdate(SettingsBase):
 class Settings(SettingsBase):
     settings_id: int  # Matches the DB primary key to avoid ResponseValidationError
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

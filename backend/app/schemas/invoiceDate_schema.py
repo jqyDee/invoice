@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date
 
 from app.schemas import InvoiceItemCreate, InvoiceItemUpdate, InvoiceItem
@@ -24,5 +24,4 @@ class InvoiceDate(InvoiceDateBase):
     invoice_id: int
     items: List[InvoiceItem] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

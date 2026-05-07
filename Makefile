@@ -1,26 +1,14 @@
-.PHONY: openapi backend frontend build up up-dev up-prod down db-migrate db-upgrade db-downgrade db-current
+.PHONY: openapi up-dev up-prod down db-migrate db-upgrade db-downgrade db-current test
 
 # Development environment (live reload & Vite dev)
 up-dev: openapi
 	docker compose -f docker-compose.yml up --build
 
 # Generate OpenAPI JSON
-openapi:
+openapi: test
 	@echo "Generating OpenAPI JSON..."
 	python backend/app/utilities/openapi.py
 	@echo "OpenAPI JSON generated!"
-
-# Build backend image
-backend:
-	@echo "Building Backend..."
-	docker build -t invoice-backend ./backend
-	@echo "Backend Built!"
-
-# Build frontend image
-frontend: openapi
-	@echo "Building Frontend..."
-	docker build -t invoice-frontend ./frontend
-	@echo "Frontend Built!"
 
 # Production environment
 up-prod:
@@ -48,3 +36,6 @@ db-downgrade:
 # Show current revision
 db-current:
 	cd backend && alembic -c app/alembic.ini current
+
+test:
+	cd backend && pytest

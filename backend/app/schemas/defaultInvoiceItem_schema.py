@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.models import DefaultInvoiceItemPosition, InvoiceType
 
@@ -14,8 +14,7 @@ class DefaultInvoiceItemBase(BaseModel):
     position: DefaultInvoiceItemPosition
     is_active_global: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DefaultInvoiceItem(DefaultInvoiceItemBase):

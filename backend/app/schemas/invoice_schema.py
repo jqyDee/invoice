@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from datetime import date, datetime
 from typing import List, Optional, Union
 
@@ -65,8 +65,7 @@ class Invoice(InvoiceBase):
             return [link.default_item for link in v]
         return v
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginatedInvoices(BaseModel):
