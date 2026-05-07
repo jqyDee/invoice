@@ -47,6 +47,7 @@ addopts = [
 [tool.coverage.run]
 omit = [
     "addons/*",
+    "app/utilities/openapi.py",
 ]
 
 [tool.setuptools.packages.find]

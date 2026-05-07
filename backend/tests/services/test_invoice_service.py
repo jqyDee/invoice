@@ -822,3 +822,90 @@ def test_schema_handles_no_default_items(db, patient):
     inv = create_invoice_logic(_hp_create(patient.patient_id), db)
     schema = Invoice.model_validate(inv)
     assert schema.default_items == []
+
+
+# ---------------------------------------------------------------------------
+# InvoiceDB hybrid properties — SQL expression branch
+# (Python-level hybrid is tested above; here we force SQLAlchemy to generate
+#  the SQL subquery version by using the hybrid inside a select/order_by)
+# ---------------------------------------------------------------------------
+
+def test_total_expression_order_by_desc(db, saved_hp_invoice, saved_kg_invoice):
+    """Forces @total.expression (SQL branch) by using it in order_by."""
+    from sqlalchemy import select
+    stmt = select(InvoiceDB).order_by(InvoiceDB.total.desc())
+    results = db.scalars(stmt).all()
+    assert len(results) >= 2
+    totals = [r.total for r in results]
+    assert totals == sorted(totals, reverse=True)
+
+
+def test_total_expression_with_no_dates_uses_multiplier_1(db, patient):
+    """Tests effective_multiplier = case(date_count == 0, 1) SQL branch."""
+    from sqlalchemy import select
+    inv = InvoiceDB(
+        patient_id=patient.patient_id,
+        invoice_date=date(2026, 1, 1),
+        type=InvoiceType.HP,
+        status=InvoiceStatus.SAVED,
+    )
+    db.add(inv)
+    db.commit()
+    result = db.scalar(
+        select(InvoiceDB.total).where(InvoiceDB.invoice_id == inv.invoice_id)
+    )
+    assert result == 0.0
+
+
+def test_total_expression_with_user_items(db, patient):
+    """Tests user_sum SQL subquery branch."""
+    from sqlalchemy import select
+    inv = InvoiceDB(
+        patient_id=patient.patient_id,
+        invoice_date=date(2026, 1, 2),
+        type=InvoiceType.HP,
+        status=InvoiceStatus.SAVED,
+    )
+    db.add(inv)
+    db.flush()
+    db.add(InvoiceItemDB(
+        invoice_id=inv.invoice_id,
+        description="Item",
+        amount=25.0,
+        quantity=2,
+        position=0,
+    ))
+    db.commit()
+    result = db.scalar(
+        select(InvoiceDB.total).where(InvoiceDB.invoice_id == inv.invoice_id)
+    )
+    assert result == 50.0
+
+
+def test_total_travel_distance_expression_order_by(db, saved_hp_invoice, saved_kg_invoice):
+    """Forces @total_travel_distance.expression by using it in order_by."""
+    from sqlalchemy import select
+    stmt = select(InvoiceDB).order_by(InvoiceDB.total_travel_distance.desc())
+    results = db.scalars(stmt).all()
+    assert len(results) >= 2
+
+
+def test_total_travel_distance_expression_coalesce_fallback(db, patient):
+    """Tests coalesce(km_at_billing, patient.km) when km_at_billing is None."""
+    from sqlalchemy import select
+    inv = InvoiceDB(
+        patient_id=patient.patient_id,
+        invoice_date=date(2026, 2, 1),
+        type=InvoiceType.HP,
+        status=InvoiceStatus.SAVED,
+        kilometers_at_billing=None,
+    )
+    db.add(inv)
+    db.flush()
+    db.add(InvoiceDateDB(invoice_id=inv.invoice_id, date=date(2026, 2, 1)))
+    db.commit()
+    # patient.kilometers_to_travel=10.0, 1 date → 10 * 1 * 2 = 20.0
+    result = db.scalar(
+        select(InvoiceDB.total_travel_distance).where(InvoiceDB.invoice_id == inv.invoice_id)
+    )
+    assert result == 20.0

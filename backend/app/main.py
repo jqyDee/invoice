@@ -16,8 +16,8 @@ from .utilities.seed import seed_users
 
 try:
     __version__ = metadata.version("invoice-backend")
-except metadata.PackageNotFoundError:
-    __version__ = "Not found"
+except metadata.PackageNotFoundError:  # pragma: no cover
+    __version__ = "Not found"  # pragma: no cover
 
 
 @asynccontextmanager
