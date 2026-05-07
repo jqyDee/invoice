@@ -1,42 +1,33 @@
 import logging
 import os
-from datetime import datetime, timezone
-from fastapi import HTTPException
+from datetime import UTC, datetime
 from pathlib import Path
 
+from fastapi import HTTPException
 from sqlalchemy.orm.session import Session
 
-from ..models import InvoiceDB, InvoiceType, SettingsDB, PatientDB
+from ..models import InvoiceDB, InvoiceType, PatientDB, SettingsDB
 from ..pdf.invoice_hp_pdf import InvoiceHp
 from ..pdf.invoice_kg_pdf import InvoiceKgGt
-from ..pdf.therapy_pdf import Therapy
 from ..pdf.privacy_pdf import Privacy
-from ..services.therapyClause_service import load_clauses
+from ..pdf.therapy_pdf import Therapy
 from ..services.privacyClause_service import load_privacy_clauses
+from ..services.therapyClause_service import load_clauses
 
-logger = logging.getLogger('uvicorn.error')
+logger = logging.getLogger("uvicorn.error")
 
 
-def check_and_regenerate_invoice_pdf(
-        invoice: InvoiceDB,
-        settings: SettingsDB,
-        pdf_path: Path,
-        db: Session
-):
+def check_and_regenerate_invoice_pdf(invoice: InvoiceDB, settings: SettingsDB, pdf_path: Path, db: Session):
     if (
-            not os.path.exists(pdf_path)
-            or invoice.pdf_generated_at is None
-            or invoice.pdf_generated_at < invoice.updated_at
+        not os.path.exists(pdf_path)
+        or invoice.pdf_generated_at is None
+        or invoice.pdf_generated_at < invoice.updated_at
     ):
         logger.debug("Regenerating PDF")
         _regenerate_invoice_pdf(invoice, settings, db)
 
 
-def _regenerate_invoice_pdf(
-        invoice: InvoiceDB,
-        settings: SettingsDB,
-        db: Session
-):
+def _regenerate_invoice_pdf(invoice: InvoiceDB, settings: SettingsDB, db: Session):
     if not isinstance(invoice.type, InvoiceType):
         raise HTTPException(status_code=404, detail="Invoice type not found")
 
@@ -51,7 +42,7 @@ def _regenerate_invoice_pdf(
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     invoice.pdf_generated_at = now
     invoice.updated_at = now
@@ -59,9 +50,9 @@ def _regenerate_invoice_pdf(
 
 
 def check_and_regenerate_therapy_pdf(
-        patient: PatientDB,
-        settings: SettingsDB,
-        db: Session,
+    patient: PatientDB,
+    settings: SettingsDB,
+    db: Session,
 ):
     clauses = load_clauses(db)
     try:

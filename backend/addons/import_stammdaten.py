@@ -34,14 +34,13 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Optional
-
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def parse_date(s: str) -> Optional[date]:
+
+def parse_date(s: str) -> date | None:
     parts = s.strip().split(".")
     if len(parts) != 3:
         return None
@@ -70,7 +69,8 @@ def sql_str(value) -> str:
 
 # ── TXT parser ────────────────────────────────────────────────────────────────
 
-def parse_txt_file(path: Path) -> Optional[dict]:
+
+def parse_txt_file(path: Path) -> dict | None:
     """Parse a single stammdaten .TXT file into a patient dict."""
     try:
         lines = path.read_text(encoding="iso-8859-1").splitlines()
@@ -82,20 +82,20 @@ def parse_txt_file(path: Path) -> Optional[dict]:
     while len(lines) < 14:
         lines.append("")
 
-    label         = lines[0].strip()
-    gender_raw    = lines[1].strip()
-    last_name     = lines[2].strip()
-    first_name    = lines[3].strip()
-    street        = lines[4].strip()
+    label = lines[0].strip()
+    gender_raw = lines[1].strip()
+    last_name = lines[2].strip()
+    first_name = lines[3].strip()
+    street = lines[4].strip()
     street_number = lines[5].strip()
-    postal_code   = lines[6].strip()
-    city          = lines[7].strip()
-    birthday_raw  = lines[8].strip()
-    km_raw        = lines[9].strip()
+    postal_code = lines[6].strip()
+    city = lines[7].strip()
+    birthday_raw = lines[8].strip()
+    km_raw = lines[9].strip()
     # line 10 (index 10): dr — dropped
-    email_raw     = lines[11].strip() if len(lines) > 11 else ""
+    email_raw = lines[11].strip() if len(lines) > 11 else ""
     # line 12 (index 12): type — dropped
-    phone_raw     = lines[13].strip() if len(lines) > 13 else ""
+    phone_raw = lines[13].strip() if len(lines) > 13 else ""
 
     # Gender
     if gender_raw == "Frau":
@@ -119,18 +119,18 @@ def parse_txt_file(path: Path) -> Optional[dict]:
         km = 0.0
 
     return {
-        "label":               label,
-        "gender":              gender,
-        "last_name":           last_name,
-        "first_name":          first_name,
-        "street":              street,
-        "street_number":       street_number,
-        "postal_code":         postal_code,
-        "city":                city,
-        "birthday":            birthday,
+        "label": label,
+        "gender": gender,
+        "last_name": last_name,
+        "first_name": first_name,
+        "street": street,
+        "street_number": street_number,
+        "postal_code": postal_code,
+        "city": city,
+        "birthday": birthday,
         "kilometers_to_travel": km,
-        "email":               email_raw or None,
-        "telephone":           phone_raw or None,
+        "email": email_raw or None,
+        "telephone": phone_raw or None,
     }
 
 
@@ -155,6 +155,7 @@ def load_stammdaten(directory: Path) -> list[dict]:
 
 # ── SQL generation ────────────────────────────────────────────────────────────
 
+
 def patient_block(p: dict, now_ts: str) -> str:
     label = p["label"]
     lines = []
@@ -165,10 +166,14 @@ def patient_block(p: dict, now_ts: str) -> str:
     lines.append("INSERT INTO patient (label, first_name, last_name, birthday, gender,")
     lines.append("    street, street_number, postal_code, city, kilometers_to_travel,")
     lines.append("    email, telephone, created_at)")
-    lines.append(f"SELECT {sql_str(label)}, {sql_str(p['first_name'])}, {sql_str(p['last_name'])}, "
-                 f"{sql_str(p['birthday'])}, {sql_str(p['gender'])},")
-    lines.append(f"    {sql_str(p['street'])}, {sql_str(p['street_number'])}, "
-                 f"{sql_str(p['postal_code'])}, {sql_str(p['city'])}, {sql_str(p['kilometers_to_travel'])},")
+    lines.append(
+        f"SELECT {sql_str(label)}, {sql_str(p['first_name'])}, {sql_str(p['last_name'])}, "
+        f"{sql_str(p['birthday'])}, {sql_str(p['gender'])},"
+    )
+    lines.append(
+        f"    {sql_str(p['street'])}, {sql_str(p['street_number'])}, "
+        f"{sql_str(p['postal_code'])}, {sql_str(p['city'])}, {sql_str(p['kilometers_to_travel'])},"
+    )
     lines.append(f"    {sql_str(p['email'])}, {sql_str(p['telephone'])}, '{now_ts}'")
     lines.append(f"WHERE NOT EXISTS (SELECT 1 FROM patient WHERE label = {sql_str(label)});")
     lines.append("")
@@ -177,10 +182,9 @@ def patient_block(p: dict, now_ts: str) -> str:
 
 
 def generate_sql(patients: list[dict], out_path: Path):
-    now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    now_ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
 
     with open(out_path, "w", encoding="utf-8") as f:
-
         f.write(f"""\
 -- ============================================================
 -- Patient import  —  generated {now_ts}
@@ -225,18 +229,21 @@ BEGIN;
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a reviewable, idempotent SQL import file from stammdaten .TXT files."
     )
-    parser.add_argument("--stammdaten-dir", default="./stammdaten",
-                        help="Directory containing .TXT files (default: ./stammdaten)")
-    parser.add_argument("--out", default="import_patients.sql",
-                        help="Output SQL file name (default: import_patients.sql)")
+    parser.add_argument(
+        "--stammdaten-dir", default="./stammdaten", help="Directory containing .TXT files (default: ./stammdaten)"
+    )
+    parser.add_argument(
+        "--out", default="import_patients.sql", help="Output SQL file name (default: import_patients.sql)"
+    )
     args = parser.parse_args()
 
     stammdaten_dir = Path(args.stammdaten_dir)
-    out_path       = Path(args.out)
+    out_path = Path(args.out)
 
     if not stammdaten_dir.is_dir():
         print(f"Error: directory not found: {stammdaten_dir}", file=sys.stderr)
@@ -252,10 +259,10 @@ def main():
     ok, skipped = generate_sql(patients, out_path)
 
     print(f"\nWrote {out_path}  ({ok} patients, {skipped} skipped)")
-    print(f"\nNext steps:")
+    print("\nNext steps:")
     print(f"  1. Review {out_path}")
     print(f"  2. sqlite3 ../data/db.db < {out_path}")
-    print(f"  3. sqlite3 ../data/db.db < import_invoices.sql")
+    print("  3. sqlite3 ../data/db.db < import_invoices.sql")
 
 
 if __name__ == "__main__":

@@ -32,6 +32,8 @@ dev = [
     "pytest",
     "pytest-cov",
     "httpx",
+    "ruff",
+    "mypy",
 ]
 
 [tool.pytest.ini_options]
@@ -49,6 +51,23 @@ omit = [
     "addons/*",
     "app/utilities/openapi.py",
 ]
+
+[tool.ruff]
+line-length = 120
+exclude = ["alembic"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes (unused imports, undefined names)
+    "I",   # isort (import sorting)
+    "UP",  # pyupgrade (modernize syntax for Python 3.11+)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.setuptools.packages.find]
 where = ["."]

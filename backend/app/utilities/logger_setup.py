@@ -12,12 +12,11 @@ def setup_global_logging():
     file_handler = RotatingFileHandler(
         LOG_PATH,
         maxBytes=5 * 1024 * 1024,  # 5 MB
-        backupCount=3  # Keep 3 backups
+        backupCount=3,  # Keep 3 backups
     )
 
     formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     file_handler.setFormatter(formatter)
 

@@ -1,9 +1,14 @@
-from .document_pdf import DocumentPdf
-from ..models import PatientDB, Gender
+from ..models import Gender, PatientDB
 from ..models.privacyClause_model import PrivacyClauseDB
-from ..utilities import DOCUMENT_IN_TEXT_OFFSET, DOCUMENT_DEFAULT_OFFSET, DOCUMENT_HEADER_FONT_SIZE, DOCUMENT_FONT_SIZE, \
-    RECIPIENT_OFFSET
+from ..utilities import (
+    DOCUMENT_DEFAULT_OFFSET,
+    DOCUMENT_FONT_SIZE,
+    DOCUMENT_HEADER_FONT_SIZE,
+    DOCUMENT_IN_TEXT_OFFSET,
+    RECIPIENT_OFFSET,
+)
 from ..utilities.path_utilitiy import generate_privacy_path
+from .document_pdf import DocumentPdf
 
 
 class Privacy(DocumentPdf):

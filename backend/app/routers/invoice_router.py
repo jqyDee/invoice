@@ -1,12 +1,21 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
-from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from ..utilities.database import get_db, add_db
 from ..models import InvoiceType
 from ..schemas import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate, PaginatedInvoices
-from ..schemas.invoice_schema import TemplateItemResponse, DiagnosisTemplateResponse, InvoiceTemplateResponse
-from ..services.invoice_service import create_invoice_logic, load_invoice, load_invoices, set_paid, set_payment_due, update_invoice_logic, get_template_items, get_template_diagnoses, get_invoice_template
+from ..schemas.invoice_schema import DiagnosisTemplateResponse, InvoiceTemplateResponse, TemplateItemResponse
+from ..services.invoice_service import (
+    create_invoice_logic,
+    get_invoice_template,
+    get_template_diagnoses,
+    get_template_items,
+    load_invoice,
+    load_invoices,
+    set_paid,
+    set_payment_due,
+    update_invoice_logic,
+)
+from ..utilities.database import add_db, get_db
 from ..utilities.security import get_current_user
 
 router = APIRouter(prefix="/invoices", tags=["invoices"], dependencies=[Depends(get_current_user)])
@@ -14,37 +23,44 @@ router = APIRouter(prefix="/invoices", tags=["invoices"], dependencies=[Depends(
 
 @router.get("/", response_model=PaginatedInvoices)
 def get_invoices(
-        show_drafts: Optional[bool] = Query(True),
-        only_drafts: Optional[bool] = Query(False),
-        only_open: Optional[bool] = Query(False),
-        search: Optional[str] = Query(None),
-        invoice_types: Optional[list[InvoiceType]] = Query(None),
-        years: Optional[list[int]] = Query(None),
-        months: Optional[list[int]] = Query(None),
-        page: int = Query(1, ge=1),
-        size: int = Query(20, ge=1, le=9999),
-        sort_field: str = Query("updated_at"),
-        sort_order: str = Query("desc"),
-        db: Session = Depends(get_db)
+    show_drafts: bool | None = Query(True),
+    only_drafts: bool | None = Query(False),
+    only_open: bool | None = Query(False),
+    search: str | None = Query(None),
+    invoice_types: list[InvoiceType] | None = Query(None),
+    years: list[int] | None = Query(None),
+    months: list[int] | None = Query(None),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=9999),
+    sort_field: str = Query("updated_at"),
+    sort_order: str = Query("desc"),
+    db: Session = Depends(get_db),
 ):
-    items, total = load_invoices(show_drafts, only_drafts, only_open, search, db, invoice_types, years, months, page, size, sort_field, sort_order)
-    return PaginatedInvoices(items=[Invoice.model_validate(i) for i in items], total=total)
+    items, total = load_invoices(
+        show_drafts,
+        only_drafts,
+        only_open,
+        search,
+        db,
+        invoice_types,
+        years,
+        months,
+        page,
+        size,
+        sort_field,
+        sort_order,
+    )
+    return PaginatedInvoices(items=[Invoice.model_validate(i) for i in items], total=total or 0)
 
 
 @router.post("/", response_model=Invoice)
-def create_invoice(
-        invoice_new: InvoiceCreate,
-        db: Session = Depends(get_db)
-):
+def create_invoice(invoice_new: InvoiceCreate, db: Session = Depends(get_db)):
     db_invoice = create_invoice_logic(invoice_new, db)
     return add_db(db_invoice, db)
 
 
 @router.get("/template-items", response_model=list[TemplateItemResponse])
-def get_template_items_endpoint(
-    invoice_type: InvoiceType = Query(...),
-    db: Session = Depends(get_db)
-):
+def get_template_items_endpoint(invoice_type: InvoiceType = Query(...), db: Session = Depends(get_db)):
     return get_template_items(invoice_type, db)
 
 
@@ -59,21 +75,15 @@ def get_invoice_template_endpoint(invoice_id: int, db: Session = Depends(get_db)
 
 
 @router.get("/{invoice_id}", response_model=Invoice)
-def get_invoice(
-        invoice_id: int,
-        db: Session = Depends(get_db)
-):
+def get_invoice(invoice_id: int, db: Session = Depends(get_db)):
     return load_invoice(invoice_id, db)
 
 
 @router.patch("/{invoice_id}", response_model=Invoice)
-def update_invoice(
-        invoice_id: int,
-        invoice: InvoiceUpdate,
-        db: Session = Depends(get_db)
-):
+def update_invoice(invoice_id: int, invoice: InvoiceUpdate, db: Session = Depends(get_db)):
     db_invoice = update_invoice_logic(invoice_id, invoice, db)
     return db_invoice
+
 
 @router.post("/{invoice_id}/payment-due", response_model=Invoice, operation_id="set_payment_due")
 def mark_payment_due(invoice_id: int, db: Session = Depends(get_db)):
@@ -86,10 +96,7 @@ def mark_paid(invoice_id: int, body: InvoiceMarkPaidRequest, db: Session = Depen
 
 
 @router.delete("/{invoice_id}", response_model=Invoice)
-def delete_invoice(
-        invoice_id: int,
-        db: Session = Depends(get_db)
-):
+def delete_invoice(invoice_id: int, db: Session = Depends(get_db)):
     db_invoice = load_invoice(invoice_id, db)
 
     if db_invoice.is_locked:

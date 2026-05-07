@@ -1,6 +1,6 @@
 import logging
-from importlib import metadata
 from contextlib import asynccontextmanager
+from importlib import metadata
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,10 +31,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(
-    lifespan=lifespan,
-    version=__version__
-)
+app = FastAPI(lifespan=lifespan, version=__version__)
 
 app.add_middleware(
     CORSMiddleware,

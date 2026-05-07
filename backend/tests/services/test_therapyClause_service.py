@@ -19,6 +19,7 @@ def _create(number=1, title="Titel", description="Beschreibung") -> TherapyClaus
 # load_clauses
 # ---------------------------------------------------------------------------
 
+
 def test_load_clauses_empty(db):
     assert load_clauses(db) == []
 
@@ -35,6 +36,7 @@ def test_load_clauses_ordered_by_number(db):
 # ---------------------------------------------------------------------------
 # load_clause
 # ---------------------------------------------------------------------------
+
 
 def test_load_clause_found(db):
     clause = create_clause(_create(), db)
@@ -53,6 +55,7 @@ def test_load_clause_not_found_raises_404(db):
 # create_clause
 # ---------------------------------------------------------------------------
 
+
 def test_create_clause_persists(db):
     clause = create_clause(_create(number=5, title="Neue Klausel", description="Text"), db)
     assert clause.clause_id is not None
@@ -66,6 +69,7 @@ def test_create_clause_persists(db):
 # ---------------------------------------------------------------------------
 # update_clause
 # ---------------------------------------------------------------------------
+
 
 def test_update_clause_title(db):
     clause = create_clause(_create(title="Alt"), db)
@@ -83,6 +87,7 @@ def test_update_clause_not_found_raises_404(db):
 # ---------------------------------------------------------------------------
 # delete_clause
 # ---------------------------------------------------------------------------
+
 
 def test_delete_clause_removes_it(db):
     clause = create_clause(_create(), db)

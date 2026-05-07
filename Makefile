@@ -1,4 +1,4 @@
-.PHONY: openapi up-dev up-prod down db-migrate db-upgrade db-downgrade db-current test
+.PHONY: openapi up-dev up-prod down db-migrate db-upgrade db-downgrade db-current test format lint lint-fix
 
 # Development environment (live reload & Vite dev)
 up-dev: openapi
@@ -41,3 +41,15 @@ db-current:
 
 test:
 	cd backend && pytest
+
+# Format backend code
+format:
+	cd backend && ruff format .
+
+# Lint backend code
+lint:
+	cd backend && ruff check .
+
+# Lint + auto-fix
+lint-fix:
+	cd backend && ruff check --fix .

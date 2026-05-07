@@ -48,18 +48,17 @@ Output structure (per invoice)
 
 from __future__ import annotations
 
-import ast
 import argparse
+import ast
 import re
 import sys
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Optional
-
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
-def parse_date(s: str) -> Optional[date]:
+
+def parse_date(s: str) -> date | None:
     parts = s.strip().split(".")
     if len(parts) != 3:
         return None
@@ -76,7 +75,7 @@ def parse_amount(s: str) -> float:
     return float(s.strip().replace(",", "."))
 
 
-def invoice_date_from_number(inv_num: str) -> Optional[date]:
+def invoice_date_from_number(inv_num: str) -> date | None:
     m = re.search(r"(\d{2})(\d{2})(\d{2})H?$", inv_num)
     if m:
         day, month, year = m.group(1), m.group(2), m.group(3)
@@ -101,6 +100,7 @@ def sql_str(value) -> str:
 
 # ── CSV parsers (identical to import_invoices.py) ────────────────────────────
 
+
 def _split_list_from_tail(text: str):
     depth = 0
     for i, c in enumerate(text):
@@ -109,7 +109,7 @@ def _split_list_from_tail(text: str):
         elif c == "]":
             depth -= 1
             if depth == 0:
-                return text[: i + 1], text[i + 1:]
+                return text[: i + 1], text[i + 1 :]
     return text, ""
 
 
@@ -117,12 +117,12 @@ def parse_hp_row(line: str) -> dict:
     line = line.strip()
     idx = line.index(";[[")
     semicol_part = line[:idx]
-    list_str_full = line[idx + 1:]
+    list_str_full = line[idx + 1 :]
 
     cols = semicol_part.split(";")
-    label       = cols[0].strip()
+    label = cols[0].strip()
     invoice_num = cols[1].strip()
-    km_count    = int(cols[2].strip())
+    km_count = int(cols[2].strip())
 
     list_str, remainder = _split_list_from_tail(list_str_full)
     diagnosis = remainder.lstrip(";").strip() or None
@@ -132,9 +132,9 @@ def parse_hp_row(line: str) -> dict:
     dates = []
     for session in raw_sessions:
         date_str, numbers_str, descriptions_str, amounts_str = session
-        numbers      = numbers_str.split("\n")
+        numbers = numbers_str.split("\n")
         descriptions = descriptions_str.split("\n")
-        amounts      = [parse_amount(a) for a in amounts_str.split("\n")]
+        amounts = [parse_amount(a) for a in amounts_str.split("\n")]
         items = [
             {"number": num, "description": desc, "amount": amt, "quantity": 1}
             for num, desc, amt in zip(numbers, descriptions, amounts)
@@ -156,12 +156,12 @@ def parse_kg_row(line: str) -> dict:
     line = line.strip()
     idx = line.index(";['")
     semicol_part = line[:idx]
-    rest = line[idx + 1:]
+    rest = line[idx + 1 :]
 
     cols = semicol_part.split(";")
-    label       = cols[0].strip()
+    label = cols[0].strip()
     invoice_num = cols[1].strip()
-    km_count    = int(cols[2].strip())
+    km_count = int(cols[2].strip())
     date_strings = [c.strip() for c in cols[8:] if c.strip()]
     dates_parsed = [parse_date(d) for d in date_strings if parse_date(d)]
 
@@ -169,7 +169,7 @@ def parse_kg_row(line: str) -> dict:
     amt_list_str, _ = _split_list_from_tail(remainder.lstrip(";"))
 
     descriptions = ast.literal_eval(desc_str)
-    amounts      = ast.literal_eval(amt_list_str)
+    amounts = ast.literal_eval(amt_list_str)
 
     items = [
         {"number": None, "description": desc, "amount": float(amt), "quantity": len(dates_parsed)}
@@ -190,7 +190,7 @@ def parse_kg_row(line: str) -> dict:
     }
 
 
-def parse_row(line: str) -> Optional[dict]:
+def parse_row(line: str) -> dict | None:
     line = line.strip()
     if not line or ";" not in line:
         return None
@@ -216,24 +216,24 @@ def load_csv(path: Path) -> list[dict]:
 
 # ── SQL generation ────────────────────────────────────────────────────────────
 
+
 def invoice_block(row: dict, now_ts: str) -> str:
     """
     Render one complete, self-contained SQL block for a single invoice.
     Uses plain INSERTs with subqueries — SQLite compatible (no RETURNING).
     """
-    inv_num  = row["invoice_number"]
-    label    = row["label"]
+    inv_num = row["invoice_number"]
+    label = row["label"]
     inv_type = row["type"]
     inv_date = row["invoice_date"]
-    km       = row.get("kilometers_at_billing")
-    diag     = row.get("diagnosis")
+    km = row.get("kilometers_at_billing")
+    diag = row.get("diagnosis")
 
     # Subquery helpers that reference the already-inserted invoice row
     inv_id = f"(SELECT invoice_id FROM invoice WHERE invoice_number = {sql_str(inv_num)})"
 
     def date_id_subq(d):
-        return (f"(SELECT date_id FROM invoice_date "
-                f"WHERE invoice_id = {inv_id} AND date = {sql_str(d)})")
+        return f"(SELECT date_id FROM invoice_date WHERE invoice_id = {inv_id} AND date = {sql_str(d)})"
 
     lines = []
 
@@ -254,7 +254,7 @@ def invoice_block(row: dict, now_ts: str) -> str:
     lines.append(f"    {sql_str(inv_date)},")
     lines.append(f"    {sql_str(km)},")
     lines.append(f"    {sql_str(inv_type)},")
-    lines.append(f"    'PAYMENT_DUE',")
+    lines.append("    'PAYMENT_DUE',")
     lines.append(f"    {sql_str(diag)},")
     lines.append(f"    '{now_ts}', '{now_ts}'")
     lines.append(");")
@@ -263,7 +263,7 @@ def invoice_block(row: dict, now_ts: str) -> str:
     if inv_type == "HP":
         for d_idx, date_block in enumerate(row["dates"], start=1):
             d = date_block["date"]
-            lines.append(f"")
+            lines.append("")
             lines.append(f"-- Treatment date {d_idx}: {d}")
             lines.append("INSERT INTO invoice_date (invoice_id, date)")
             lines.append(f"VALUES ({inv_id}, {sql_str(d)});")
@@ -314,15 +314,14 @@ def invoice_block(row: dict, now_ts: str) -> str:
         lines.append("INSERT INTO invoice_default_item_association (invoice_id, default_item_id)")
         lines.append(f"VALUES ({inv_id}, 1000);")
 
-    lines.append("")   # blank line between blocks
+    lines.append("")  # blank line between blocks
     return "\n".join(lines)
 
 
 def generate_sql(rows: list[dict], out_path: Path):
-    now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S+00")
+    now_ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S+00")
 
     with open(out_path, "w", encoding="utf-8") as f:
-
         # ── file header ───────────────────────────────────────────────────
         f.write(f"""\
 -- ============================================================
@@ -372,21 +371,19 @@ BEGIN;
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate a reviewable SQL import file from invoice CSVs."
+    parser = argparse.ArgumentParser(description="Generate a reviewable SQL import file from invoice CSVs.")
+    parser.add_argument("--year", choices=["2025", "2026"], help="Only process one year (default: both)")
+    parser.add_argument("--csv-dir", default=".", help="Directory containing 2025.csv and 2026.csv")
+    parser.add_argument(
+        "--out", default="import_invoices.sql", help="Output SQL file name (default: import_invoices.sql)"
     )
-    parser.add_argument("--year", choices=["2025", "2026"],
-                        help="Only process one year (default: both)")
-    parser.add_argument("--csv-dir", default=".",
-                        help="Directory containing 2025.csv and 2026.csv")
-    parser.add_argument("--out", default="import_invoices.sql",
-                        help="Output SQL file name (default: import_invoices.sql)")
     args = parser.parse_args()
 
-    csv_dir  = Path(args.csv_dir)
+    csv_dir = Path(args.csv_dir)
     out_path = Path(args.out)
-    years    = [args.year] if args.year else ["2025", "2026"]
+    years = [args.year] if args.year else ["2025", "2026"]
 
     all_rows = []
     for y in years:
@@ -405,9 +402,9 @@ def main():
     ok, skipped = generate_sql(all_rows, out_path)
 
     print(f"\nWrote {out_path}  ({ok} invoices, {skipped} skipped)")
-    print(f"\nNext steps:")
+    print("\nNext steps:")
     print(f"  1. Open {out_path} and review each block")
-    print(f"  2. Comment out / delete any block you don't want")
+    print("  2. Comment out / delete any block you don't want")
     print(f"  3. sqlite3 <db_file> < {out_path}")
 
 

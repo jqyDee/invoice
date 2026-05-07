@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi import HTTPException
@@ -14,7 +14,7 @@ from app.utilities.security import (
 
 def test_missing_sub_raises_401(db):
     token = jwt.encode(
-        {"exp": datetime.now(timezone.utc) + timedelta(minutes=5)},
+        {"exp": datetime.now(UTC) + timedelta(minutes=5)},
         JWT_SECRET,
         algorithm=JWT_ALGORITHM,
     )

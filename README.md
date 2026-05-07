@@ -1,113 +1,187 @@
 # Invoice Management System
 
+A full-stack, containerized web application for managing patients, generating invoices, and handling treatment records. Tailored for healthcare and therapy practices (Heilpraktiker, Physiotherapy), featuring customizable invoice templates, default billing items, automated PDF generation, and tax reporting.
 
-A full-stack, containerized web application designed for managing patients, generating invoices, and handling treatment records. It is specifically tailored for healthcare and therapy practices (e.g., Heilpraktiker, Physiotherapy), featuring customizable invoice templates, default billing items, automated PDF generation, and tax reporting.
+## Features
 
-## 🚀 Features
-
-* **Patient Management**: Create, update, and manage patient profiles, including contact details and travel distances for automated billing.
+* **Patient Management**: Create, update, and manage patient profiles including contact details and travel distances for automated billing.
 * **Invoice Generation**: Create draft invoices, assign treatment dates, add custom billing items, and apply default items.
-* **PDF Export**: Generate professional PDF documents including Invoices (HP, KG, etc.), Privacy Clauses, and Therapy Agreements.
+* **PDF Export**: Generate professional PDF documents — Invoices (HP, KG, etc.), Privacy Clauses, and Therapy Agreements.
 * **Settings & Templates**: Configure default invoice items, privacy clauses, and therapy clauses to streamline repetitive tasks.
-* TODO: (**Tax Reporting**: Automatically calculate and export yearly tax data (totals, date counts, kilometers traveled) to CSV.)
-* **Responsive UI**: Modern, fast, and responsive user interface built with React and Vite.
+* **Responsive UI**: Modern, fast, and responsive interface built with React and Vite.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Backend**
-* [FastAPI](https://fastapi.tiangolo.com/) - High-performance Python web framework.
-* [SQLAlchemy](https://www.sqlalchemy.org/) & [Alembic](https://alembic.sqlalchemy.org/) - ORM and database migrations.
-* [SQLite](https://www.sqlite.org/index.html) - Lightweight, file-based database.
+* [FastAPI](https://fastapi.tiangolo.com/) — High-performance Python web framework
+* [SQLAlchemy](https://www.sqlalchemy.org/) & [Alembic](https://alembic.sqlalchemy.org/) — ORM and database migrations
+* [SQLite](https://www.sqlite.org/index.html) — Lightweight, file-based database
+* [fpdf2](https://py-pdf.github.io/fpdf2/) — PDF generation
 
 **Frontend**
-* [React](https://reactjs.org/) + [Vite](https://vitejs.dev/) - Blazing fast frontend tooling and UI library.
-* [TypeScript](https://www.typescriptlang.org/) - Static typing for scalable code.
+* [React](https://reactjs.org/) + [Vite](https://vitejs.dev/) — Fast frontend tooling
+* [TypeScript](https://www.typescriptlang.org/) — Static typing
+* [PrimeReact](https://primereact.org/) — UI component library
+* [TanStack Query](https://tanstack.com/query) — Server state management
+* [React Router v7](https://reactrouter.com/) — Client-side routing
 
 **Infrastructure**
-* [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) - Containerization for dev and prod.
-* [Nginx](https://nginx.org/) - Reverse proxy and static file serving for production.
+* [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) — Containerization
+* [Nginx](https://nginx.org/) — Static file serving in production
+* [Watchtower](https://containrrr.dev/watchtower/) — Automatic container updates in production
+* [Tailscale](https://tailscale.com/) — VPN + HTTPS (via `tailscale serve`)
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
-Before you begin, ensure you have the following installed on your machine:
-* [Docker](https://docs.docker.com/get-docker/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
+* [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/)
+* [Make](https://www.gnu.org/software/make/)
 * Git
 
 ---
 
-## 💻 Development Setup
+## Development Setup
 
-The development environment utilizes `docker-compose.yml` to spin up the backend and frontend with hot-reloading enabled.
+The dev environment uses `docker-compose.yml` with hot-reload for both backend (uvicorn `--reload`) and frontend (Vite HMR).
 
 1. **Clone the repository:**
    ```bash
    git clone <your-repo-url>
-   cd invoice
+   cd invoice-python
    ```
 
 2. **Set up environment variables:**
-   Copy the example environment file and configure it if necessary.
    ```bash
    cp .env.example .env
    ```
+   Edit `.env` — at minimum set `JWT_SECRET`, `SEED_USERNAME`, and `SEED_PASSWORD`.
 
-3. **Start the development containers:**
+3. **Start dev containers:**
    ```bash
-   docker-compose up --build
+   make up-dev
    ```
-   *(Alternatively, if you are using the included `Makefile`, you can run `make up-dev`)*
+   This regenerates `openapi.json` from the backend first, then runs `docker compose up --build`.
 
 4. **Access the application:**
-   * **Frontend:** [http://localhost:5173](http://localhost:5173)
-   * **Backend API Docs (Swagger):** [http://localhost:8000/docs](http://localhost:8000/docs)
+   * Frontend: [http://localhost:5173](http://localhost:5173)
+   * Backend API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-5. **Database Migrations:**
-   The backend container handles migrations automatically on startup via the `alembic upgrade head` command. To run them manually or generate new ones:
+5. **Stop containers:**
    ```bash
-   docker-compose exec backend alembic revision --autogenerate -m "Your message"
-   docker-compose exec backend alembic upgrade head
+   make down
    ```
 
 ---
 
-## 🌍 Production Setup
+## Production Setup
 
-The production setup uses `docker-compose.prod.yml` to run optimized builds pulled from the projects github code repository. The frontend is served statically via Nginx, and the backend runs via an ASGI production server.
+Production uses pre-built images from GHCR, served via Nginx. Watchtower keeps images up to date automatically.
 
-1. **Prepare the server:**
-   Clone the repository to your production server.
-
-2. **Configure production environment variables:**
-   Ensure your `.env` file contains production-ready secrets and variables (e.g., secure passwords, correct domain names, restricted CORS origins).
-
-3. **Build and start production containers:**
-   Run the application in detached mode using the production compose file. (Or use the included `Makefile` with `make up-prod`. Be aware that this tries to run the certificate generation so the scripts folder should be present!)
+1. **Authenticate with GHCR** (one-time):
    ```bash
-   docker-compose -f docker-compose.prod.yml up -d
+   docker login ghcr.io -u <your-github-username>
+   # Use a GitHub PAT with read:packages scope as the password
    ```
 
-4. **SSL / HTTPS Certificates (Recommended):**
-   * This is done through tailscale serve
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   Key variables:
+   ```env
+   TAILSCALE_IP=100.x.x.x         # Your machine's Tailscale IP
+   BACKEND_PORT=6942               # Port backend binds to
+   JWT_SECRET=<strong-secret>
+   SEED_USERNAME=admin
+   SEED_PASSWORD=<strong-password>
+
+   # Watchtower email notifications (optional)
+   WATCHTOWER_POLL_INTERVAL=300
+   WATCHTOWER_NOTIFICATION_EMAIL_FROM=you@gmail.com
+   WATCHTOWER_NOTIFICATION_EMAIL_TO=you@gmail.com
+   WATCHTOWER_NOTIFICATION_EMAIL_SERVER=smtp.gmail.com
+   WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=587
+   WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=you@gmail.com
+   WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD="your-app-password"
+   ```
+
+3. **Start production containers:**
+   ```bash
+   make up-prod
+   ```
+   Pulls `ghcr.io/jqydee/invoice-backend:latest` and `ghcr.io/jqydee/invoice-frontend:latest`, starts detached.
+
+4. **HTTPS:**
+   Served via `tailscale serve` — no manual certificate management needed.
+
+5. **Ports:**
+   * Frontend: `127.0.0.1:80`
+   * Backend: `${TAILSCALE_IP}:${BACKEND_PORT}` and `127.0.0.1:${BACKEND_PORT}`
 
 ---
 
-## 🗄️ Database Management
+## Database Management
 
-The application uses SQLite, meaning the database is stored as a local file inside the container, typically mounted via Docker volumes to persist data across container restarts.
+SQLite database stored at `/app/data/db.db` inside the container.
 
-* **Backups:** To back up your data, simply copy the `.sqlite3` file from the mounted volume location to a secure backup directory.
-* **Restoring:** Stop the containers, replace the `.sqlite3` file with your backup, and restart the containers.
+* **Dev mount:** `./backend/data/db.db`
+* **Prod mount:** `./data/db.db`
+
+Migrations run automatically on container startup via `alembic upgrade head`.
+
+### Manual migration commands
+
+```bash
+make db-migrate m="describe_change"  # Create new autogenerated migration
+make db-upgrade                      # Apply pending migrations
+make db-downgrade                    # Roll back one migration
+make db-current                      # Show current revision
+```
+
+### Backup & restore
+
+Stop containers, copy `db.db` to a safe location. To restore, replace `db.db` and restart.
 
 ---
 
-## 📁 Repository Structure
+## OpenAPI / API Client
 
-* `/backend` - FastAPI Python backend, SQLAlchemy models, Alembic migrations, and PDF generation logic.
-* `/frontend` - React/Vite frontend application, UI components, and API client.
-* `/scripts` - Helper scripts (e.g., SSL certificate renewal).
-* `docker-compose.yml` - Configuration for local development.
-* `docker-compose.prod.yml` - Configuration for production deployment.
-* `Makefile` - Convenience commands for running builds, tests, and database migrations.
+The frontend API client is auto-generated from the backend's OpenAPI schema. After any backend model, schema, or router change:
+
+```bash
+make openapi                                    # Regenerate openapi.json
+cd frontend && npm run openapi-ts:generate      # Regenerate frontend client
+```
+
+Do not edit files in `frontend/src/api/` manually.
+
+---
+
+## Testing
+
+```bash
+make test                          # Run all backend tests (pytest)
+cd backend && pytest tests/path/to/test_file.py::test_name  # Single test
+```
+
+---
+
+## Repository Structure
+
+```
+/backend     FastAPI app, SQLAlchemy models, Alembic migrations, PDF generation
+/frontend    React/Vite frontend, UI components, auto-generated API client
+Makefile     All dev/prod/migration/test commands
+docker-compose.yml       Local development
+docker-compose.prod.yml  Production deployment
+.env.example             Environment variable template
+```
+
+---
+
+## CI/CD
+
+* **PRs to main:** GitHub Actions runs `pytest`
+* **Version tags (`v*.*.*`):** Builds and pushes Docker images to GHCR
+* **Release automation:** Release-Please handles versioning and changelog generation

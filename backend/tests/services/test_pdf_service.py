@@ -73,28 +73,32 @@ def saved_hp_invoice_female(db, patient_female):
     d1 = InvoiceDateDB(invoice_id=inv.invoice_id, date=date(2026, 1, 10))
     db.add(d1)
     db.flush()
-    db.add(InvoiceItemDB(
-        invoice_id=inv.invoice_id,
-        date_id=d1.date_id,
-        description="Behandlung A",
-        amount=50.0,
-        number="GÖÄ 1",
-        quantity=1,
-        position=0,
-    ))
+    db.add(
+        InvoiceItemDB(
+            invoice_id=inv.invoice_id,
+            date_id=d1.date_id,
+            description="Behandlung A",
+            amount=50.0,
+            number="GÖÄ 1",
+            quantity=1,
+            position=0,
+        )
+    )
 
     d2 = InvoiceDateDB(invoice_id=inv.invoice_id, date=date(2026, 1, 17))
     db.add(d2)
     db.flush()
-    db.add(InvoiceItemDB(
-        invoice_id=inv.invoice_id,
-        date_id=d2.date_id,
-        description="Behandlung B",
-        amount=60.0,
-        number="GÖÄ 2",
-        quantity=1,
-        position=0,
-    ))
+    db.add(
+        InvoiceItemDB(
+            invoice_id=inv.invoice_id,
+            date_id=d2.date_id,
+            description="Behandlung B",
+            amount=60.0,
+            number="GÖÄ 2",
+            quantity=1,
+            position=0,
+        )
+    )
 
     db.commit()
     db.refresh(inv)
@@ -120,15 +124,17 @@ def saved_kg_invoice_female(db, patient_female):
     db.add_all([d1, d2])
     db.flush()
 
-    db.add(InvoiceItemDB(
-        invoice_id=inv.invoice_id,
-        date_id=None,
-        description="KG Behandlung",
-        amount=30.0,
-        number=None,
-        quantity=2,
-        position=0,
-    ))
+    db.add(
+        InvoiceItemDB(
+            invoice_id=inv.invoice_id,
+            date_id=None,
+            description="KG Behandlung",
+            amount=30.0,
+            number=None,
+            quantity=2,
+            position=0,
+        )
+    )
     db.commit()
     db.refresh(inv)
     return inv
@@ -232,9 +238,8 @@ def test_check_and_regenerate_privacy_throws(db, patient, tmp_path, monkeypatch)
 # Female patient — covers gender branches in HP, KG, privacy, therapy PDFs
 # ---------------------------------------------------------------------------
 
-def test_regenerate_hp_invoice_female_creates_pdf(
-    db, saved_hp_invoice_female, settings, tmp_path, monkeypatch
-):
+
+def test_regenerate_hp_invoice_female_creates_pdf(db, saved_hp_invoice_female, settings, tmp_path, monkeypatch):
     """Covers invoice_hp_pdf.py lines 92-93 (Frau recipient), 123-124 (Patientin),
     143 (female salutation), 181-191 (last_treatment in dummy), 217-228 (last_treatment actual).
     """
@@ -243,18 +248,14 @@ def test_regenerate_hp_invoice_female_creates_pdf(
     assert (tmp_path / f"{saved_hp_invoice_female.invoice_number}.pdf").exists()
 
 
-def test_regenerate_kg_invoice_female_creates_pdf(
-    db, saved_kg_invoice_female, settings, tmp_path, monkeypatch
-):
+def test_regenerate_kg_invoice_female_creates_pdf(db, saved_kg_invoice_female, settings, tmp_path, monkeypatch):
     """Covers invoice_kg_pdf.py lines 84-85 (Frau), 111-112 (Patientin:), 142 (female salutation)."""
     _patch_pdf_paths(monkeypatch, tmp_path)
     _regenerate_invoice_pdf(saved_kg_invoice_female, settings, db)
     assert (tmp_path / f"{saved_kg_invoice_female.invoice_number}.pdf").exists()
 
 
-def test_privacy_pdf_female_with_contact_and_clauses(
-    db, patient_female, tmp_path, monkeypatch
-):
+def test_privacy_pdf_female_with_contact_and_clauses(db, patient_female, tmp_path, monkeypatch):
     """Covers privacy_pdf.py lines 50-51 (Frau), 86/88 (telephone/email),
     93-117 (clause rendering with preamble and regular clause).
     """
@@ -277,9 +278,7 @@ def test_privacy_pdf_female_with_contact_and_clauses(
     assert (tmp_path / f"{patient_female.patient_id}-{patient_female.label}-privacy.pdf").exists()
 
 
-def test_therapy_pdf_female_with_contact_and_clauses(
-    db, patient_female, settings, tmp_path, monkeypatch
-):
+def test_therapy_pdf_female_with_contact_and_clauses(db, patient_female, settings, tmp_path, monkeypatch):
     """Covers therapy_pdf.py lines 58-59 (Frau), 93-96 (telephone/email != ''),
     101-119 (clause rendering with price substitution).
     """
@@ -299,13 +298,14 @@ def test_therapy_pdf_female_with_contact_and_clauses(
 # InvoiceType.GT subheading — covers invoice_pdf.py line 43
 # ---------------------------------------------------------------------------
 
+
 def test_invoice_pdf_gt_sets_gestalttherapeutin_subheading(saved_hp_invoice, settings):
     """Covers invoice_pdf.py line 43: elif invoice.type == InvoiceType.GT.
     InvoicePdf.__init__ sets additional_subheading without calling create_pages,
     so we can instantiate it directly (fonts are available in the test environment).
     """
-    from app.pdf.invoice_pdf import InvoicePdf
     from app.models import InvoiceType
+    from app.pdf.invoice_pdf import InvoicePdf
 
     saved_hp_invoice.type = InvoiceType.GT
     pdf = InvoicePdf(saved_hp_invoice, settings)

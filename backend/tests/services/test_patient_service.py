@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from fastapi import HTTPException
 
-from app.models import Gender, InvoiceDB, InvoiceStatus, InvoiceType, PatientDB
+from app.models import Gender, InvoiceDB, InvoiceStatus, InvoiceType
 from app.schemas import PatientCreate
 from app.services.patient_service import (
     load_patient,
@@ -34,6 +34,7 @@ def _patient_create(**kwargs) -> PatientCreate:
 # load_patient
 # ---------------------------------------------------------------------------
 
+
 def test_load_patient_returns_correct_patient(db, patient):
     result = load_patient(patient.patient_id, db)
     assert result.patient_id == patient.patient_id
@@ -49,6 +50,7 @@ def test_load_patient_not_found_raises_404(db):
 # ---------------------------------------------------------------------------
 # perform_create_patient
 # ---------------------------------------------------------------------------
+
 
 def test_perform_create_patient_persists(db):
     data = _patient_create()
@@ -82,6 +84,7 @@ def test_perform_create_patient_with_contact_info(db):
 # perform_update_patient
 # ---------------------------------------------------------------------------
 
+
 def test_perform_update_patient_updates_fields(db, patient):
     update = _patient_create(first_name="Karl", kilometers_to_travel=20.0)
     result = perform_update_patient(update, patient, db)
@@ -99,6 +102,7 @@ def test_perform_update_patient_keeps_unchanged_fields(db, patient):
 # ---------------------------------------------------------------------------
 # perform_delete_patient
 # ---------------------------------------------------------------------------
+
 
 def test_perform_delete_patient_no_invoices_succeeds(db, patient):
     pid = patient.patient_id

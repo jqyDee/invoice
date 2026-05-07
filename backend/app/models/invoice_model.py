@@ -1,21 +1,20 @@
 from __future__ import annotations
 
-from typing import Optional, List
-from datetime import datetime, timezone, date
+from datetime import UTC, date, datetime
 
-from sqlalchemy import ForeignKey, Text, Enum, DateTime, select, func, case
+from sqlalchemy import DateTime, Enum, ForeignKey, Text, case, func, select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .patient_model import PatientDB
-from .invoiceItem_model import InvoiceItemDB
-from .invoiceDate_model import InvoiceDateDB
-from .invoiceInvoiceDefaultItem_association import InvoiceInvoiceDefaultItemAssociationDB
+from .base_model import Base
 from .defaultInvoiceItem_model import DefaultInvoiceItemDB
 from .defaultInvoiceItemPosition_enum import DefaultInvoiceItemPosition
-from .base_model import Base
+from .invoiceDate_model import InvoiceDateDB
+from .invoiceInvoiceDefaultItem_association import InvoiceInvoiceDefaultItemAssociationDB
+from .invoiceItem_model import InvoiceItemDB
 from .invoiceStatus_enum import InvoiceStatus
 from .invoiceType_enum import InvoiceType
+from .patient_model import PatientDB
 
 
 class InvoiceDB(Base):
@@ -24,32 +23,30 @@ class InvoiceDB(Base):
     invoice_id: Mapped[int] = mapped_column(primary_key=True, index=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey("patient.patient_id"))
 
-    invoice_number: Mapped[Optional[str]] = mapped_column(unique=True, index=True)
+    invoice_number: Mapped[str | None] = mapped_column(unique=True, index=True)
     invoice_date: Mapped[date] = mapped_column()
-    kilometers_at_billing: Mapped[Optional[float]] = mapped_column()
+    kilometers_at_billing: Mapped[float | None] = mapped_column()
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
     )
-    pdf_generated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    pdf_generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     type: Mapped[InvoiceType] = mapped_column(Enum(InvoiceType), default=InvoiceType.KG)
     status: Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), default=InvoiceStatus.DRAFT)
-    paid_at: Mapped[Optional[date]] = mapped_column()
+    paid_at: Mapped[date | None] = mapped_column()
 
-    diagnosis: Mapped[Optional[str]] = mapped_column(Text)
+    diagnosis: Mapped[str | None] = mapped_column(Text)
 
     patient: Mapped[PatientDB] = relationship(back_populates="invoices")
 
-    dates: Mapped[List[InvoiceDateDB]] = relationship(back_populates="invoice", cascade="all, delete-orphan")
+    dates: Mapped[list[InvoiceDateDB]] = relationship(back_populates="invoice", cascade="all, delete-orphan")
 
-    user_items: Mapped[List[InvoiceItemDB]] = relationship(
+    user_items: Mapped[list[InvoiceItemDB]] = relationship(
         back_populates="invoice", cascade="all, delete-orphan", order_by="InvoiceItemDB.position"
     )
-    default_items: Mapped[List[InvoiceInvoiceDefaultItemAssociationDB]] = relationship(
+    default_items: Mapped[list[InvoiceInvoiceDefaultItemAssociationDB]] = relationship(
         back_populates="invoice", cascade="all, delete-orphan"
     )
 
@@ -62,12 +59,16 @@ class InvoiceDB(Base):
     def items(self):
         active_defaults = [link.default_item for link in self.default_items]
 
-        prepend = [d for d in active_defaults if d.position in [
-            DefaultInvoiceItemPosition.PREPEND, DefaultInvoiceItemPosition.BOTH
-        ]]
-        append = [d for d in active_defaults if d.position in [
-            DefaultInvoiceItemPosition.APPEND, DefaultInvoiceItemPosition.BOTH
-        ]]
+        prepend = [
+            d
+            for d in active_defaults
+            if d.position in [DefaultInvoiceItemPosition.PREPEND, DefaultInvoiceItemPosition.BOTH]
+        ]
+        append = [
+            d
+            for d in active_defaults
+            if d.position in [DefaultInvoiceItemPosition.APPEND, DefaultInvoiceItemPosition.BOTH]
+        ]
 
         return prepend + self.user_items + append
 
@@ -78,8 +79,10 @@ class InvoiceDB(Base):
 
         # 1. Sum linked default items
         default_total = sum(
-            (link.default_item.amount * (
-                link.default_item.quantity if link.default_item.quantity is not None else date_count))
+            (
+                link.default_item.amount
+                * (link.default_item.quantity if link.default_item.quantity is not None else date_count)
+            )
             for link in self.default_items
         )
 
@@ -88,7 +91,7 @@ class InvoiceDB(Base):
 
         return round(default_total + user_total, 2)
 
-    @total.expression
+    @total.expression  # type: ignore[no-redef]
     def total(cls):
         """SQL-level calculation for database queries and sorting."""
         # Subquery to determine the date multiplier
@@ -103,12 +106,15 @@ class InvoiceDB(Base):
 
         # Subquery for defaults using the date multiplier logic
         default_sum = (
-            select(func.sum(
-                DefaultInvoiceItemDB.amount * case(
-                    (DefaultInvoiceItemDB.quantity.isnot(None), DefaultInvoiceItemDB.quantity),
-                    else_=effective_multiplier
+            select(
+                func.sum(
+                    DefaultInvoiceItemDB.amount
+                    * case(
+                        (DefaultInvoiceItemDB.quantity.isnot(None), DefaultInvoiceItemDB.quantity),
+                        else_=effective_multiplier,
+                    )
                 )
-            ))
+            )
             .select_from(InvoiceInvoiceDefaultItemAssociationDB)
             .join(DefaultInvoiceItemDB)
             .where(InvoiceInvoiceDefaultItemAssociationDB.invoice_id == cls.invoice_id)
@@ -127,15 +133,17 @@ class InvoiceDB(Base):
     @hybrid_property
     def total_travel_distance(self) -> float:
         """Python-level: Uses the snapshotted km or falls back to current patient data."""
-        km_per_trip = self.kilometers_at_billing if self.kilometers_at_billing is not None else (
-            self.patient.kilometers_to_travel if self.patient else 0
+        km_per_trip = (
+            self.kilometers_at_billing
+            if self.kilometers_at_billing is not None
+            else (self.patient.kilometers_to_travel if self.patient else 0)
         )
 
         multiplier = len(self.dates) if self.dates else 0
 
         return km_per_trip * multiplier * 2  # as we have 2 trips, to and from
 
-    @total_travel_distance.expression
+    @total_travel_distance.expression  # type: ignore[no-redef]
     def total_travel_distance(cls):
         """SQL-level: Multiplies stored distance (or patient fallback) by date/item count based on type."""
         # Subquery: Count of Dates
@@ -147,9 +155,7 @@ class InvoiceDB(Base):
 
         effective_km = func.coalesce(
             cls.kilometers_at_billing,
-            select(PatientDB.kilometers_to_travel)
-            .where(PatientDB.patient_id == cls.patient_id)
-            .scalar_subquery()
+            select(PatientDB.kilometers_to_travel).where(PatientDB.patient_id == cls.patient_id).scalar_subquery(),
         )
 
         return multiplier * effective_km * 2  # as we have 2 trips, to and from

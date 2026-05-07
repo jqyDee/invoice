@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base_model import Base
@@ -10,9 +8,9 @@ class SettingsDB(Base):
 
     settings_id: Mapped[int] = mapped_column(primary_key=True)
 
-    iban: Mapped[Optional[str]] = mapped_column()
-    bic: Mapped[Optional[str]] = mapped_column()
-    tax_id: Mapped[Optional[str]] = mapped_column()
+    iban: Mapped[str | None] = mapped_column()
+    bic: Mapped[str | None] = mapped_column()
+    tax_id: Mapped[str | None] = mapped_column()
 
-    price_from: Mapped[Optional[float]] = mapped_column(default=100.0)
-    price_to: Mapped[Optional[float]] = mapped_column(default=110.0)
+    price_from: Mapped[float | None] = mapped_column(default=100.0)
+    price_to: Mapped[float | None] = mapped_column(default=110.0)

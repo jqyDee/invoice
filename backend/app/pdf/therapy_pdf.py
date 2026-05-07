@@ -1,19 +1,24 @@
-from .document_pdf import DocumentPdf
-from ..models import PatientDB, SettingsDB, Gender
+from ..models import Gender, PatientDB, SettingsDB
 from ..models.therapyClause_model import TherapyClauseDB
-from ..utilities import RECIPIENT_OFFSET, NORMAL_FONT_SIZE, DOCUMENT_DEFAULT_OFFSET, DOCUMENT_FONT_SIZE, \
-    DOCUMENT_HEADER_FONT_SIZE
+from ..utilities import (
+    DOCUMENT_DEFAULT_OFFSET,
+    DOCUMENT_FONT_SIZE,
+    DOCUMENT_HEADER_FONT_SIZE,
+    NORMAL_FONT_SIZE,
+    RECIPIENT_OFFSET,
+)
 from ..utilities.path_utilitiy import generate_therapy_path
+from .document_pdf import DocumentPdf
 
 
 class Therapy(DocumentPdf):
     """Creates the HP PDF and outputs to given filepath"""
 
     def __init__(
-            self,
-            patient: PatientDB,
-            settings: SettingsDB,
-            clauses: list[TherapyClauseDB],
+        self,
+        patient: PatientDB,
+        settings: SettingsDB,
+        clauses: list[TherapyClauseDB],
     ):
         super().__init__("Therapie-Vereinbarung")
 
@@ -99,9 +104,7 @@ class Therapy(DocumentPdf):
         self.ln(4)
 
         for clause in self.clauses:
-            description = clause.description.format(
-                price_from=self.price_from, price_to=self.price_to
-            )
+            description = clause.description.format(price_from=self.price_from, price_to=self.price_to)
 
             with self.offset_rendering() as dummy:
                 dummy.set_font("Roboto", "B", DOCUMENT_HEADER_FONT_SIZE)

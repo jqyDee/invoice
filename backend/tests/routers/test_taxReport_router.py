@@ -14,14 +14,20 @@ PATIENT_PAYLOAD = {
 
 def _create_paid_invoice(client, auth_headers):
     patient = client.post("/patients/", json=PATIENT_PAYLOAD, headers=auth_headers).json()
-    inv = client.post("/invoices/", json={
-        "patient_id": patient["patient_id"],
-        "invoice_date": "2026-03-01",
-        "type": "HP",
-        "dates": [{"date": "2026-02-10", "items": [{"description": "Behandlung", "amount": 50.0, "number": "GÖÄ 1"}]}],
-        "default_item_ids": [],
-        "save_as_draft": False,
-    }, headers=auth_headers).json()
+    inv = client.post(
+        "/invoices/",
+        json={
+            "patient_id": patient["patient_id"],
+            "invoice_date": "2026-03-01",
+            "type": "HP",
+            "dates": [
+                {"date": "2026-02-10", "items": [{"description": "Behandlung", "amount": 50.0, "number": "GÖÄ 1"}]}
+            ],
+            "default_item_ids": [],
+            "save_as_draft": False,
+        },
+        headers=auth_headers,
+    ).json()
     client.post(f"/invoices/{inv['invoice_id']}/payment-due", headers=auth_headers)
     client.post(f"/invoices/{inv['invoice_id']}/paid", json={"paid_at": "2026-03-15"}, headers=auth_headers)
     return inv

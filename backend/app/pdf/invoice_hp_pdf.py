@@ -1,6 +1,6 @@
-from ..models import InvoiceDB, SettingsDB, Gender
+from ..models import Gender, InvoiceDB, SettingsDB
 from ..pdf.invoice_pdf import InvoicePdf
-from ..utilities.config import NORMAL_FONT_SIZE, TREATMENT_FONT_SIZE, RECIPIENT_OFFSET
+from ..utilities.config import NORMAL_FONT_SIZE, RECIPIENT_OFFSET, TREATMENT_FONT_SIZE
 from ..utilities.path_utilitiy import generate_invoice_path
 
 
@@ -8,9 +8,9 @@ class InvoiceHp(InvoicePdf):
     """Creates the HP PDF and outputs to given filepath"""
 
     def __init__(
-            self,
-            invoice: InvoiceDB,
-            settings: SettingsDB,
+        self,
+        invoice: InvoiceDB,
+        settings: SettingsDB,
     ):
         super().__init__(invoice, settings)
 
@@ -36,7 +36,7 @@ class InvoiceHp(InvoicePdf):
         ## DETAILS TABLE (TABLE 1)
         self.details_table = [
             ["Patientenkürzel", "Rechnungsnummer", "Rechnungsdatum"],
-            [self.label, invoice.invoice_number, invoice.invoice_date.strftime("%d.%m.%Y")]
+            [self.label, invoice.invoice_number, invoice.invoice_date.strftime("%d.%m.%Y")],
         ]
 
         ## TREATMENT TABLE (TABLE 2)
@@ -56,19 +56,10 @@ class InvoiceHp(InvoicePdf):
 
             euro_str = "\n".join("€" for _ in d.items)
 
-            self.treatment_table.append([
-                date_str,
-                ziffern_str,
-                desc_str,
-                amount_str,
-                euro_str
-            ])
+            self.treatment_table.append([date_str, ziffern_str, desc_str, amount_str, euro_str])
 
         ## TOTAL TABLE (TABLE 4)
-        self.total_table = [
-            ["", "", "Gesamtbetrag:", self.total, "€"],
-            ["", "", "", "", ""]
-        ]
+        self.total_table = [["", "", "Gesamtbetrag:", self.total, "€"], ["", "", "", "", ""]]
 
         self.create_pages()
 
@@ -106,9 +97,9 @@ class InvoiceHp(InvoicePdf):
         # ----------------------
         # Kuerzel | ReNr | Date
         with self.table(
-                borders_layout="NONE",
-                line_height=int(1.5 * self.font_size),
-                text_align=("LEFT", "CENTER", "RIGHT"),
+            borders_layout="NONE",
+            line_height=int(1.5 * self.font_size),
+            text_align=("LEFT", "CENTER", "RIGHT"),
         ) as table:
             for data_row in self.details_table:
                 row = table.row()
@@ -136,14 +127,14 @@ class InvoiceHp(InvoicePdf):
         if self.gender == "Mann":
             self.write(
                 text=f"Sehr geehrter Herr {self.last_name},\n\n"
-                     f"hiermit erlaube ich mir, für meine Bemühungen folgendes "
-                     f"Honorar zu berechnen:"
+                f"hiermit erlaube ich mir, für meine Bemühungen folgendes "
+                f"Honorar zu berechnen:"
             )
         if self.gender == "Frau":
             self.write(
                 text=f"Sehr geehrte Frau {self.last_name},\n\n"
-                     f"hiermit erlaube ich mir, für meine Bemühungen "
-                     f"folgendes Honorar zu berechnen:"
+                f"hiermit erlaube ich mir, für meine Bemühungen "
+                f"folgendes Honorar zu berechnen:"
             )
         self.ln(7)
         self.set_font("Roboto", size=TREATMENT_FONT_SIZE)
@@ -159,12 +150,12 @@ class InvoiceHp(InvoicePdf):
 
         if main_treatments:
             with self.table(
-                    cell_fill_color=230,
-                    cell_fill_mode="ROWS",
-                    line_height=int(1.7 * self.font_size),
-                    text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
-                    col_widths=(10, 8, 70, 10, 4),
-                    first_row_as_headings=True
+                cell_fill_color=230,
+                cell_fill_mode="ROWS",
+                line_height=int(1.7 * self.font_size),
+                text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
+                col_widths=(10, 8, 70, 10, 4),
+                first_row_as_headings=True,
             ) as table:
                 row = table.row()
                 for datum in headers:
@@ -179,12 +170,12 @@ class InvoiceHp(InvoicePdf):
         with self.offset_rendering() as dummy:
             if last_treatment:
                 with dummy.table(
-                        cell_fill_color=230,
-                        cell_fill_mode="ROWS",
-                        line_height=int(1.7 * self.font_size),
-                        text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
-                        col_widths=(10, 8, 70, 10, 4),
-                        first_row_as_headings=False
+                    cell_fill_color=230,
+                    cell_fill_mode="ROWS",
+                    line_height=int(1.7 * self.font_size),
+                    text_align=("CENTER", "RIGHT", "LEFT", "RIGHT", "LEFT"),
+                    col_widths=(10, 8, 70, 10, 4),
+                    first_row_as_headings=False,
                 ) as table:
                     row = table.row()
                     for datum in last_treatment[0]:
@@ -194,18 +185,18 @@ class InvoiceHp(InvoicePdf):
             dummy.cell(175, 0, border=1, center=True)
 
             with dummy.table(
-                    borders_layout="NONE",
-                    col_widths=(10, 8, 70, 10, 4),
-                    line_height=int(1.7 * self.font_size),
-                    text_align=("CENTER", "LEFT", "RIGHT", "RIGHT", "LEFT"),
-                    cell_fill_color=180,
-                    cell_fill_mode="NONE",
-                    first_row_as_headings=False,
+                borders_layout="NONE",
+                col_widths=(10, 8, 70, 10, 4),
+                line_height=int(1.7 * self.font_size),
+                text_align=("CENTER", "LEFT", "RIGHT", "RIGHT", "LEFT"),
+                cell_fill_color=180,
+                cell_fill_mode="NONE",
+                first_row_as_headings=False,
             ) as table:
                 for data_row in self.total_table:
                     row = table.row()
                     for datum in data_row:
-                        if datum != '€':
+                        if datum != "€":
                             self.set_font("Roboto", style="B", size=TREATMENT_FONT_SIZE)
                         row.cell(datum)
                         self.set_font("Roboto", style="", size=TREATMENT_FONT_SIZE)
@@ -231,27 +222,28 @@ class InvoiceHp(InvoicePdf):
         self.cell(175, 0, border=1, center=True)
 
         with self.table(
-                borders_layout="NONE",
-                col_widths=(10, 8, 70, 10, 4),
-                line_height=int(1.7 * self.font_size),
-                text_align=("CENTER", "LEFT", "RIGHT", "RIGHT", "LEFT"),
-                cell_fill_color=180,
-                cell_fill_mode="NONE",
-                first_row_as_headings=False,
+            borders_layout="NONE",
+            col_widths=(10, 8, 70, 10, 4),
+            line_height=int(1.7 * self.font_size),
+            text_align=("CENTER", "LEFT", "RIGHT", "RIGHT", "LEFT"),
+            cell_fill_color=180,
+            cell_fill_mode="NONE",
+            first_row_as_headings=False,
         ) as table:
             for data_row in self.total_table:
                 row = table.row()
                 for datum in data_row:
-                    if datum != '€':
+                    if datum != "€":
                         self.set_font("Roboto", style="B", size=TREATMENT_FONT_SIZE)
                     row.cell(datum)
                     self.set_font("Roboto", style="", size=TREATMENT_FONT_SIZE)
 
         with self.offset_rendering() as dummy:
             dummy.write(
-                6.5, text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} € "
-                          f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
-                          f"stehendes Konto zu überweisen.",
+                6.5,
+                text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} € "
+                f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
+                f"stehendes Konto zu überweisen.",
             )
             dummy.ln(13)
             dummy.write(text="Mit freundlichen Grüßen")
@@ -265,8 +257,8 @@ class InvoiceHp(InvoicePdf):
         self.write(
             6.5,
             text=f"Ich bitte Sie, den Gesamtbetrag von {self.total} € "
-                 f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
-                 f"stehendes Konto zu überweisen.",
+            f"innerhalb von 14 Tagen unter Angabe der Rechnungsnummer auf unten "
+            f"stehendes Konto zu überweisen.",
         )
         self.ln(13)
         self.write(text="Mit freundlichen Grüßen")

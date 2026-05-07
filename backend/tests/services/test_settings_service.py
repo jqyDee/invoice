@@ -1,5 +1,4 @@
 import pytest
-from pydantic import ValidationError
 
 from app.schemas.settings_schema import SettingsUpdate
 from app.services.settings_service import load_settings, perform_update_settings
@@ -21,6 +20,7 @@ def _valid_update(**kwargs) -> SettingsUpdate:
 # load_settings
 # ---------------------------------------------------------------------------
 
+
 def test_load_settings_returns_none_when_empty(db):
     result = load_settings(db)
     assert result is None
@@ -40,6 +40,7 @@ def test_load_settings_returns_existing(db):
 # ---------------------------------------------------------------------------
 # perform_update_settings
 # ---------------------------------------------------------------------------
+
 
 def test_perform_update_settings_creates_when_none(db):
     assert load_settings(db) is None
@@ -76,7 +77,9 @@ def test_perform_update_settings_singleton_only_one_record(db):
 
     # Only one record should exist
     from sqlalchemy import select
+
     from app.models import SettingsDB
+
     count = db.scalar(select(SettingsDB))
     assert count is not None  # exactly one row returned by first()
 

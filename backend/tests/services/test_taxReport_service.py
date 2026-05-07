@@ -1,7 +1,5 @@
 from datetime import date
 
-import pytest
-
 from app.models import InvoiceDateDB, InvoiceDB, InvoiceItemDB, InvoiceStatus, InvoiceType
 from app.services.taxReport_service import get_available_years, get_tax_report, get_tax_report_csv
 
@@ -24,15 +22,17 @@ def _paid_invoice(db, patient, invoice_number, invoice_date, paid_at, km=10.0):
     db.add(d)
     db.flush()
 
-    db.add(InvoiceItemDB(
-        invoice_id=inv.invoice_id,
-        date_id=d.date_id,
-        description="Behandlung",
-        amount=80.0,
-        number="GÖÄ 1",
-        quantity=1,
-        position=0,
-    ))
+    db.add(
+        InvoiceItemDB(
+            invoice_id=inv.invoice_id,
+            date_id=d.date_id,
+            description="Behandlung",
+            amount=80.0,
+            number="GÖÄ 1",
+            quantity=1,
+            position=0,
+        )
+    )
     db.commit()
     db.refresh(inv)
     return inv
@@ -41,6 +41,7 @@ def _paid_invoice(db, patient, invoice_number, invoice_date, paid_at, km=10.0):
 # ---------------------------------------------------------------------------
 # get_available_years
 # ---------------------------------------------------------------------------
+
 
 def test_get_available_years_empty(db):
     assert get_available_years(db) == []
@@ -81,6 +82,7 @@ def test_get_available_years_excludes_non_paid(db, patient):
 # ---------------------------------------------------------------------------
 # get_tax_report
 # ---------------------------------------------------------------------------
+
 
 def test_get_tax_report_returns_rows_for_year(db, patient):
     _paid_invoice(db, patient, "2025-03-01-HP-TR", date(2025, 3, 1), date(2025, 9, 1))
@@ -138,6 +140,7 @@ def test_get_tax_report_counts_treatment_dates(db, patient):
 # ---------------------------------------------------------------------------
 # get_tax_report_csv
 # ---------------------------------------------------------------------------
+
 
 def test_get_tax_report_csv_contains_header(db, patient):
     _paid_invoice(db, patient, "2025-08-01-HP-T1", date(2025, 8, 1), date(2025, 12, 15))

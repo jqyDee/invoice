@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import BaseModel
 
 
@@ -13,9 +12,9 @@ class TherapyClauseCreate(TherapyClauseBase):
 
 
 class TherapyClauseUpdate(BaseModel):
-    number: Optional[int] = None
-    title: Optional[str] = None
-    description: Optional[str] = None
+    number: int | None = None
+    title: str | None = None
+    description: str | None = None
 
 
 class TherapyClause(TherapyClauseBase):

@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
 
 if TYPE_CHECKING:
-    from .invoice_model import InvoiceDB
     from .defaultInvoiceItem_model import DefaultInvoiceItemDB
+    from .invoice_model import InvoiceDB
 
 
 class InvoiceInvoiceDefaultItemAssociationDB(Base):

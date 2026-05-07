@@ -44,6 +44,7 @@ def _setup_invoice(client, auth_headers, **kwargs):
 # list / get
 # ---------------------------------------------------------------------------
 
+
 def test_get_invoices_empty(client, auth_headers):
     resp = client.get("/invoices/", headers=auth_headers)
     assert resp.status_code == 200
@@ -64,6 +65,7 @@ def test_get_invoice(client, auth_headers):
 # ---------------------------------------------------------------------------
 # create
 # ---------------------------------------------------------------------------
+
 
 def test_create_hp_invoice(client, auth_headers):
     inv = _setup_invoice(client, auth_headers)
@@ -108,6 +110,7 @@ def test_get_invoices_list_contains_created(client, auth_headers):
 # update
 # ---------------------------------------------------------------------------
 
+
 def test_update_invoice_diagnosis(client, auth_headers):
     inv = _setup_invoice(client, auth_headers)
     resp = client.patch(f"/invoices/{inv['invoice_id']}", json={"diagnosis": "Rückenschmerzen"}, headers=auth_headers)
@@ -118,6 +121,7 @@ def test_update_invoice_diagnosis(client, auth_headers):
 # ---------------------------------------------------------------------------
 # status transitions
 # ---------------------------------------------------------------------------
+
 
 def test_set_payment_due(client, auth_headers):
     inv = _setup_invoice(client, auth_headers)
@@ -139,6 +143,7 @@ def test_set_paid(client, auth_headers):
 # delete
 # ---------------------------------------------------------------------------
 
+
 def test_delete_draft_invoice(client, auth_headers):
     inv = _setup_invoice(client, auth_headers, save_as_draft=True)
     resp = client.delete(f"/invoices/{inv['invoice_id']}", headers=auth_headers)
@@ -156,6 +161,7 @@ def test_delete_locked_invoice(client, auth_headers):
 # ---------------------------------------------------------------------------
 # templates
 # ---------------------------------------------------------------------------
+
 
 def test_get_template_items_empty(client, auth_headers):
     resp = client.get("/invoices/template-items?invoice_type=HP", headers=auth_headers)
@@ -186,6 +192,7 @@ def test_get_invoice_template(client, auth_headers):
 # ---------------------------------------------------------------------------
 # auth guard
 # ---------------------------------------------------------------------------
+
 
 def test_invoices_require_auth(client):
     assert client.get("/invoices/").status_code == 401

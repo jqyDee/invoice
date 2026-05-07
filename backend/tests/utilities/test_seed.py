@@ -1,6 +1,6 @@
 from app.models import UserDB
-from app.utilities.seed import seed_users
 from app.utilities.security import verify_password
+from app.utilities.seed import seed_users
 
 
 def test_seed_creates_user_when_absent(db, monkeypatch):

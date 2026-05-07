@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, date
-from typing import Optional, List, TYPE_CHECKING
+from datetime import date, datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Enum
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import Enum, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .gender_enum import Gender
 from .base_model import Base
+from .gender_enum import Gender
 
 if TYPE_CHECKING:
     from .invoice_model import InvoiceDB
@@ -30,9 +30,9 @@ class PatientDB(Base):
     city: Mapped[str] = mapped_column()
     kilometers_to_travel: Mapped[float] = mapped_column()
 
-    email: Mapped[Optional[str]] = mapped_column()
-    telephone: Mapped[Optional[str]] = mapped_column()
+    email: Mapped[str | None] = mapped_column()
+    telephone: Mapped[str | None] = mapped_column()
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    invoices: Mapped[List[InvoiceDB]] = relationship(back_populates="patient")
+    invoices: Mapped[list[InvoiceDB]] = relationship(back_populates="patient")

@@ -36,6 +36,13 @@ pytest                    # All tests with coverage
 pytest tests/path/to/test_file.py::test_name  # Single test
 ```
 
+**Backend Formatting / Linting:**
+```bash
+make format      # Format backend with ruff (Black-compatible)
+make lint        # Lint backend with ruff
+make lint-fix    # Lint + auto-fix
+```
+
 **Frontend Linting / Build:**
 ```bash
 cd frontend && npm run lint    # ESLint

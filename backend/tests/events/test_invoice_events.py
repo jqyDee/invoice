@@ -15,14 +15,16 @@ def _get_updated_at(db, invoice_id):
 def test_item_insert_touches_invoice(db, saved_hp_invoice):
     before = _get_updated_at(db, saved_hp_invoice.invoice_id)
     time.sleep(0.01)
-    db.add(InvoiceItemDB(
-        invoice_id=saved_hp_invoice.invoice_id,
-        description="New item",
-        amount=10.0,
-        number="X",
-        quantity=1,
-        position=99,
-    ))
+    db.add(
+        InvoiceItemDB(
+            invoice_id=saved_hp_invoice.invoice_id,
+            description="New item",
+            amount=10.0,
+            number="X",
+            quantity=1,
+            position=99,
+        )
+    )
     db.flush()
     assert _get_updated_at(db, saved_hp_invoice.invoice_id) >= before
 
@@ -48,10 +50,12 @@ def test_item_delete_touches_invoice(db, saved_hp_invoice):
 def test_date_insert_touches_invoice(db, saved_hp_invoice):
     before = _get_updated_at(db, saved_hp_invoice.invoice_id)
     time.sleep(0.01)
-    db.add(InvoiceDateDB(
-        invoice_id=saved_hp_invoice.invoice_id,
-        date=date(2026, 3, 1),
-    ))
+    db.add(
+        InvoiceDateDB(
+            invoice_id=saved_hp_invoice.invoice_id,
+            date=date(2026, 3, 1),
+        )
+    )
     db.flush()
     assert _get_updated_at(db, saved_hp_invoice.invoice_id) >= before
 
