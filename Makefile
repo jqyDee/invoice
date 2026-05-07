@@ -5,10 +5,12 @@ up-dev: openapi
 	docker compose -f docker-compose.yml up --build
 
 # Generate OpenAPI JSON
-openapi: test
-	@echo "Generating OpenAPI JSON..."
+openapi:
+	@echo "$@: \t ---------------"
+	@echo "$@: \t Generating OpenAPI JSON..."
 	python backend/app/utilities/openapi.py
-	@echo "OpenAPI JSON generated!"
+	@echo "$@: \t OpenAPI JSON generated!"
+	@echo "$@: \t ---------------"
 
 # Production environment
 up-prod:
