@@ -1,9 +1,25 @@
-from .defaultInvoiceItem_schema import DefaultInvoiceItem
-from .invoice_schema import Invoice, InvoiceCreate, InvoiceMarkPaidRequest, InvoiceUpdate, PaginatedInvoices
-from .invoiceDate_schema import InvoiceDate, InvoiceDateCreate, InvoiceDateUpdate
-from .invoiceItem_schema import InvoiceItem, InvoiceItemCreate, InvoiceItemUpdate
-from .patient_schema import PaginatedPatients, Patient, PatientCreate
-from .privacyClause_schema import PrivacyClause, PrivacyClauseCreate, PrivacyClauseUpdate
-from .settings_schema import Settings, SettingsUpdate
-from .taxReport_schema import TaxReportItem, TaxReportRow
-from .therapyClause_schema import TherapyClause, TherapyClauseCreate, TherapyClauseUpdate
+from .defaultInvoiceItem_schema import DefaultInvoiceItem as DefaultInvoiceItem
+from .invoice_schema import Invoice as Invoice
+from .invoice_schema import InvoiceCreate as InvoiceCreate
+from .invoice_schema import InvoiceMarkPaidRequest as InvoiceMarkPaidRequest
+from .invoice_schema import InvoiceUpdate as InvoiceUpdate
+from .invoice_schema import PaginatedInvoices as PaginatedInvoices
+from .invoiceDate_schema import InvoiceDate as InvoiceDate
+from .invoiceDate_schema import InvoiceDateCreate as InvoiceDateCreate
+from .invoiceDate_schema import InvoiceDateUpdate as InvoiceDateUpdate
+from .invoiceItem_schema import InvoiceItem as InvoiceItem
+from .invoiceItem_schema import InvoiceItemCreate as InvoiceItemCreate
+from .invoiceItem_schema import InvoiceItemUpdate as InvoiceItemUpdate
+from .patient_schema import PaginatedPatients as PaginatedPatients
+from .patient_schema import Patient as Patient
+from .patient_schema import PatientCreate as PatientCreate
+from .privacyClause_schema import PrivacyClause as PrivacyClause
+from .privacyClause_schema import PrivacyClauseCreate as PrivacyClauseCreate
+from .privacyClause_schema import PrivacyClauseUpdate as PrivacyClauseUpdate
+from .settings_schema import Settings as Settings
+from .settings_schema import SettingsUpdate as SettingsUpdate
+from .taxReport_schema import TaxReportItem as TaxReportItem
+from .taxReport_schema import TaxReportRow as TaxReportRow
+from .therapyClause_schema import TherapyClause as TherapyClause
+from .therapyClause_schema import TherapyClauseCreate as TherapyClauseCreate
+from .therapyClause_schema import TherapyClauseUpdate as TherapyClauseUpdate

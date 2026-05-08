@@ -305,7 +305,7 @@ def test_create_invoice_snapshots_km_from_patient(db, patient):
 
 def test_create_invoice_duplicate_number_raises_409(db, patient):
     data = _hp_create(patient.patient_id)
-    result = create_invoice_logic(data, db)
+    create_invoice_logic(data, db)
     db.commit()
 
     # Same date+type+label → same invoice number

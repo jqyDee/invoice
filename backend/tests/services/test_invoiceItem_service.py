@@ -85,7 +85,7 @@ def test_load_default_item_not_found_raises_404(db):
 
 def test_perform_update_default_item_updates_description(db, default_item_hp):
     result = perform_set_active_state_default_item(default_item_hp.default_item_id, False, db)
-    assert result.is_active_global == False
+    assert result.is_active_global is False
 
 
 def test_perform_update_default_item_not_found_raises_404(db):

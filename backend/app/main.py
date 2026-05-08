@@ -10,9 +10,9 @@ from .utilities.logger_setup import setup_global_logging
 setup_global_logging()
 logger = logging.getLogger("uvicorn.error")
 
-from .utilities.database import SessionLocal
-from .utilities.router_include import auto_include_routers
-from .utilities.seed import seed_users
+from .utilities.database import SessionLocal  # noqa: E402
+from .utilities.router_include import auto_include_routers  # noqa: E402
+from .utilities.seed import seed_users  # noqa: E402
 
 try:
     __version__ = metadata.version("invoice-backend")

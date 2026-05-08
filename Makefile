@@ -53,3 +53,6 @@ lint:
 # Lint + auto-fix
 lint-fix:
 	cd backend && ruff check --fix .
+
+check: format lint-fix test
+	@echo Done

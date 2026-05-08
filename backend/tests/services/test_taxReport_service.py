@@ -160,5 +160,5 @@ def test_get_tax_report_csv_contains_invoice_data(db, patient):
 
 def test_get_tax_report_csv_empty_year_only_header(db):
     csv = get_tax_report_csv(2099, db)
-    lines = [l for l in csv.strip().splitlines() if l]
+    lines = [line for line in csv.strip().splitlines() if line]
     assert len(lines) == 1  # only the header row

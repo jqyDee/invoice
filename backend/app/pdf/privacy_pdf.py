@@ -134,7 +134,7 @@ class Privacy(DocumentPdf):
         self.multi_cell(
             0,
             6 / 2.5,
-            "Unterschrift Klient:in\n(bei Minderjährigen zusätzlich auch der/die\nErziehungsberechtigte/gesetzlicher Vertreter)",
+            "Unterschrift Klient:in\n(bei Minderjährigen zusätzlich auch der/die\nErziehungsberechtigte/gesetzlicher Vertreter)",  # noqa: E501
             align="L",
         )
 
