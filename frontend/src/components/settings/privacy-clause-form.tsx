@@ -32,6 +32,7 @@ export const PrivacyClauseForm: React.FC<PrivacyClauseFormProps> = ({existing, o
         }
     });
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const isPreamble = watch('is_preamble');
 
     const invalidate = async () => {

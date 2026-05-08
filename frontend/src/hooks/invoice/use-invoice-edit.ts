@@ -1,4 +1,5 @@
 import React, {useRef, useMemo, useEffect} from "react";
+import {Stepper} from "primereact/stepper";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {generatePath, useBlocker, useNavigate, useParams} from "react-router-dom";
 import {
@@ -21,7 +22,7 @@ export function useInvoiceEdit() {
     const {showToast} = useGlobalToast();
     const queryClient = useQueryClient();
 
-    const stepperRef = useRef<any>(null);
+    const stepperRef = useRef<Stepper>(null);
     const initialInvoiceRef = useRef<InvoiceCreate | InvoiceUpdate | null>(null);
     const skipBlockerRef = useRef(false);
     const historyActionRef = useRef<string | null>(null);
@@ -86,11 +87,11 @@ export function useInvoiceEdit() {
     }, [invoice]);
 
     const goNext = () => {
-        stepperRef.current.nextCallback();
+        stepperRef.current?.nextCallback();
         setActiveStep(s => s + 1);
     };
     const goPrev = () => {
-        stepperRef.current.prevCallback();
+        stepperRef.current?.prevCallback();
         setActiveStep(s => s - 1);
     };
 
@@ -176,6 +177,7 @@ export function useInvoiceEdit() {
             goPrev();
             blocker.reset();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [blocker.state]);
 
     useEffect(() => {

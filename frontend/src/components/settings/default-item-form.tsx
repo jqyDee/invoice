@@ -37,6 +37,7 @@ export const DefaultItemForm: React.FC<DefaultItemFormProps> = ({onSuccess}) => 
         }
     });
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const selectedType = watch('type');
 
     React.useEffect(() => {

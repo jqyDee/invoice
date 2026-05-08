@@ -33,6 +33,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({onSuccess, patientToEdi
         }
     });
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const watchedFirstname = watch('first_name')
     const watchedLastname = watch('last_name')
 

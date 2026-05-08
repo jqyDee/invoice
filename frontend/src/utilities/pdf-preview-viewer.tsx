@@ -6,6 +6,7 @@ import {extractApiError} from "./api-error.ts";
 import {useIsMobile} from "../hooks/use-is-mobile.ts";
 
 interface PdfPreviewViewerProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     queryOptions: UseQueryOptions<any, any, any, any>;
     title?: string;
 }
@@ -41,6 +42,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
     useEffect(() => {
         if (pdfData) {
             const objectUrl = URL.createObjectURL(pdfData as Blob);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setPdfUrl(objectUrl);
 
             return () => {

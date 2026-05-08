@@ -1,6 +1,7 @@
 import {
     type Invoice,
     type InvoiceCreate,
+    type InvoiceDateCreate,
     type InvoiceItemCreate,
     InvoiceType,
     type InvoiceUpdate
@@ -9,13 +10,20 @@ import {useState} from "react";
 import type {TreatmentFormData} from "../../components/invoice/invoice-treatment-form.tsx";
 import {toLocalDateString} from "../../utilities/local-date-string.ts";
 
+interface DisplayInvoiceItem extends Partial<TreatmentFormData> {
+    _originalIndex?: number;
+    _tempId?: string;
+    isEmpty?: boolean;
+    isDefault?: boolean;
+}
+
 export const useInvoiceItemMutations = (
     invoice: Invoice | InvoiceCreate | InvoiceUpdate,
     onChange?: (fields: Partial<InvoiceCreate | InvoiceUpdate>) => void
 ) => {
     const isKGorGT = invoice.type === InvoiceType.KG || invoice.type === InvoiceType.GT;
 
-    const [editingItem, setEditingItem] = useState<any>(undefined);
+    const [editingItem, setEditingItem] = useState<DisplayInvoiceItem | undefined>(undefined);
     const [prefillDate, setPrefillDate] = useState<string | undefined>(undefined);
     const [visible, setVisible] = useState(false);
 
@@ -24,7 +32,7 @@ export const useInvoiceItemMutations = (
     const [dateValue, setDateValue] = useState<string>('');
     const [editingDate, setEditingDate] = useState<string | null>(null);
 
-    const openEdit = (item: any) => {
+    const openEdit = (item: DisplayInvoiceItem) => {
         setEditingItem(item);
         setPrefillDate(undefined);
         setVisible(true);
@@ -58,21 +66,23 @@ export const useInvoiceItemMutations = (
             if (editingItem && editingItem.date) {
                 const oldDateIdx = dates.findIndex(d => d.date === editingItem.date);
                 if (editingItem.date === formData.date) {
-                    dates[oldDateIdx].items![editingItem._originalIndex] = itemData;
+                    dates[oldDateIdx].items![editingItem._originalIndex!] = itemData;
                 } else {
-                    dates[oldDateIdx].items!.splice(editingItem._originalIndex, 1);
+                    dates[oldDateIdx].items!.splice(editingItem._originalIndex!, 1);
                     const newDateIdx = dates.findIndex(d => d.date === formData.date);
-                    newDateIdx !== -1 ? dates[newDateIdx].items!.push(itemData) : dates.push({
-                        date: formData.date!,
-                        items: [itemData]
-                    });
+                    if (newDateIdx !== -1) {
+                        dates[newDateIdx].items!.push(itemData);
+                    } else {
+                        dates.push({date: formData.date!, items: [itemData]});
+                    }
                 }
             } else {
                 const targetIdx = dates.findIndex(d => d.date === formData.date);
-                targetIdx !== -1 ? dates[targetIdx].items!.push(itemData) : dates.push({
-                    date: formData.date!,
-                    items: [itemData]
-                });
+                if (targetIdx !== -1) {
+                    dates[targetIdx].items!.push(itemData);
+                } else {
+                    dates.push({date: formData.date!, items: [itemData]});
+                }
             }
             dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
             onChange({dates});
@@ -83,7 +93,7 @@ export const useInvoiceItemMutations = (
     const removeItem = (date: string | undefined, item: InvoiceItemCreate, index?: number) => {
         if (!onChange) return;
         if (isKGorGT) {
-            const idx = (item as any)._originalIndex ?? -1;
+            const idx = (item as DisplayInvoiceItem)._originalIndex ?? -1;
             if (idx >= 0) {
                 const items = [...(invoice.user_items || [])];
                 items.splice(idx, 1);
@@ -126,7 +136,7 @@ export const useInvoiceItemMutations = (
         } else if (dateDialogMode === 'edit' && editingDate) {
             const newDateStr = dateValue;
             if (newDateStr !== editingDate) {
-                const dates = [...(invoice.dates || [])] as any[];
+                const dates = [...(invoice.dates || [])] as InvoiceDateCreate[];
                 const oldIdx = dates.findIndex(d => d.date === editingDate);
                 if (oldIdx !== -1) {
                     const existingIdx = dates.findIndex(d => d.date === newDateStr);
@@ -148,15 +158,15 @@ export const useInvoiceItemMutations = (
     };
 
     const removeDate = (date: string) => {
-        onChange && onChange({dates: invoice.dates!.filter((d: any) => d.date !== date)});
+        if (onChange) onChange({dates: invoice.dates!.filter(d => d.date !== date)});
     };
 
     const moveItemUp = (date: string, index: number) => {
         if (!onChange || index === 0) return;
-        const dates = [...(invoice.dates || [])] as any[];
+        const dates = [...(invoice.dates || [])] as InvoiceDateCreate[];
         const dateIdx = dates.findIndex(d => d.date === date);
         if (dateIdx === -1) return;
-        const items = [...dates[dateIdx].items];
+        const items = [...(dates[dateIdx].items || [])];
         [items[index - 1], items[index]] = [items[index], items[index - 1]];
         dates[dateIdx] = {...dates[dateIdx], items};
         onChange({dates});
@@ -164,10 +174,10 @@ export const useInvoiceItemMutations = (
 
     const moveItemDown = (date: string, index: number) => {
         if (!onChange) return;
-        const dates = [...(invoice.dates || [])] as any[];
+        const dates = [...(invoice.dates || [])] as InvoiceDateCreate[];
         const dateIdx = dates.findIndex(d => d.date === date);
         if (dateIdx === -1) return;
-        const items = [...dates[dateIdx].items];
+        const items = [...(dates[dateIdx].items || [])];
         if (index >= items.length - 1) return;
         [items[index], items[index + 1]] = [items[index + 1], items[index]];
         dates[dateIdx] = {...dates[dateIdx], items};

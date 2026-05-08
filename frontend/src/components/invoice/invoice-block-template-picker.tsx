@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {Dialog} from 'primereact/dialog';
 import {DataTable, type DataTableExpandedRows} from 'primereact/datatable';
 import {Column} from 'primereact/column';
@@ -37,7 +37,7 @@ export const InvoiceBlockTemplatePicker: React.FC<InvoiceBlockTemplatePickerProp
     const {data: invoicesData} = useQuery(
         getInvoicesInvoicesGetOptions({query: {invoice_types: [InvoiceType.HP], show_drafts: false, size: 9999}})
     );
-    const allInvoices = invoicesData?.items ?? [];
+    const allInvoices = useMemo(() => invoicesData?.items ?? [], [invoicesData]);
 
     const blocks = useMemo<BlockEntry[]>(() => {
         const result: BlockEntry[] = [];

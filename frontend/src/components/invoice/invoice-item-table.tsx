@@ -3,7 +3,7 @@ import {Column} from 'primereact/column';
 import {Button} from 'primereact/button';
 import {Dialog} from 'primereact/dialog';
 import {useQuery} from "@tanstack/react-query";
-import {InvoiceType, type InvoiceCreate, type InvoiceUpdate, type Invoice, type InvoiceItemCreate} from '../../api';
+import {InvoiceType, type InvoiceCreate, type InvoiceDateCreate, type InvoiceUpdate, type Invoice, type InvoiceItemCreate} from '../../api';
 import {getDefaultInvoiceItemsInvoiceItemsDefaultsGetOptions} from "../../api/@tanstack/react-query.gen.ts";
 import {InvoiceTreatmentForm} from './invoice-treatment-form';
 import {toGermanDateString, toLocalDateString} from '../../utilities/local-date-string';
@@ -34,11 +34,13 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onCh
     const displayItems = useInvoiceItemDisplayItems(invoice, allDefaults, readonly, isKGorGT);
     const {state, setters, actions} = useInvoiceItemMutations(invoice, onChange);
 
+    interface DateGroupRow { date?: string; [key: string]: unknown; }
+
     const [templateInitialData, setTemplateInitialData] = useState<Partial<TreatmentFormData> | null>(null);
     const [formKey, setFormKey] = useState(0);
     const [blockPickerDate, setBlockPickerDate] = useState<string | null>(null);
 
-    const headerTemplate = (data: any) => (
+    const headerTemplate = (data: DateGroupRow) => (
         <div className="flex flex-column md:flex-row md:align-items-center md:justify-content-between py-2 gap-3">
             <div className="flex align-items-center gap-2 text-lg font-bold">
                 <i className="pi pi-calendar text-primary"></i><span>{toGermanDateString(new Date((data.date ?? '') + 'T00:00:00'))}</span>
@@ -49,23 +51,23 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onCh
                         icon="pi pi-plus"
                         label="Leistung"
                         className="p-button-rounded"
-                        onClick={() => actions.openAdd(data.date)}
+                        onClick={() => actions.openAdd(data.date as string)}
                     />
                     <Button
                         icon="pi pi-clone"
                         label="Block laden"
                         className="p-button-rounded p-button-outlined"
-                        onClick={() => setBlockPickerDate(data.date)}
+                        onClick={() => setBlockPickerDate(data.date as string)}
                     />
                     <Button
                         icon="pi pi-pencil"
                         className="p-button-rounded p-button-text"
-                        onClick={() => actions.openEditDate(data.date)}
+                        onClick={() => actions.openEditDate(data.date as string)}
                     />
                     <Button
                         icon="pi pi-trash"
                         className="p-button-rounded p-button-danger"
-                        onClick={() => actions.removeDate(data.date)}
+                        onClick={() => actions.removeDate(data.date as string)}
                     />
                 </div>
             )}
@@ -81,7 +83,7 @@ export const InvoiceItemTable: React.FC<InvoiceItemTableProps> = ({invoice, onCh
                     onHide={() => setBlockPickerDate(null)}
                     patientId={patientId}
                     onSelect={(items) => {
-                        const dates = [...(invoice.dates || [])] as any[];
+                        const dates = [...(invoice.dates || [])] as InvoiceDateCreate[];
                         const idx = dates.findIndex(d => d.date === blockPickerDate);
                         if (idx !== -1) {
                             dates[idx] = {...dates[idx], items};
