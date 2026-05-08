@@ -1,4 +1,4 @@
-.PHONY: openapi up-dev up-prod down db-migrate db-upgrade db-downgrade db-current test format lint lint-fix
+.PHONY: openapi up-dev up-prod down db-migrate db-upgrade db-downgrade db-current backend-test format lint lint-fix frontend-lint frontend-build
 
 # Development environment (live reload & Vite dev)
 up-dev: openapi
@@ -39,7 +39,7 @@ db-downgrade:
 db-current:
 	cd backend && alembic -c app/alembic.ini current
 
-test:
+backend-test:
 	cd backend && pytest
 
 # Format backend code
@@ -54,5 +54,13 @@ lint:
 lint-fix:
 	cd backend && ruff check --fix .
 
-check: format lint-fix test
+# Lint frontend code
+frontend-lint:
+	cd frontend && npm run lint
+
+# Type-check + build frontend
+frontend-build:
+	cd frontend && npm run build
+
+check: format lint-fix frontend-lint frontend-build backend-test
 	@echo Done
