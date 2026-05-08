@@ -37,7 +37,7 @@ class InvoiceKgGt(InvoicePdf):
         ## DATES TABLE (TABLE 2)
         all_dates = [d.date.strftime("%d.%m.%Y") for d in sorted(invoice.dates, key=lambda x: x.date)]
 
-        pairs = [all_dates[i : i+2] for i in range(0, len(all_dates), 2)]
+        pairs = [all_dates[i : i + 2] for i in range(0, len(all_dates), 2)]
 
         for pair in pairs:
             if len(pair) == 1:
@@ -54,6 +54,7 @@ class InvoiceKgGt(InvoicePdf):
                 left_rows_count = 5
             else:
                 import math
+
                 left_rows_count = math.ceil(len(pairs) / 2)
 
             left_pairs = pairs[:left_rows_count]
@@ -65,7 +66,7 @@ class InvoiceKgGt(InvoicePdf):
                 # 1 & 2
                 row.extend(left_pairs[i])
 
-                row.append("") # GAP
+                row.append("")  # GAP
 
                 # 3 & 5
                 if i < len(right_pairs):
@@ -161,13 +162,13 @@ class InvoiceKgGt(InvoicePdf):
             text_alignments = ("CENTER", "CENTER")
 
         with self.table(
-                width=table_width,
-                col_widths=layout_widths,
-                line_height=int(1.7 * self.font_size),
-                text_align=text_alignments,
-                align=align,
-                borders_layout="NONE",
-                first_row_as_headings=False,
+            width=table_width,
+            col_widths=layout_widths,
+            line_height=int(1.7 * self.font_size),
+            text_align=text_alignments,
+            align=align,
+            borders_layout="NONE",
+            first_row_as_headings=False,
         ) as table:
             for data_row in self.dates_table:
                 row = table.row()
