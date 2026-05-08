@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/jqyDee/invoice/compare/v0.4.1...v0.5.0) (2026-05-08)
+
+
+### Features
+
+* code fixes. more than 10 dates, ... ([d0a4648](https://github.com/jqyDee/invoice/commit/d0a46488c3cbe2301a843a59c9ef61292af029d3))
+
 ## [0.4.1](https://github.com/jqyDee/invoice/compare/v0.4.0...v0.4.1) (2026-04-26)
 
 
