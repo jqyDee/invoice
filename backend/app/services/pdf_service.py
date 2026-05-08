@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import Session
 
 from ..models import InvoiceDB, InvoiceType, PatientDB, SettingsDB
 from ..pdf.invoice_hp_pdf import InvoiceHp
-from ..pdf.invoice_kg_pdf import InvoiceKgGt
+from ..pdf.invoice_kg_gt_pdf import InvoiceKgGt
 from ..pdf.privacy_pdf import Privacy
 from ..pdf.therapy_pdf import Therapy
 from ..services.privacyClause_service import load_privacy_clauses

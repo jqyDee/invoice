@@ -145,7 +145,7 @@ def _patch_pdf_paths(monkeypatch, tmp_path):
         "app.pdf.invoice_hp_pdf.generate_invoice_path",
         lambda inv: tmp_path / f"{inv.invoice_number}.pdf",
     )
-    monkeypatch.setattr("app.pdf.invoice_kg_pdf.CACHE_DIR", tmp_path)
+    monkeypatch.setattr("app.pdf.invoice_kg_gt_pdf.CACHE_DIR", tmp_path)
     monkeypatch.setattr(
         "app.pdf.therapy_pdf.generate_therapy_path",
         lambda p: tmp_path / f"{p.patient_id}-{p.label}-therapy.pdf",
@@ -249,7 +249,7 @@ def test_regenerate_hp_invoice_female_creates_pdf(db, saved_hp_invoice_female, s
 
 
 def test_regenerate_kg_invoice_female_creates_pdf(db, saved_kg_invoice_female, settings, tmp_path, monkeypatch):
-    """Covers invoice_kg_pdf.py lines 84-85 (Frau), 111-112 (Patientin:), 142 (female salutation)."""
+    """Covers invoice_kg_gt_pdf.py lines 84-85 (Frau), 111-112 (Patientin:), 142 (female salutation)."""
     _patch_pdf_paths(monkeypatch, tmp_path)
     _regenerate_invoice_pdf(saved_kg_invoice_female, settings, db)
     assert (tmp_path / f"{saved_kg_invoice_female.invoice_number}.pdf").exists()

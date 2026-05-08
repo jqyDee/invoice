@@ -35,14 +35,48 @@ class InvoiceKgGt(InvoicePdf):
         ]
 
         ## DATES TABLE (TABLE 2)
-        self.dates_table = []
         all_dates = [d.date.strftime("%d.%m.%Y") for d in sorted(invoice.dates, key=lambda x: x.date)]
-        self.dates_table = [all_dates[i : i + 2] for i in range(0, len(all_dates), 2)]
-        # here I might need to add a padding element if last row has only 1 element
+
+        pairs = [all_dates[i : i+2] for i in range(0, len(all_dates), 2)]
+
+        for pair in pairs:
+            if len(pair) == 1:
+                pair.append("")
+
+        self.is_four_columns = False
+
+        if self.date_count <= 10:
+            self.dates_table = pairs
+        else:
+            self.is_four_columns = True
+
+            if self.date_count <= 20:
+                left_rows_count = 5
+            else:
+                import math
+                left_rows_count = math.ceil(len(pairs) / 2)
+
+            left_pairs = pairs[:left_rows_count]
+            right_pairs = pairs[left_rows_count:]
+
+            self.dates_table = []
+            for i in range(left_rows_count):
+                row = []
+                # 1 & 2
+                row.extend(left_pairs[i])
+
+                row.append("") # GAP
+
+                # 3 & 5
+                if i < len(right_pairs):
+                    row.extend(right_pairs[i])
+                else:
+                    row.extend(["", ""])
+
+                self.dates_table.append(row)
 
         ## TREATMENT TABLE (TABLE 3)
         self.treatment_table = [["Anzahl", "Art der Behandlung", "Einzelpreis", "Gesamtpreis", ""]]
-        # removed Anamnese but this should be in the items anyway
         self.treatment_table += [
             [
                 str(item.quantity if item.quantity is not None else len(all_dates)),
@@ -113,12 +147,27 @@ class InvoiceKgGt(InvoicePdf):
         self.write(text=f"{self.date_count} Behandlungstermine:")
         self.set_font("Roboto", style="", size=NORMAL_FONT_SIZE)
         self.ln(5)
+
+        # Dynamically set width and column ratios
+        if getattr(self, "is_four_columns", False):
+            table_width = 176
+            layout_widths = (35, 35, 35, 35, 35)
+            align = "CENTER"
+            text_alignments = ("CENTER", "CENTER", "CENTER", "CENTER", "CENTER")
+        else:
+            table_width = 70
+            layout_widths = None  # Let FPDF split the 2 columns evenly
+            align = "LEFT"
+            text_alignments = ("CENTER", "CENTER")
+
         with self.table(
-            width=80,
-            line_height=int(1.7 * self.font_size),
-            align="LEFT",
-            borders_layout="NONE",
-            first_row_as_headings=False,
+                width=table_width,
+                col_widths=layout_widths,
+                line_height=int(1.7 * self.font_size),
+                text_align=text_alignments,
+                align=align,
+                borders_layout="NONE",
+                first_row_as_headings=False,
         ) as table:
             for data_row in self.dates_table:
                 row = table.row()
