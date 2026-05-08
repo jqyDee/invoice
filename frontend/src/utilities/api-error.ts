@@ -1,4 +1,4 @@
-import type { HttpValidationError } from '../api/types.gen.ts'
+import type { HttpValidationError } from '../api'
 
 export function extractApiError(error: HttpValidationError | unknown): string {
     if (error && typeof error === 'object' && 'detail' in error) {

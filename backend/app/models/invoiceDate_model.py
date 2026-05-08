@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import datetime
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
 
@@ -23,6 +23,6 @@ class InvoiceDateDB(Base):
     invoice: Mapped[InvoiceDB] = relationship(back_populates="dates")
 
     # HP
-    items: Mapped[List[InvoiceItemDB]] = relationship(
+    items: Mapped[list[InvoiceItemDB]] = relationship(
         back_populates="treatment_date", cascade="all, delete-orphan", order_by="InvoiceItemDB.position"
     )

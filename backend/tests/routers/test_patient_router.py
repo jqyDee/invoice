@@ -55,7 +55,9 @@ def test_delete_patient(client, auth_headers):
 
 def test_get_patients_search(client, auth_headers):
     client.post("/patients/", json=PATIENT_PAYLOAD, headers=auth_headers)
-    client.post("/patients/", json={**PATIENT_PAYLOAD, "first_name": "Anna", "last_name": "Schmidt"}, headers=auth_headers)
+    client.post(
+        "/patients/", json={**PATIENT_PAYLOAD, "first_name": "Anna", "last_name": "Schmidt"}, headers=auth_headers
+    )
     resp = client.get("/patients/?search=Schmidt", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()

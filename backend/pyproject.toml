@@ -9,18 +9,18 @@ requires-python = ">=3.11"
 readme = "README.md"
 dependencies = [
     # Core API & Server
-    "fastapi==0.129.0",
-    "uvicorn[standard]==0.40.0",
+    "fastapi==0.136.1",
+    "uvicorn[standard]==0.46.0",
     # Database & Migrations
-    "SQLAlchemy==2.0.46",
+    "SQLAlchemy==2.0.49",
     "alembic==1.18.4",
     # Data Validation & Settings
-    "pydantic-settings==2.13.0",
-    "python-multipart==0.0.22",
+    "pydantic-settings==2.14.0",
+    "python-multipart==0.0.27",
     # Security & Authentication
     "bcrypt==5.0.0",
     "python-jose==3.5.0",
-    "cryptography==46.0.6",
+    "cryptography==48.0.0",
     # Utilities
     "fpdf2==2.8.5",
 ]
@@ -28,10 +28,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "watchfiles==1.1.1",
-    "fastapi-cli==0.0.21",
+    "fastapi-cli==0.0.24",
     "pytest",
     "pytest-cov",
     "httpx",
+    "ruff",
+    "mypy",
 ]
 
 [tool.pytest.ini_options]
@@ -47,7 +49,25 @@ addopts = [
 [tool.coverage.run]
 omit = [
     "addons/*",
+    "app/utilities/openapi.py",
 ]
+
+[tool.ruff]
+line-length = 120
+exclude = ["alembic"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes (unused imports, undefined names)
+    "I",   # isort (import sorting)
+    "UP",  # pyupgrade (modernize syntax for Python 3.11+)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.setuptools.packages.find]
 where = ["."]

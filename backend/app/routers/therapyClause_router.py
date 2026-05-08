@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from ..schemas import TherapyClause, TherapyClauseCreate, TherapyClauseUpdate
 from ..services.therapyClause_service import (
-    load_clauses,
     create_clause,
-    update_clause,
     delete_clause,
+    load_clauses,
+    update_clause,
 )
 from ..utilities.database import get_db
 from ..utilities.security import get_current_user

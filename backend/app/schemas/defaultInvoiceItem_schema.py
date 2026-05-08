@@ -1,21 +1,18 @@
-from typing import Optional
-
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.models import DefaultInvoiceItemPosition, InvoiceType
 
 
 class DefaultInvoiceItemBase(BaseModel):
     description: str
-    quantity: Optional[int]
+    quantity: int | None
     amount: float
     type: InvoiceType
-    number: Optional[str]
+    number: str | None
     position: DefaultInvoiceItemPosition
     is_active_global: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DefaultInvoiceItem(DefaultInvoiceItemBase):
@@ -23,13 +20,13 @@ class DefaultInvoiceItem(DefaultInvoiceItemBase):
 
 
 class DefaultInvoiceItemUpdate(BaseModel):
-    description: Optional[str] = None
-    quantity: Optional[int] = None
-    amount: Optional[float] = None
-    type: Optional[InvoiceType] = None
-    number: Optional[str] = None
-    position: Optional[DefaultInvoiceItemPosition] = None
-    is_active_global: Optional[bool] = None
+    description: str | None = None
+    quantity: int | None = None
+    amount: float | None = None
+    type: InvoiceType | None = None
+    number: str | None = None
+    position: DefaultInvoiceItemPosition | None = None
+    is_active_global: bool | None = None
 
 
 class DefaultInvoiceItemCreate(BaseModel):
@@ -38,5 +35,5 @@ class DefaultInvoiceItemCreate(BaseModel):
     type: InvoiceType
     position: DefaultInvoiceItemPosition
     is_active_global: bool
-    quantity: Optional[int] = None
-    number: Optional[str] = None
+    quantity: int | None = None
+    number: str | None = None

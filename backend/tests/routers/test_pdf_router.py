@@ -57,14 +57,20 @@ def pdf_setup(client, auth_headers, pdf_mocks):
     """Create settings + patient + HP invoice in the test DB."""
     client.patch("/settings/", json=SETTINGS_PAYLOAD, headers=auth_headers)
     patient = client.post("/patients/", json=PATIENT_PAYLOAD, headers=auth_headers).json()
-    invoice = client.post("/invoices/", json={
-        "patient_id": patient["patient_id"],
-        "invoice_date": "2026-03-01",
-        "type": "HP",
-        "dates": [{"date": "2026-02-10", "items": [{"description": "Behandlung", "amount": 50.0, "number": "GÖÄ 1"}]}],
-        "default_item_ids": [],
-        "save_as_draft": False,
-    }, headers=auth_headers).json()
+    invoice = client.post(
+        "/invoices/",
+        json={
+            "patient_id": patient["patient_id"],
+            "invoice_date": "2026-03-01",
+            "type": "HP",
+            "dates": [
+                {"date": "2026-02-10", "items": [{"description": "Behandlung", "amount": 50.0, "number": "GÖÄ 1"}]}
+            ],
+            "default_item_ids": [],
+            "save_as_draft": False,
+        },
+        headers=auth_headers,
+    ).json()
     return {"patient": patient, "invoice": invoice}
 
 
@@ -72,16 +78,23 @@ def pdf_setup(client, auth_headers, pdf_mocks):
 # invoice PDF
 # ---------------------------------------------------------------------------
 
+
 def test_get_invoice_pdf_no_settings(client, auth_headers, pdf_mocks):
     patient = client.post("/patients/", json=PATIENT_PAYLOAD, headers=auth_headers).json()
-    inv = client.post("/invoices/", json={
-        "patient_id": patient["patient_id"],
-        "invoice_date": "2026-03-01",
-        "type": "HP",
-        "dates": [{"date": "2026-02-10", "items": [{"description": "Behandlung", "amount": 50.0, "number": "GÖÄ 1"}]}],
-        "default_item_ids": [],
-        "save_as_draft": False,
-    }, headers=auth_headers).json()
+    inv = client.post(
+        "/invoices/",
+        json={
+            "patient_id": patient["patient_id"],
+            "invoice_date": "2026-03-01",
+            "type": "HP",
+            "dates": [
+                {"date": "2026-02-10", "items": [{"description": "Behandlung", "amount": 50.0, "number": "GÖÄ 1"}]}
+            ],
+            "default_item_ids": [],
+            "save_as_draft": False,
+        },
+        headers=auth_headers,
+    ).json()
     resp = client.get(f"/pdf/invoice/{inv['invoice_id']}", headers=auth_headers)
     assert resp.status_code == 404
 
@@ -102,6 +115,7 @@ def test_get_invoice_pdf_not_found(client, auth_headers, pdf_mocks):
 # ---------------------------------------------------------------------------
 # therapy PDF
 # ---------------------------------------------------------------------------
+
 
 def test_get_therapy_pdf_no_settings(client, auth_headers, pdf_mocks):
     patient = client.post("/patients/", json=PATIENT_PAYLOAD, headers=auth_headers).json()
@@ -125,6 +139,7 @@ def test_get_therapy_pdf_patient_not_found(client, auth_headers, pdf_mocks):
 # privacy PDF
 # ---------------------------------------------------------------------------
 
+
 def test_get_privacy_pdf(client, auth_headers, pdf_setup):
     patient_id = pdf_setup["patient"]["patient_id"]
     resp = client.get(f"/pdf/privacy/{patient_id}", headers=auth_headers)
@@ -139,6 +154,7 @@ def test_get_privacy_pdf_patient_not_found(client, auth_headers, pdf_mocks):
 # ---------------------------------------------------------------------------
 # auth guard
 # ---------------------------------------------------------------------------
+
 
 def test_pdf_require_auth(client):
     assert client.get("/pdf/invoice/1").status_code == 401

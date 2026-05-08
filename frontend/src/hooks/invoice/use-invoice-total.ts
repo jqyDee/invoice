@@ -19,5 +19,5 @@ export const useInvoiceTotal = (
             return acc + (item.amount || 0) * qty;
         }, 0);
         return Math.round(total * 100) / 100;
-    }, [items, dates]);
+    }, [items, dates, type]);
 };

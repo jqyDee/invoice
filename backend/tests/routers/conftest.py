@@ -10,6 +10,7 @@ from app.utilities.security import create_access_token, hash_password
 @pytest.fixture
 def client(db):
     """TestClient with get_db overridden to use the in-memory test session."""
+
     def override_get_db():
         yield db
 

@@ -10,7 +10,7 @@ interface InvoiceDetailsProp {
 }
 
 export const InvoiceDetails: React.FC<InvoiceDetailsProp> = ({invoice}) => {
-    const isFullInvoice = (inv: any): inv is Invoice => {
+    const isFullInvoice = (inv: Invoice | InvoiceCreate | InvoiceUpdate): inv is Invoice => {
         return 'status' in inv && 'total_travel_distance' in inv;
     };
 

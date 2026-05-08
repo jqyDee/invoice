@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm.session import Session
 
-from ..utilities.database import get_db
-from ..utilities.security import get_current_user
 from ..schemas.taxReport_schema import TaxReportRow
 from ..services.taxReport_service import get_available_years, get_tax_report, get_tax_report_csv
+from ..utilities.database import get_db
+from ..utilities.security import get_current_user
 
 router = APIRouter(prefix="/tax-report", tags=["tax-report"], dependencies=[Depends(get_current_user)])
 

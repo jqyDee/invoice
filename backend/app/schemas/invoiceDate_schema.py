@@ -1,9 +1,8 @@
-from typing import Optional, List
-
-from pydantic import BaseModel
 from datetime import date
 
-from app.schemas import InvoiceItemCreate, InvoiceItemUpdate, InvoiceItem
+from pydantic import BaseModel, ConfigDict
+
+from .invoiceItem_schema import InvoiceItem, InvoiceItemCreate, InvoiceItemUpdate
 
 
 class InvoiceDateBase(BaseModel):
@@ -11,18 +10,17 @@ class InvoiceDateBase(BaseModel):
 
 
 class InvoiceDateCreate(InvoiceDateBase):
-    items: Optional[List[InvoiceItemCreate]] = None
+    items: list[InvoiceItemCreate] | None = None
 
 
 class InvoiceDateUpdate(InvoiceDateBase):
-    date_id: Optional[int] = None
-    items: Optional[List[InvoiceItemUpdate]] = None
+    date_id: int | None = None
+    items: list[InvoiceItemUpdate] | None = None
 
 
 class InvoiceDate(InvoiceDateBase):
     date_id: int
     invoice_id: int
-    items: List[InvoiceItem] = []
+    items: list[InvoiceItem] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -50,7 +50,9 @@ def test_toggle_active_state_off(client, auth_headers):
 
 
 def test_toggle_active_state_on(client, auth_headers):
-    iid = client.post("/invoice_items/defaults", json={**HP_ITEM_PAYLOAD, "is_active_global": False}, headers=auth_headers).json()["default_item_id"]
+    iid = client.post(
+        "/invoice_items/defaults", json={**HP_ITEM_PAYLOAD, "is_active_global": False}, headers=auth_headers
+    ).json()["default_item_id"]
     resp = client.patch(f"/invoice_items/defaults/{iid}?item_active=true", headers=auth_headers)
     assert resp.status_code == 200
     assert resp.json()["is_active_global"] is True

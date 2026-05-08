@@ -1,8 +1,8 @@
 from fpdf import FPDF, XPos, YPos
 
+from ..models import InvoiceDB, InvoiceType, SettingsDB
 from ..utilities import INVOICE_FOOTER_FONT_SIZE
-from ..utilities.config import LOGO_PATH, FONTS_DIR
-from ..models import InvoiceDB, SettingsDB, InvoiceType
+from ..utilities.config import FONTS_DIR, LOGO_PATH
 
 
 class InvoicePdf(FPDF):
@@ -12,23 +12,15 @@ class InvoicePdf(FPDF):
     """
 
     def __init__(
-            self,
-            invoice: InvoiceDB,
-            settings: SettingsDB,
+        self,
+        invoice: InvoiceDB,
+        settings: SettingsDB,
     ):
         super().__init__()
 
-        self.add_font(
-            family="Roboto",
-            style="",
-            fname=str(FONTS_DIR / "Roboto-Regular.ttf")
-        )
+        self.add_font(family="Roboto", style="", fname=str(FONTS_DIR / "Roboto-Regular.ttf"))
 
-        self.add_font(
-            family="Roboto",
-            style="B",
-            fname=str(FONTS_DIR / "Roboto-Bold.ttf")
-        )
+        self.add_font(family="Roboto", style="B", fname=str(FONTS_DIR / "Roboto-Bold.ttf"))
 
         self.set_title(f"{invoice.invoice_number}")
 
@@ -65,7 +57,7 @@ class InvoicePdf(FPDF):
         self.cell(25)
         self.set_font("Roboto", "B", 12)
         self.set_text_color(150)
-        self.cell(0, text=f"Heilpraktikerin", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        self.cell(0, text="Heilpraktikerin", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.cell(25)
         # hide Physiotherapy on HP Invoices
         if self.additional_subheading:
@@ -83,7 +75,7 @@ class InvoicePdf(FPDF):
         self.ln(3)
 
         clean_iban = self.iban.replace(" ", "")
-        formatted_iban = " ".join(clean_iban[i:i + 4] for i in range(0, len(clean_iban), 4))
+        formatted_iban = " ".join(clean_iban[i : i + 4] for i in range(0, len(clean_iban), 4))
         self.cell(0, 5, f"IBAN: {formatted_iban}", align="C")
         self.ln(3)
         self.cell(0, 5, f"BIC: {self.bic}", align="C")

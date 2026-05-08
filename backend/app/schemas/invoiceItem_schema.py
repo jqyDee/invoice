@@ -1,11 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 
 class InvoiceItemBase(BaseModel):
     description: str
     amount: float
-    number: Optional[str] = None  # Used for HP
+    number: str | None = None  # Used for HP
     quantity: int = 1
 
 
@@ -14,13 +13,12 @@ class InvoiceItemCreate(InvoiceItemBase):
 
 
 class InvoiceItemUpdate(InvoiceItemBase):
-    item_id: Optional[int] = None
+    item_id: int | None = None
 
 
 class InvoiceItem(InvoiceItemBase):
     item_id: int
     invoice_id: int
-    date_id: Optional[int] = None
+    date_id: int | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

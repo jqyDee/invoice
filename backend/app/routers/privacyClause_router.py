@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from ..schemas import PrivacyClause, PrivacyClauseCreate, PrivacyClauseUpdate
 from ..services.privacyClause_service import (
-    load_privacy_clauses,
     create_privacy_clause,
-    update_privacy_clause,
     delete_privacy_clause,
+    load_privacy_clauses,
+    update_privacy_clause,
 )
 from ..utilities.database import get_db
 from ..utilities.security import get_current_user

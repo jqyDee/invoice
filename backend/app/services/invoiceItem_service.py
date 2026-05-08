@@ -8,24 +8,18 @@ from ..schemas.defaultInvoiceItem_schema import DefaultInvoiceItemCreate
 
 
 def load_all_default_items(
-        db: Session,
+    db: Session,
 ) -> list[DefaultInvoiceItemDB]:
     statement = select(DefaultInvoiceItemDB)
     return list(db.scalars(statement).all())
 
 
-def load_default_items(
-        invoice_type: InvoiceType,
-        db: Session
-) -> list[DefaultInvoiceItemDB]:
+def load_default_items(invoice_type: InvoiceType, db: Session) -> list[DefaultInvoiceItemDB]:
     statement = select(DefaultInvoiceItemDB).where(DefaultInvoiceItemDB.type == invoice_type)
     return list(db.scalars(statement).all())
 
 
-def load_default_item(
-        item_id: int,
-        db: Session
-) -> DefaultInvoiceItemDB:
+def load_default_item(item_id: int, db: Session) -> DefaultInvoiceItemDB:
     statement = select(DefaultInvoiceItemDB).where(DefaultInvoiceItemDB.default_item_id == item_id)
     db_item = db.scalar(statement)
 
@@ -35,11 +29,7 @@ def load_default_item(
     return db_item
 
 
-def perform_set_active_state_default_item(
-        item_id: int,
-        item_active: bool,
-        db: Session
-) -> DefaultInvoiceItemDB:
+def perform_set_active_state_default_item(item_id: int, item_active: bool, db: Session) -> DefaultInvoiceItemDB:
     db_item = load_default_item(item_id, db)
     db_item.is_active_global = item_active
 
@@ -50,10 +40,10 @@ def perform_set_active_state_default_item(
 
 
 def validate_invoice_item(
-        item: InvoiceItemCreate | InvoiceItemUpdate | DefaultInvoiceItemCreate,
-        inv_type: InvoiceType,
-        quantity: int,
-        default_item: bool = False
+    item: InvoiceItemCreate | InvoiceItemUpdate | DefaultInvoiceItemCreate,
+    inv_type: InvoiceType,
+    quantity: int | None,
+    default_item: bool = False,
 ):
     """Validate and enforce item fields."""
     if not default_item and item.amount < 0:

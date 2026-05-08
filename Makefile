@@ -1,4 +1,4 @@
-.PHONY: openapi backend frontend build up up-dev up-prod down db-migrate db-upgrade db-downgrade db-current
+.PHONY: openapi up-dev up-prod down db-migrate db-upgrade db-downgrade db-current backend-test format lint lint-fix frontend-lint frontend-build
 
 # Development environment (live reload & Vite dev)
 up-dev: openapi
@@ -6,21 +6,11 @@ up-dev: openapi
 
 # Generate OpenAPI JSON
 openapi:
-	@echo "Generating OpenAPI JSON..."
+	@echo "$@: \t ---------------"
+	@echo "$@: \t Generating OpenAPI JSON..."
 	python backend/app/utilities/openapi.py
-	@echo "OpenAPI JSON generated!"
-
-# Build backend image
-backend:
-	@echo "Building Backend..."
-	docker build -t invoice-backend ./backend
-	@echo "Backend Built!"
-
-# Build frontend image
-frontend: openapi
-	@echo "Building Frontend..."
-	docker build -t invoice-frontend ./frontend
-	@echo "Frontend Built!"
+	@echo "$@: \t OpenAPI JSON generated!"
+	@echo "$@: \t ---------------"
 
 # Production environment
 up-prod:
@@ -48,3 +38,29 @@ db-downgrade:
 # Show current revision
 db-current:
 	cd backend && alembic -c app/alembic.ini current
+
+backend-test:
+	cd backend && pytest
+
+# Format backend code
+format:
+	cd backend && ruff format .
+
+# Lint backend code
+lint:
+	cd backend && ruff check .
+
+# Lint + auto-fix
+lint-fix:
+	cd backend && ruff check --fix .
+
+# Lint frontend code
+frontend-lint:
+	cd frontend && npm run lint
+
+# Type-check + build frontend
+frontend-build:
+	cd frontend && npm run build
+
+check: format lint-fix frontend-lint frontend-build backend-test
+	@echo Done

@@ -5,8 +5,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(BASE_DIR))
 
-from app.utilities import OPENAPI_JSON_FRONTEND_PATH
-from app.main import app
+from app.main import app  # noqa: E402
+from app.utilities import OPENAPI_JSON_FRONTEND_PATH  # noqa: E402
 
 output_file = OPENAPI_JSON_FRONTEND_PATH
 

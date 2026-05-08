@@ -2,7 +2,10 @@ import React, {useMemo} from "react";
 import {InvoiceItemTable} from "../invoice/invoice-item-table.tsx";
 import {
     type Invoice,
-    type InvoiceCreate, InvoiceType, type InvoiceUpdate
+    type InvoiceCreate,
+    type InvoiceDateCreate,
+    InvoiceType,
+    type InvoiceUpdate
 } from "../../api";
 import {InvoiceCalendar} from "../invoice/invoice-calendar.tsx";
 import {Header} from "../../utilities/header.tsx";
@@ -42,7 +45,7 @@ export const StepOverviewContent: React.FC<StepOverviewProps> = ({invoice, heade
 
     const isSavedInvoice = 'invoice_id' in invoice;
     const userItems = (!isKGorGT && !isSavedInvoice)
-        ? (invoice.dates || []).flatMap((d: any) => d.items || [])
+        ? (invoice.dates || []).flatMap((d: InvoiceDateCreate) => d.items || [])
         : (invoice.user_items || []);
 
     const calculatedTotal = useInvoiceTotal(

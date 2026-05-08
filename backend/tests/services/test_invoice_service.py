@@ -11,7 +11,7 @@ from app.models import (
     InvoiceStatus,
     InvoiceType,
 )
-from app.schemas.invoice_schema import InvoiceCreate, InvoiceUpdate, Invoice
+from app.schemas.invoice_schema import Invoice, InvoiceCreate, InvoiceUpdate
 from app.schemas.invoiceDate_schema import InvoiceDateCreate, InvoiceDateUpdate
 from app.schemas.invoiceItem_schema import InvoiceItemCreate, InvoiceItemUpdate
 from app.services.invoice_service import (
@@ -26,10 +26,10 @@ from app.services.invoice_service import (
     update_invoice_logic,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _hp_create(patient_id: int, save_as_draft=False, **kwargs) -> InvoiceCreate:
     return InvoiceCreate(
@@ -72,6 +72,7 @@ def _commit_and_reload(db, invoice_id: int) -> InvoiceDB:
 # load_invoice
 # ---------------------------------------------------------------------------
 
+
 def test_load_invoice_returns_invoice(db, saved_hp_invoice):
     result = load_invoice(saved_hp_invoice.invoice_id, db)
     assert result.invoice_id == saved_hp_invoice.invoice_id
@@ -94,6 +95,7 @@ def test_load_invoice_eager_loads_relationships(db, saved_hp_invoice):
 # ---------------------------------------------------------------------------
 # load_invoices
 # ---------------------------------------------------------------------------
+
 
 def test_load_invoices_returns_all_non_drafts(db, saved_hp_invoice, patient):
     # add a DRAFT invoice that should be excluded
@@ -154,8 +156,7 @@ def test_load_invoices_only_open(db, saved_hp_invoice, patient):
 
 def test_load_invoices_filter_by_type(db, saved_hp_invoice, saved_kg_invoice):
     items, total = load_invoices(
-        show_drafts=False, only_drafts=False, only_open=False,
-        search=None, db=db, invoice_types=[InvoiceType.HP]
+        show_drafts=False, only_drafts=False, only_open=False, search=None, db=db, invoice_types=[InvoiceType.HP]
     )
     assert all(i.type == InvoiceType.HP for i in items)
 
@@ -172,32 +173,33 @@ def test_load_invoices_pagination(db, patient):
         db.add(inv)
     db.commit()
 
-    items, total = load_invoices(show_drafts=False, only_drafts=False, only_open=False,
-                                 search=None, db=db, page=1, size=2)
+    items, total = load_invoices(
+        show_drafts=False, only_drafts=False, only_open=False, search=None, db=db, page=1, size=2
+    )
     assert len(items) == 2
     assert total == 5
 
 
 def test_load_invoices_search_by_number(db, saved_hp_invoice):
-    items, total = load_invoices(
-        show_drafts=False, only_drafts=False, only_open=False,
-        search="2026-01-15-HP", db=db
-    )
+    items, total = load_invoices(show_drafts=False, only_drafts=False, only_open=False, search="2026-01-15-HP", db=db)
     assert total == 1
     assert items[0].invoice_id == saved_hp_invoice.invoice_id
 
 
 def test_load_invoices_filter_by_year_and_month(db, patient):
-    inv_2025 = InvoiceDB(patient_id=patient.patient_id, invoice_date=date(2025, 12, 1), type=InvoiceType.HP,
-                         status=InvoiceStatus.SAVED)
-    inv_2026 = InvoiceDB(patient_id=patient.patient_id, invoice_date=date(2026, 1, 15), type=InvoiceType.HP,
-                         status=InvoiceStatus.SAVED)
+    inv_2025 = InvoiceDB(
+        patient_id=patient.patient_id, invoice_date=date(2025, 12, 1), type=InvoiceType.HP, status=InvoiceStatus.SAVED
+    )
+    inv_2026 = InvoiceDB(
+        patient_id=patient.patient_id, invoice_date=date(2026, 1, 15), type=InvoiceType.HP, status=InvoiceStatus.SAVED
+    )
     db.add_all([inv_2025, inv_2026])
     db.commit()
 
     # Test year filter
-    items_2025, _ = load_invoices(show_drafts=False, only_drafts=False, only_open=False, search=None, db=db,
-                                  years=[2025])
+    items_2025, _ = load_invoices(
+        show_drafts=False, only_drafts=False, only_open=False, search=None, db=db, years=[2025]
+    )
     assert len(items_2025) == 1
     assert items_2025[0].invoice_date.year == 2025
 
@@ -208,27 +210,44 @@ def test_load_invoices_filter_by_year_and_month(db, patient):
 
 
 def test_load_invoices_sorting(db, patient):
-    inv1 = InvoiceDB(patient_id=patient.patient_id, invoice_date=date(2026, 1, 1), type=InvoiceType.HP,
-                     status=InvoiceStatus.SAVED)
-    inv2 = InvoiceDB(patient_id=patient.patient_id, invoice_date=date(2026, 1, 2), type=InvoiceType.HP,
-                     status=InvoiceStatus.SAVED)
+    inv1 = InvoiceDB(
+        patient_id=patient.patient_id, invoice_date=date(2026, 1, 1), type=InvoiceType.HP, status=InvoiceStatus.SAVED
+    )
+    inv2 = InvoiceDB(
+        patient_id=patient.patient_id, invoice_date=date(2026, 1, 2), type=InvoiceType.HP, status=InvoiceStatus.SAVED
+    )
     db.add_all([inv1, inv2])
     db.commit()
 
     # Sort descending
-    items_desc, _ = load_invoices(show_drafts=False, only_drafts=False, only_open=False, search=None, db=db,
-                                  sort_field="invoice_date", sort_order="desc")
+    items_desc, _ = load_invoices(
+        show_drafts=False,
+        only_drafts=False,
+        only_open=False,
+        search=None,
+        db=db,
+        sort_field="invoice_date",
+        sort_order="desc",
+    )
     assert items_desc[0].invoice_date == date(2026, 1, 2)
 
     # Sort ascending
-    items_asc, _ = load_invoices(show_drafts=False, only_drafts=False, only_open=False, search=None, db=db,
-                                 sort_field="invoice_date", sort_order="asc")
+    items_asc, _ = load_invoices(
+        show_drafts=False,
+        only_drafts=False,
+        only_open=False,
+        search=None,
+        db=db,
+        sort_field="invoice_date",
+        sort_order="asc",
+    )
     assert items_asc[0].invoice_date == date(2026, 1, 1)
 
 
 # ---------------------------------------------------------------------------
 # create_invoice_logic
 # ---------------------------------------------------------------------------
+
 
 def test_create_hp_invoice_saved(db, patient):
     data = _hp_create(patient.patient_id)
@@ -286,7 +305,7 @@ def test_create_invoice_snapshots_km_from_patient(db, patient):
 
 def test_create_invoice_duplicate_number_raises_409(db, patient):
     data = _hp_create(patient.patient_id)
-    result = create_invoice_logic(data, db)
+    create_invoice_logic(data, db)
     db.commit()
 
     # Same date+type+label → same invoice number
@@ -314,6 +333,7 @@ def test_create_invoice_patient_not_found_raises_404(db):
 # ---------------------------------------------------------------------------
 # update_invoice_logic
 # ---------------------------------------------------------------------------
+
 
 def test_update_invoice_scalar_fields(db, saved_hp_invoice):
     update = InvoiceUpdate(diagnosis="Neues Leiden")
@@ -367,16 +387,21 @@ def test_update_hp_dates_adds_new_date(db, saved_hp_invoice):
             InvoiceDateUpdate(
                 date_id=existing_date.date_id,
                 date=existing_date.date,
-                items=[InvoiceItemUpdate(
-                    item_id=existing_date.items[0].item_id,
-                    description=existing_date.items[0].description,
-                    amount=existing_date.items[0].amount,
-                    number=existing_date.items[0].number,
-                )],
+                items=[
+                    InvoiceItemUpdate(
+                        item_id=existing_date.items[0].item_id,
+                        description=existing_date.items[0].description,
+                        amount=existing_date.items[0].amount,
+                        number=existing_date.items[0].number,
+                    )
+                ],
             ),
-            InvoiceDateUpdate(date=date(2026, 2, 1), items=[
-                InvoiceItemUpdate(description="Neue Behandlung", amount=40.0, number="GÖÄ 2"),
-            ]),
+            InvoiceDateUpdate(
+                date=date(2026, 2, 1),
+                items=[
+                    InvoiceItemUpdate(description="Neue Behandlung", amount=40.0, number="GÖÄ 2"),
+                ],
+            ),
         ]
     )
     result = update_invoice_logic(saved_hp_invoice.invoice_id, update, db)
@@ -408,12 +433,14 @@ def test_update_hp_modifies_existing_item(db, saved_hp_invoice):
             InvoiceDateUpdate(
                 date_id=existing_date.date_id,
                 date=existing_date.date,
-                items=[InvoiceItemUpdate(
-                    item_id=existing_item.item_id,
-                    description="Updated Description",
-                    amount=99.0,
-                    number=existing_item.number,
-                )],
+                items=[
+                    InvoiceItemUpdate(
+                        item_id=existing_item.item_id,
+                        description="Updated Description",
+                        amount=99.0,
+                        number=existing_item.number,
+                    )
+                ],
             )
         ]
     )
@@ -467,15 +494,7 @@ def test_update_hp_deletes_item_from_existing_date(db, saved_hp_invoice):
 
     # Send the existing date_id, but an empty items list
     # This will trigger the `db.delete(i_obj)` block
-    update = InvoiceUpdate(
-        dates=[
-            InvoiceDateUpdate(
-                date_id=existing_date.date_id,
-                date=existing_date.date,
-                items=[]
-            )
-        ]
-    )
+    update = InvoiceUpdate(dates=[InvoiceDateUpdate(date_id=existing_date.date_id, date=existing_date.date, items=[])])
     result = update_invoice_logic(saved_hp_invoice.invoice_id, update, db)
 
     assert len(result.dates) == 1
@@ -500,12 +519,8 @@ def test_update_hp_adds_new_item_to_existing_date(db, saved_hp_invoice):
                         amount=existing_item.amount,
                         number=existing_item.number,
                     ),
-                    InvoiceItemUpdate(
-                        description="Brand New Item",
-                        amount=75.0,
-                        number="GÖÄ 3"
-                    )
-                ]
+                    InvoiceItemUpdate(description="Brand New Item", amount=75.0, number="GÖÄ 3"),
+                ],
             )
         ]
     )
@@ -521,6 +536,7 @@ def test_update_hp_adds_new_item_to_existing_date(db, saved_hp_invoice):
 # ---------------------------------------------------------------------------
 # set_payment_due
 # ---------------------------------------------------------------------------
+
 
 def test_set_payment_due_transitions_status(db, saved_hp_invoice):
     result = set_payment_due(saved_hp_invoice.invoice_id, db)
@@ -546,6 +562,7 @@ def test_set_payment_due_already_locked_raises_409(db, patient):
 # ---------------------------------------------------------------------------
 # set_paid
 # ---------------------------------------------------------------------------
+
 
 def test_set_paid_marks_invoice_paid(db, patient):
     inv = InvoiceDB(
@@ -574,6 +591,7 @@ def test_set_paid_wrong_status_raises_409(db, saved_hp_invoice):
 # get_template_items
 # ---------------------------------------------------------------------------
 
+
 def test_get_template_items_deduplicates(db, patient):
     # Two HP invoices with identical items
     for num in ("2026-01-01-HP-T1", "2026-01-02-HP-T2"):
@@ -589,8 +607,16 @@ def test_get_template_items_deduplicates(db, patient):
         d = InvoiceDateDB(invoice_id=inv.invoice_id, date=date(2026, 1, 1))
         db.add(d)
         db.flush()
-        db.add(InvoiceItemDB(invoice_id=inv.invoice_id, date_id=d.date_id,
-                             description="Behandlung", amount=50.0, number="GÖÄ 1", quantity=1))
+        db.add(
+            InvoiceItemDB(
+                invoice_id=inv.invoice_id,
+                date_id=d.date_id,
+                description="Behandlung",
+                amount=50.0,
+                number="GÖÄ 1",
+                quantity=1,
+            )
+        )
     db.commit()
 
     result = get_template_items(InvoiceType.HP, db)
@@ -610,8 +636,16 @@ def test_get_template_items_excludes_drafts(db, patient):
     d = InvoiceDateDB(invoice_id=inv.invoice_id, date=date(2026, 1, 1))
     db.add(d)
     db.flush()
-    db.add(InvoiceItemDB(invoice_id=inv.invoice_id, date_id=d.date_id,
-                         description="Draft Behandlung", amount=50.0, number="GÖÄ 1", quantity=1))
+    db.add(
+        InvoiceItemDB(
+            invoice_id=inv.invoice_id,
+            date_id=d.date_id,
+            description="Draft Behandlung",
+            amount=50.0,
+            number="GÖÄ 1",
+            quantity=1,
+        )
+    )
     db.commit()
 
     result = get_template_items(InvoiceType.HP, db)
@@ -621,6 +655,7 @@ def test_get_template_items_excludes_drafts(db, patient):
 # ---------------------------------------------------------------------------
 # get_template_diagnoses
 # ---------------------------------------------------------------------------
+
 
 def test_get_template_diagnoses_deduplicates(db, patient):
     for num in ("2026-01-01-HP-D1", "2026-01-02-HP-D2"):
@@ -649,6 +684,7 @@ def test_get_template_diagnoses_empty_when_no_hp_invoices(db, saved_kg_invoice):
 # get_invoice_template
 # ---------------------------------------------------------------------------
 
+
 def test_get_invoice_template_kg(db, saved_kg_invoice):
     result = get_invoice_template(saved_kg_invoice.invoice_id, db)
     assert result.type == InvoiceType.KG
@@ -668,6 +704,7 @@ def test_get_invoice_template_hp_returns_date_groups(db, saved_hp_invoice):
 # ---------------------------------------------------------------------------
 # InvoiceDB hybrid properties
 # ---------------------------------------------------------------------------
+
 
 def test_is_locked_false_for_saved(db, saved_hp_invoice):
     assert saved_hp_invoice.is_locked is False
@@ -774,6 +811,7 @@ def test_total_travel_distance_no_dates(db, patient):
 # Templates & Edge Cases
 # ---------------------------------------------------------------------------
 
+
 def test_get_template_items_kg(db, saved_kg_invoice):
     # Ensure the branch checking inv.user_items for KG invoices triggers correctly
     result = get_template_items(InvoiceType.KG, db)
@@ -790,7 +828,7 @@ def test_create_invoice_empty_lists_bypass_safely(db, patient):
         type=InvoiceType.KG,
         dates=[],
         user_items=[],
-        default_item_ids=[]
+        default_item_ids=[],
     )
     result = create_invoice_logic(data, db)
     assert result.status == InvoiceStatus.SAVED
@@ -801,6 +839,7 @@ def test_create_invoice_empty_lists_bypass_safely(db, patient):
 # ---------------------------------------------------------------------------
 # Invoice schema — extract_default_items validator
 # ---------------------------------------------------------------------------
+
 
 def test_schema_unwraps_association_objects(db, patient, default_item_hp):
     """validator extracts .default_item from ORM association links"""
@@ -822,3 +861,92 @@ def test_schema_handles_no_default_items(db, patient):
     inv = create_invoice_logic(_hp_create(patient.patient_id), db)
     schema = Invoice.model_validate(inv)
     assert schema.default_items == []
+
+
+# ---------------------------------------------------------------------------
+# InvoiceDB hybrid properties — SQL expression branch
+# (Python-level hybrid is tested above; here we force SQLAlchemy to generate
+#  the SQL subquery version by using the hybrid inside a select/order_by)
+# ---------------------------------------------------------------------------
+
+
+def test_total_expression_order_by_desc(db, saved_hp_invoice, saved_kg_invoice):
+    """Forces @total.expression (SQL branch) by using it in order_by."""
+    from sqlalchemy import select
+
+    stmt = select(InvoiceDB).order_by(InvoiceDB.total.desc())
+    results = db.scalars(stmt).all()
+    assert len(results) >= 2
+    totals = [r.total for r in results]
+    assert totals == sorted(totals, reverse=True)
+
+
+def test_total_expression_with_no_dates_uses_multiplier_1(db, patient):
+    """Tests effective_multiplier = case(date_count == 0, 1) SQL branch."""
+    from sqlalchemy import select
+
+    inv = InvoiceDB(
+        patient_id=patient.patient_id,
+        invoice_date=date(2026, 1, 1),
+        type=InvoiceType.HP,
+        status=InvoiceStatus.SAVED,
+    )
+    db.add(inv)
+    db.commit()
+    result = db.scalar(select(InvoiceDB.total).where(InvoiceDB.invoice_id == inv.invoice_id))
+    assert result == 0.0
+
+
+def test_total_expression_with_user_items(db, patient):
+    """Tests user_sum SQL subquery branch."""
+    from sqlalchemy import select
+
+    inv = InvoiceDB(
+        patient_id=patient.patient_id,
+        invoice_date=date(2026, 1, 2),
+        type=InvoiceType.HP,
+        status=InvoiceStatus.SAVED,
+    )
+    db.add(inv)
+    db.flush()
+    db.add(
+        InvoiceItemDB(
+            invoice_id=inv.invoice_id,
+            description="Item",
+            amount=25.0,
+            quantity=2,
+            position=0,
+        )
+    )
+    db.commit()
+    result = db.scalar(select(InvoiceDB.total).where(InvoiceDB.invoice_id == inv.invoice_id))
+    assert result == 50.0
+
+
+def test_total_travel_distance_expression_order_by(db, saved_hp_invoice, saved_kg_invoice):
+    """Forces @total_travel_distance.expression by using it in order_by."""
+    from sqlalchemy import select
+
+    stmt = select(InvoiceDB).order_by(InvoiceDB.total_travel_distance.desc())
+    results = db.scalars(stmt).all()
+    assert len(results) >= 2
+
+
+def test_total_travel_distance_expression_coalesce_fallback(db, patient):
+    """Tests coalesce(km_at_billing, patient.km) when km_at_billing is None."""
+    from sqlalchemy import select
+
+    inv = InvoiceDB(
+        patient_id=patient.patient_id,
+        invoice_date=date(2026, 2, 1),
+        type=InvoiceType.HP,
+        status=InvoiceStatus.SAVED,
+        kilometers_at_billing=None,
+    )
+    db.add(inv)
+    db.flush()
+    db.add(InvoiceDateDB(invoice_id=inv.invoice_id, date=date(2026, 2, 1)))
+    db.commit()
+    # patient.kilometers_to_travel=10.0, 1 date → 10 * 1 * 2 = 20.0
+    result = db.scalar(select(InvoiceDB.total_travel_distance).where(InvoiceDB.invoice_id == inv.invoice_id))
+    assert result == 20.0

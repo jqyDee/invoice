@@ -1,6 +1,6 @@
 from fpdf import FPDF, XPos, YPos
 
-from app.utilities import LOGO_PATH, FONTS_DIR
+from app.utilities import FONTS_DIR, LOGO_PATH
 
 
 class DocumentPdf(FPDF):
@@ -9,17 +9,9 @@ class DocumentPdf(FPDF):
     def __init__(self, footer_note: str):
         super().__init__()
 
-        self.add_font(
-            family="Roboto",
-            style="",
-            fname=str(FONTS_DIR / "Roboto-Regular.ttf")
-        )
+        self.add_font(family="Roboto", style="", fname=str(FONTS_DIR / "Roboto-Regular.ttf"))
 
-        self.add_font(
-            family="Roboto",
-            style="B",
-            fname=str(FONTS_DIR / "Roboto-Bold.ttf")
-        )
+        self.add_font(family="Roboto", style="B", fname=str(FONTS_DIR / "Roboto-Bold.ttf"))
 
         self.footer_note = footer_note
 
@@ -64,4 +56,3 @@ class DocumentPdf(FPDF):
         self.set_font("helvetica", "", 6)
         self.cell(1, 5, f"{self.footer_note} | Stand 2018", align="L")
         self.cell(0, 5, "Seite " + str(self.page_no()) + " von {nb}", align="R")
-

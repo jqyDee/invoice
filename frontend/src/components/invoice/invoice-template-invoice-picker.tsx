@@ -43,7 +43,7 @@ export const InvoiceTemplateInvoicePicker: React.FC<InvoiceTemplateInvoicePicker
             size: 9999,
         }
     }));
-    const allInvoices = invoicesData?.items ?? [];
+    const allInvoices = useMemo(() => invoicesData?.items ?? [], [invoicesData]);
 
     const filteredInvoices = useMemo(() => {
         const lower = filter.toLowerCase();

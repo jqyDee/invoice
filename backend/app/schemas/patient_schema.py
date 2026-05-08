@@ -1,6 +1,6 @@
 from datetime import date, datetime
-from pydantic import BaseModel
-from typing import Optional
+
+from pydantic import BaseModel, ConfigDict
 
 from ..models import Gender
 
@@ -16,8 +16,8 @@ class PatientBase(BaseModel):
     city: str
     birthday: date
     kilometers_to_travel: float
-    email: Optional[str] = None
-    telephone: Optional[str] = None
+    email: str | None = None
+    telephone: str | None = None
 
 
 class PatientCreate(PatientBase):
@@ -28,10 +28,9 @@ class Patient(PatientBase):
     patient_id: int
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginatedPatients(BaseModel):
     items: list[Patient]
-    total: int
+    total: int | None

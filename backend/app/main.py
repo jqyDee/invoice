@@ -1,6 +1,6 @@
 import logging
-from importlib import metadata
 from contextlib import asynccontextmanager
+from importlib import metadata
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,14 +10,14 @@ from .utilities.logger_setup import setup_global_logging
 setup_global_logging()
 logger = logging.getLogger("uvicorn.error")
 
-from .utilities.database import SessionLocal
-from .utilities.router_include import auto_include_routers
-from .utilities.seed import seed_users
+from .utilities.database import SessionLocal  # noqa: E402
+from .utilities.router_include import auto_include_routers  # noqa: E402
+from .utilities.seed import seed_users  # noqa: E402
 
 try:
     __version__ = metadata.version("invoice-backend")
-except metadata.PackageNotFoundError:
-    __version__ = "Not found"
+except metadata.PackageNotFoundError:  # pragma: no cover
+    __version__ = "Not found"  # pragma: no cover
 
 
 @asynccontextmanager
@@ -31,10 +31,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(
-    lifespan=lifespan,
-    version=__version__
-)
+app = FastAPI(lifespan=lifespan, version=__version__)
 
 app.add_middleware(
     CORSMiddleware,

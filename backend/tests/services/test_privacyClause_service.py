@@ -19,6 +19,7 @@ def _create(number=1, title="Datenschutz", description="Text", is_preamble=False
 # load_privacy_clauses
 # ---------------------------------------------------------------------------
 
+
 def test_load_privacy_clauses_empty(db):
     assert load_privacy_clauses(db) == []
 
@@ -36,6 +37,7 @@ def test_load_privacy_clauses_ordered_by_number(db):
 # load_privacy_clause
 # ---------------------------------------------------------------------------
 
+
 def test_load_privacy_clause_found(db):
     clause = create_privacy_clause(_create(title="Meine Klausel"), db)
     result = load_privacy_clause(clause.clause_id, db)
@@ -52,6 +54,7 @@ def test_load_privacy_clause_not_found_raises_404(db):
 # create_privacy_clause
 # ---------------------------------------------------------------------------
 
+
 def test_create_privacy_clause_persists(db):
     clause = create_privacy_clause(_create(number=10, title="DSGVO", is_preamble=True), db)
     assert clause.clause_id is not None
@@ -67,6 +70,7 @@ def test_create_privacy_clause_is_preamble_defaults_false(db):
 # ---------------------------------------------------------------------------
 # update_privacy_clause
 # ---------------------------------------------------------------------------
+
 
 def test_update_privacy_clause_title(db):
     clause = create_privacy_clause(_create(title="Alt"), db)
@@ -89,6 +93,7 @@ def test_update_privacy_clause_not_found_raises_404(db):
 # ---------------------------------------------------------------------------
 # delete_privacy_clause
 # ---------------------------------------------------------------------------
+
 
 def test_delete_privacy_clause_removes_it(db):
     clause = create_privacy_clause(_create(), db)

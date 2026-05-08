@@ -31,6 +31,7 @@ def _make_default_item_create(**kwargs):
 # load_all_default_items
 # ---------------------------------------------------------------------------
 
+
 def test_load_all_default_items_empty(db):
     assert load_all_default_items(db) == []
 
@@ -43,6 +44,7 @@ def test_load_all_default_items_returns_all(db, default_item_hp, default_item_kg
 # ---------------------------------------------------------------------------
 # load_default_items
 # ---------------------------------------------------------------------------
+
 
 def test_load_default_items_filters_by_type(db, default_item_hp, default_item_kg):
     hp_items = load_default_items(InvoiceType.HP, db)
@@ -63,6 +65,7 @@ def test_load_default_items_returns_empty_for_unknown_type(db, default_item_hp):
 # load_default_item
 # ---------------------------------------------------------------------------
 
+
 def test_load_default_item_found(db, default_item_hp):
     result = load_default_item(default_item_hp.default_item_id, db)
     assert result.default_item_id == default_item_hp.default_item_id
@@ -79,9 +82,10 @@ def test_load_default_item_not_found_raises_404(db):
 # perform_set_active_state_default_item
 # ---------------------------------------------------------------------------
 
+
 def test_perform_update_default_item_updates_description(db, default_item_hp):
     result = perform_set_active_state_default_item(default_item_hp.default_item_id, False, db)
-    assert result.is_active_global == False
+    assert result.is_active_global is False
 
 
 def test_perform_update_default_item_not_found_raises_404(db):
@@ -93,6 +97,7 @@ def test_perform_update_default_item_not_found_raises_404(db):
 # ---------------------------------------------------------------------------
 # validate_invoice_item
 # ---------------------------------------------------------------------------
+
 
 def test_validate_negative_amount_raises_400(db):
     item = InvoiceItemCreate(description="Test", amount=-1.0, number="1")

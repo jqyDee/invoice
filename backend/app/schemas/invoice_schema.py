@@ -1,12 +1,12 @@
-from pydantic import BaseModel, field_validator
 from datetime import date, datetime
-from typing import List, Optional, Union
 
-from .defaultInvoiceItem_schema import DefaultInvoiceItem
+from pydantic import BaseModel, ConfigDict, field_validator
+
 from ..models import InvoiceStatus
 from ..models.invoiceType_enum import InvoiceType
-from .invoiceItem_schema import InvoiceItem, InvoiceItemCreate, InvoiceItemUpdate
+from .defaultInvoiceItem_schema import DefaultInvoiceItem
 from .invoiceDate_schema import InvoiceDate, InvoiceDateCreate, InvoiceDateUpdate
+from .invoiceItem_schema import InvoiceItem, InvoiceItemCreate, InvoiceItemUpdate
 from .patient_schema import Patient
 
 
@@ -14,48 +14,48 @@ class InvoiceBase(BaseModel):
     patient_id: int
     invoice_date: date
     type: InvoiceType
-    diagnosis: Optional[str] = None
+    diagnosis: str | None = None
 
 
 class InvoiceCreate(InvoiceBase):
-    user_items: Optional[List[InvoiceItemCreate]] = None
-    dates: Optional[List[InvoiceDateCreate]] = None
-    default_item_ids: List[int] = []
+    user_items: list[InvoiceItemCreate] | None = None
+    dates: list[InvoiceDateCreate] | None = None
+    default_item_ids: list[int] = []
     save_as_draft: bool = False
 
 
 class InvoiceUpdate(BaseModel):
-    patient_id: Optional[int] = None
-    invoice_date: Optional[date] = None
-    type: Optional[InvoiceType] = None
-    diagnosis: Optional[str] = None
+    patient_id: int | None = None
+    invoice_date: date | None = None
+    type: InvoiceType | None = None
+    diagnosis: str | None = None
 
-    user_items: Optional[List[InvoiceItemUpdate]] = None
-    default_item_ids: Optional[List[int]] = None
-    dates: Optional[List[InvoiceDateUpdate]] = None
-    save_as_draft: Optional[bool] = None
+    user_items: list[InvoiceItemUpdate] | None = None
+    default_item_ids: list[int] | None = None
+    dates: list[InvoiceDateUpdate] | None = None
+    save_as_draft: bool | None = None
 
 
 class Invoice(InvoiceBase):
     invoice_id: int
     # Can be null if it's still a draft
-    invoice_number: Optional[str] = None
+    invoice_number: str | None = None
     status: InvoiceStatus
-    paid_at: Optional[date] = None
+    paid_at: date | None = None
 
     created_at: datetime
     updated_at: datetime
 
-    kilometers_at_billing: Optional[int] = None
+    kilometers_at_billing: int | None = None
     total: float
     total_travel_distance: float
     is_locked: bool
 
-    items: List[Union[DefaultInvoiceItem, InvoiceItem]]
+    items: list[DefaultInvoiceItem | InvoiceItem]
 
-    default_items: List[DefaultInvoiceItem]
-    user_items: List[InvoiceItem]
-    dates: List[InvoiceDate]
+    default_items: list[DefaultInvoiceItem]
+    user_items: list[InvoiceItem]
+    dates: list[InvoiceDate]
     patient: Patient
 
     @field_validator("default_items", mode="before")
@@ -65,8 +65,7 @@ class Invoice(InvoiceBase):
             return [link.default_item for link in v]
         return v
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginatedInvoices(BaseModel):
@@ -81,7 +80,7 @@ class InvoiceMarkPaidRequest(BaseModel):
 class TemplateItemResponse(BaseModel):
     description: str
     amount: float
-    number: Optional[str] = None
+    number: str | None = None
     quantity: int = 1
     patient_id: int
     patient_first_name: str
@@ -101,10 +100,10 @@ class DiagnosisTemplateResponse(BaseModel):
 
 class InvoiceDateGroup(BaseModel):
     date: date
-    items: List[InvoiceItemCreate]
+    items: list[InvoiceItemCreate]
 
 
 class InvoiceTemplateResponse(BaseModel):
     type: InvoiceType
-    user_items: List[InvoiceItemCreate] = []
-    date_groups: List[InvoiceDateGroup] = []
+    user_items: list[InvoiceItemCreate] = []
+    date_groups: list[InvoiceDateGroup] = []
