@@ -76,3 +76,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  test:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All checks passed"
