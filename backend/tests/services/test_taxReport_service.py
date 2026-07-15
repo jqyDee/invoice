@@ -87,9 +87,9 @@ def test_get_available_years_excludes_non_paid(db, patient):
 def test_get_tax_report_returns_rows_for_year(db, patient):
     _paid_invoice(db, patient, "2025-03-01-HP-TR", date(2025, 3, 1), date(2025, 9, 1))
 
-    rows = get_tax_report(2025, db)
-    assert len(rows) == 1
-    row = rows[0]
+    report = get_tax_report(2025, db)
+    assert len(report.rows) == 1
+    row = report.rows[0]
     assert row.invoice_number == "2025-03-01-HP-TR"
     assert row.invoice_type == InvoiceType.HP
     assert row.paid_date == date(2025, 9, 1)
@@ -99,31 +99,35 @@ def test_get_tax_report_excludes_other_years(db, patient):
     _paid_invoice(db, patient, "2024-01-01-HP-T1", date(2024, 1, 15), date(2024, 6, 1))
     _paid_invoice(db, patient, "2025-01-01-HP-T2", date(2025, 3, 10), date(2025, 7, 20))
 
-    rows = get_tax_report(2024, db)
-    assert len(rows) == 1
-    assert rows[0].paid_date.year == 2024
+    report = get_tax_report(2024, db)
+    assert len(report.rows) == 1
+    assert report.rows[0].paid_date.year == 2024
 
 
 def test_get_tax_report_empty_year(db, patient):
     _paid_invoice(db, patient, "2025-01-01-HP-T1", date(2025, 1, 1), date(2025, 6, 1))
 
-    rows = get_tax_report(2099, db)
-    assert rows == []
+    report = get_tax_report(2099, db)
+    assert report.rows == []
+    assert report.total_income == 0.0
+    assert report.total_kilometers_travelled == 0.0
 
 
 def test_get_tax_report_calculates_total(db, patient):
     _paid_invoice(db, patient, "2025-05-01-HP-T1", date(2025, 5, 1), date(2025, 10, 1), km=12.0)
 
-    rows = get_tax_report(2025, db)
-    assert rows[0].invoice_total == 80.0  # one item at 80.0
+    report = get_tax_report(2025, db)
+    assert report.rows[0].invoice_total == 80.0  # one item at 80.0
+    assert report.total_income == 80.0
 
 
 def test_get_tax_report_calculates_travel_distance(db, patient):
     _paid_invoice(db, patient, "2025-06-01-HP-T1", date(2025, 6, 1), date(2025, 11, 1), km=5.0)
 
-    rows = get_tax_report(2025, db)
+    report = get_tax_report(2025, db)
     # 1 date * 5.0 km * 2 trips = 10.0
-    assert rows[0].total_kilometers_travelled == 10.0
+    assert report.rows[0].total_kilometers_travelled == 10.0
+    assert report.total_kilometers_travelled == 10.0
 
 
 def test_get_tax_report_counts_treatment_dates(db, patient):
@@ -133,8 +137,8 @@ def test_get_tax_report_counts_treatment_dates(db, patient):
     db.add(d2)
     db.commit()
 
-    rows = get_tax_report(2025, db)
-    assert rows[0].number_of_treatment_dates == 2
+    report = get_tax_report(2025, db)
+    assert report.rows[0].number_of_treatment_dates == 2
 
 
 # ---------------------------------------------------------------------------
