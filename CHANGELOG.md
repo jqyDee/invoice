@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/jqyDee/invoice/compare/v0.5.0...v0.6.0) (2026-07-15)
+
+
+### Features
+
+* amount and km csv split ([d80b0bd](https://github.com/jqyDee/invoice/commit/d80b0bdb8de956563eb9cd76d8bb18bda6a9db05))
+
 ## [0.5.0](https://github.com/jqyDee/invoice/compare/v0.4.1...v0.5.0) (2026-05-08)
 
 
