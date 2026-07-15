@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 
 from ..models import InvoiceDB, InvoiceStatus
-from ..schemas.taxReport_schema import TaxReportRow, TaxReportResponse
+from ..schemas.taxReport_schema import TaxReportResponse, TaxReportRow
 
 
 def get_available_years(db: Session) -> list[int]:

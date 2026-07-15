@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm.session import Session
 
-from ..schemas.taxReport_schema import TaxReportRow, TaxReportResponse
-from ..services.taxReport_service import get_available_years, get_tax_report, get_tax_report_csv, get_travel_report, get_travel_report_csv
+from ..schemas.taxReport_schema import TaxReportResponse
+from ..services.taxReport_service import (
+    get_available_years,
+    get_tax_report,
+    get_tax_report_csv,
+    get_travel_report,
+    get_travel_report_csv,
+)
 from ..utilities.database import get_db
 from ..utilities.security import get_current_user
 
