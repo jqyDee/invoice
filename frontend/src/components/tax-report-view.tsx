@@ -2,7 +2,7 @@ import React from "react";
 import {useQuery} from "@tanstack/react-query";
 import {
     getAvailableYearsEndpointTaxReportAvailableYearsGetOptions,
-    getTaxReportEndpointTaxReportYearGetOptions,
+    getTaxReportEndpointTaxReportYearAmountsGetOptions,
 } from "../api/@tanstack/react-query.gen.ts";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
@@ -12,6 +12,7 @@ import {Tag} from "primereact/tag";
 import {Header} from "../utilities/header.tsx";
 import type {TaxReportRow} from "../api";
 import {toGermanDateString} from "../utilities/local-date-string.ts";
+import {enforceNonNull} from "../utilities/enforce-non-null.ts";
 
 export const TaxReportView: React.FC = () => {
     const {data: availableYears, isLoading: yearsLoading} = useQuery({
@@ -26,25 +27,26 @@ export const TaxReportView: React.FC = () => {
         }
     }, [availableYears, selectedYear]);
 
-    const {data: rows, isLoading: rowsLoading} = useQuery({
-        ...getTaxReportEndpointTaxReportYearGetOptions({path: {year: selectedYear!}}),
+    const {data: report, isLoading: rowsLoading} = useQuery({
+        ...getTaxReportEndpointTaxReportYearAmountsGetOptions({path: {year: selectedYear!}}),
         enabled: selectedYear !== null,
     });
 
-    const totalIncome = rows ? rows.reduce((sum, r) => sum + r.invoice_total, 0) : 0;
-    const totalKm = rows ? rows.reduce((sum, r) => sum + r.total_kilometers_travelled, 0) : 0;
+    const rows = report?.rows ?? [];
+    const totalIncome = report?.total_income ?? 0;
+    const totalKm = report?.total_kilometers_travelled ?? 0;
 
-    const handleCsvDownload = async () => {
+    const handleCsvDownload = async (type: "amounts" | "travel") => {
         if (selectedYear === null) return;
         const token = localStorage.getItem("token");
-        const response = await fetch(`/api/tax-report/${selectedYear}/csv`, {
+        const response = await fetch(`/api/tax-report/${selectedYear}/csv/${type}`, {
             headers: {Authorization: `Bearer ${token}`},
         });
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `steuer_${selectedYear}.csv`;
+        a.download = `steuer_${type}_${selectedYear}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -71,13 +73,22 @@ export const TaxReportView: React.FC = () => {
             <div className="flex flex-column gap-3 flex-1 overflow-hidden" style={{minWidth: 0}}>
                 <div className="flex flex-wrap justify-content-between align-items-center gap-2">
                     <Header title={selectedYear ? `Steuerbericht ${selectedYear}` : "Steuerbericht"}/>
-                    <Button
-                        icon="pi pi-download"
-                        label="CSV"
-                        className="p-button-outlined"
-                        onClick={handleCsvDownload}
-                        disabled={selectedYear === null || rowsLoading}
-                    />
+                    <div className="flex gap-2">
+                        <Button
+                            icon="pi pi-download"
+                            label="CSV Beträge"
+                            className="p-button-outlined"
+                            onClick={() => handleCsvDownload("amounts")}
+                            disabled={selectedYear === null || rowsLoading}
+                        />
+                        <Button
+                            icon="pi pi-download"
+                            label="CSV Km"
+                            className="p-button-outlined"
+                            onClick={() => handleCsvDownload("travel")}
+                            disabled={selectedYear === null || rowsLoading}
+                        />
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -103,7 +114,7 @@ export const TaxReportView: React.FC = () => {
                         <Column field="invoice_date" header="Rechnungsdatum" sortable
                                 body={(e: TaxReportRow) => toGermanDateString(new Date(e.invoice_date))}/>
                         <Column field="paid_date" header="Bezahlt am" sortable
-                                body={(e: TaxReportRow) => toGermanDateString(new Date(e.paid_date))}/>
+                                body={(e: TaxReportRow) => toGermanDateString(new Date(enforceNonNull(e.paid_date)))}/>
                         <Column field="kilometers_at_billing" header="Km bei Abrechnung" sortable/>
                         <Column field="total_kilometers_travelled" header="Gesamte Km" sortable/>
                         <Column field="number_of_treatment_dates" header="Behandlungstermine" sortable/>

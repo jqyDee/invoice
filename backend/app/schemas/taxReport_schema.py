@@ -19,10 +19,16 @@ class TaxReportRow(BaseModel):
     invoice_number: str | None
     invoice_type: InvoiceType
     invoice_date: date
-    paid_date: date
+    paid_date: date | None
     kilometers_at_billing: float | None
     number_of_treatment_dates: int
     total_kilometers_travelled: float
     invoice_total: float
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TaxReportResponse(BaseModel):
+    rows: list[TaxReportRow]
+    total_income: float
+    total_kilometers_travelled: float
